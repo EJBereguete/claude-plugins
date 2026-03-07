@@ -2,6 +2,9 @@
   "name": "team-software-engineering",
   "version": "3.0.0",
   "description": "Equipo completo de ingeniería de software para cualquier proyecto. CEO/idea → diseño → implementación → QA → deploy en producción.",
+  "author": {
+    "name": "EJBereguete"
+  },
   "agents": [
     { "name": "architect",          "file": "agents/architect.md" },
     { "name": "pm",                 "file": "agents/pm.md" },
@@ -31,7 +34,5 @@
     { "name": "security-checklist","file": "skills/security-checklist/SKILL.md" },
     { "name": "git-workflow",      "file": "skills/git-workflow/SKILL.md" },
     { "name": "db-migrations",     "file": "skills/db-migrations/SKILL.md" }
-  ],
-  "hooks": "hooks/hooks.json",
-  "mcp": ".mcp.json"
+  ]
 }
