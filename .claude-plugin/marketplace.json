@@ -1,0 +1,17 @@
+﻿{
+  "name": "claude-plugins",
+  "owner": {
+    "name": "EJBereguete"
+  },
+  "plugins": [
+    {
+      "name": "team-software-engineering",
+      "source": "./team-software-engineering",
+      "description": "Equipo completo de ingenieria: CEO idea a diseno, implementacion, QA y produccion",
+      "version": "3.0.0",
+      "author": {
+        "name": "EJBereguete"
+      }
+    }
+  ]
+}
