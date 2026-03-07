@@ -29,14 +29,14 @@ Todo con branches reales en GitHub, PRs reales, issues reales y GitHub Actions.
 ```bash
 # En Claude Code
 /plugin marketplace add https://github.com/EJBereguete/claude-plugins
-/plugin install team-software-engineering@ejbereguete-plugins
+/plugin install team-software-engineering@team-plugins
 ```
 
 ### Verificar instalación
 
 ```bash
 /plugin list
-# → team-software-engineering · ejbereguete-plugins · ✓ enabled
+# → team-software-engineering · team-plugins · ✓ enabled
 ```
 
 ---
@@ -402,7 +402,7 @@ team-software-engineering/
 ## Actualizar el plugin
 
 ```bash
-/plugin marketplace update ejbereguete-plugins
+/plugin marketplace update team-plugins
 /plugin list  # verificar versión
 ```
 
