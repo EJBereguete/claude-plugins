@@ -1,0 +1,38 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '(DROP TABLE|DROP DATABASE|DELETE FROM.*WHERE 1|TRUNCATE)'; then echo '{\"block\": true, \"message\": \"[team-software-engineering] Operación SQL destructiva detectada. Verifica que esto es intencional y que tienes un backup.\"}' >&2; exit 2; fi",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '(password|secret|api_key|private_key)\\s*=\\s*[\"\\x27][^\"\\x27]+[\"\\x27]'; then echo '{\"feedback\": \"[team-software-engineering] ⚠️ Detecté posible credencial hardcodeada. Considera usar variables de entorno.\"}' >&2; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=\"$CLAUDE_TOOL_RESULT\"; if echo \"$FILE\" | grep -qE '\\.py$'; then echo '{\"feedback\": \"[team-software-engineering] ✅ Archivo Python creado. Recuerda ejecutar: ruff check y black --check\"}' >&2; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

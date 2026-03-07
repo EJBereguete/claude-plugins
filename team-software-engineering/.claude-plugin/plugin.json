@@ -1,0 +1,37 @@
+{
+  "name": "team-software-engineering",
+  "version": "3.0.0",
+  "description": "Equipo completo de ingeniería de software para cualquier proyecto. CEO/idea → diseño → implementación → QA → deploy en producción.",
+  "agents": [
+    { "name": "architect",          "file": "agents/architect.md" },
+    { "name": "pm",                 "file": "agents/pm.md" },
+    { "name": "backend-engineer",   "file": "agents/backend-engineer.md" },
+    { "name": "frontend-engineer",  "file": "agents/frontend-engineer.md" },
+    { "name": "qa-engineer",        "file": "agents/qa-engineer.md" },
+    { "name": "devops-engineer",    "file": "agents/devops-engineer.md" }
+  ],
+  "commands": [
+    { "name": "setup-repo",  "file": "commands/setup-repo.md",  "description": "Configuración inicial del repo" },
+    { "name": "sprint",      "file": "commands/sprint.md",      "description": "CEO idea → producción (flujo completo)" },
+    { "name": "plan",        "file": "commands/plan.md",        "description": "PM crea GitHub Issues del sprint" },
+    { "name": "design",      "file": "commands/design.md",      "description": "Architect define arquitectura" },
+    { "name": "build-api",   "file": "commands/build-api.md",   "description": "Backend implementa endpoints" },
+    { "name": "build-ui",    "file": "commands/build-ui.md",    "description": "Frontend implementa UI" },
+    { "name": "review",      "file": "commands/review.md",      "description": "QA revisa, testa y aprueba PRs" },
+    { "name": "deploy",      "file": "commands/deploy.md",      "description": "DevOps mergea y despliega" },
+    { "name": "debug",       "file": "commands/debug.md",       "description": "Debug colaborativo entre agentes" },
+    { "name": "audit",       "file": "commands/audit.md",       "description": "Auditoría completa del proyecto" }
+  ],
+  "skills": [
+    { "name": "code-architecture", "file": "skills/code-architecture/SKILL.md" },
+    { "name": "api-design",        "file": "skills/api-design/SKILL.md" },
+    { "name": "frontend-patterns", "file": "skills/frontend-patterns/SKILL.md" },
+    { "name": "testing-strategy",  "file": "skills/testing-strategy/SKILL.md" },
+    { "name": "devops-workflows",  "file": "skills/devops-workflows/SKILL.md" },
+    { "name": "security-checklist","file": "skills/security-checklist/SKILL.md" },
+    { "name": "git-workflow",      "file": "skills/git-workflow/SKILL.md" },
+    { "name": "db-migrations",     "file": "skills/db-migrations/SKILL.md" }
+  ],
+  "hooks": "hooks/hooks.json",
+  "mcp": ".mcp.json"
+}
