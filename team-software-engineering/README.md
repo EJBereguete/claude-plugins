@@ -89,46 +89,164 @@ DevOps detecta fallo en staging/producción
 
 ---
 
-## Comandos
+## Trabajando con Proyectos Existentes: El Flujo de Onboarding
+
+A diferencia de un proyecto que empieza de cero, al unirse a un proyecto existente, el equipo de agentes primero debe **aprender**. Para esto, se introduce un nuevo flujo de trabajo centrado en el comando `/onboard-project`.
+
+```
+Tú ejecutas /onboard-project
+  → @architect, @devops-engineer y otros analizan el codebase
+    → Leen la estructura, archivos de configuración, CI/CD y código fuente.
+    → Usan las nuevas skills (code-analysis, convention-detection) para inferir la arquitectura y convenciones.
+  → Se genera el archivo PROJECT_CONTEXT.md
+    → Este archivo contiene el "ADN" del proyecto: comandos, estilo, patrones.
+  → Opcionalmente, se ejecuta /document-project para crear o actualizar la carpeta /docs.
+    → Se genera documentación humana sobre la arquitectura, configuración, etc.
+```
+
+Una vez completado el onboarding, los agentes están "conscientes del contexto" y todos los comandos (`/sprint`, `/work`) usarán el `PROJECT_CONTEXT.md` como su guía principal para asegurar que su trabajo se alinee perfectamente con el proyecto existente.
+
+---
+
+## Comandos Principales (Flujo de Sprint)
+
+
 
 ### `/sprint` — El comando principal
 
-Punto de entrada para una feature completa de principio a fin.
-El equipo entero colabora para convertir una idea en código deployado.
+
+
+Punto de entrada para una feature completa de principio a fin. Antes de ejecutarse, ahora verifica la existencia de `PROJECT_CONTEXT.md` si se usa en un proyecto existente.
+
+
 
 ```bash
+
 /team-software-engineering:sprint Sistema de facturación con exportación a PDF
-/team-software-engineering:sprint Autenticación con Google OAuth
-/team-software-engineering:sprint Dashboard de métricas en tiempo real
+
 ```
 
-El sprint se detiene en cada fase y pide confirmación antes de continuar.
+
 
 ---
 
-### `/setup-repo` — Configuración inicial del repositorio
+### `/work` — Trabajar en una tarea asignada
 
-Ejecuta esto **una sola vez** cuando empiezas un proyecto nuevo.
-Configura todo lo necesario para que el equipo funcione.
+
+
+Activa al ingeniero adecuado para implementar una tarea específica. Se basa en `PROJECT_CONTEXT.md` para seguir las convenciones del proyecto.
+
+
 
 ```bash
-/team-software-engineering:setup-repo
+
+/team-software-engineering:work Corregir error de paginación en el endpoint GET /products
+
 ```
 
-Crea:
-- Ramas `testing` y `staging` en GitHub
-- Labels del equipo (`backend`, `frontend`, `qa`, `ready-for-qa`, `priority:*`, etc.)
-- GitHub Actions para CI en testing/staging y deploy a producción
+
 
 ---
+
+## Comandos para Proyectos Existentes y Mantenimiento
+
+
+
+### `/onboard-project` — Analizar un proyecto existente
+
+
+
+El comando más importante para empezar a trabajar en un codebase ya existente. Orquesta al equipo para analizar el proyecto y crear el `PROJECT_CONTEXT.md`, que es esencial para el resto de los comandos.
+
+
+
+```bash
+
+/team-software-engineering:onboard-project
+
+```
+
+
+
+---
+
+
+
+### `/document-project` — Generar documentación del proyecto
+
+
+
+Analiza el código y genera una carpeta `/docs` con documentos clave sobre la arquitectura, configuración y comandos del proyecto.
+
+
+
+```bash
+
+/team-software-engineering:document-project
+
+```
+
+
+
+---
+
+
+
+### `/verify-setup` — Verificar la configuración del repositorio
+
+
+
+Verifica que el repositorio remoto (GitHub/Azure DevOps) tenga las ramas (`testing`, `staging`) y labels necesarios para el flujo de trabajo del equipo, y ofrece crearlos si faltan.
+
+
+
+```bash
+
+/team-software-engineering:verify-setup
+
+```
+
+
+
+---
+
+
+
+### `/improve-skill` — Mejorar una skill de un agente
+
+
+
+Permite dar feedback directo a un agente para que actualice su base de conocimiento (sus `skills`).
+
+
+
+```bash
+
+/team-software-engineering:improve-skill git-workflow "Usar 'squash and merge' para los PRs"
+
+```
+
+
+
+---
+
+
 
 ### `/plan` — Planificación sin implementación
 
+
+
 Solo el @architect y el @pm trabajan. Útil para planificar antes de comprometerse.
 
+
+
 ```bash
+
 /team-software-engineering:plan Módulo de suscripciones con Stripe
+
 ```
+
+
 
 Produce: diseño técnico + issues en GitHub listos para que el equipo empiece.
 
@@ -165,6 +283,18 @@ Solo el @frontend-engineer. Para implementar componentes, páginas o integracion
 /team-software-engineering:build-ui Formulario de pago con validación en tiempo real
 /team-software-engineering:build-ui Dashboard con gráficas de métricas
 /team-software-engineering:build-ui Modal de confirmación reutilizable
+```
+
+---
+
+### `/work` — Trabajar en una tarea asignada
+
+Activa al ingeniero adecuado (Backend o Frontend) para implementar una tarea específica
+en un proyecto existente, incluyendo tests unitarios y la preparación de un PR.
+
+```bash
+/team-software-engineering:work Implementar validación de email en el formulario de registro
+/team-software-engineering:work Corregir error de paginación en el endpoint GET /products
 ```
 
 ---
@@ -321,6 +451,10 @@ las necesita.
 | `docker-containers` | Multi-stage Dockerfiles, docker-compose, healthchecks | Backend, DevOps |
 | `env-configuration` | .env structure, Pydantic Settings, Zod, GitHub Secrets | Backend, Frontend, DevOps |
 | `code-review` | 6-dimension review, comentarios estructurados, criterios de aprobación | QA |
+| `code-analysis` | Análisis de código, identificación de arquitectura, lenguaje y frameworks | Architect, Backend, Frontend |
+| `safe-refactoring` | Técnicas de refactorización seguras, uso de tests como red de seguridad | Backend, Frontend |
+| `convention-detection` | Inferencia de estilos de código, comandos de build/test, linting | Todos |
+| `documentation-skill` | Creación de docs con Mermaid, JSDoc, generación de plantillas | Todos |
 
 ---
 
@@ -335,9 +469,10 @@ El plugin incluye 5 MCP servers que los agentes usan directamente:
 | **playwright** | Ejecutar tests E2E directamente desde el agente QA |
 | **filesystem** | Explorar la estructura del proyecto antes de escribir código |
 | **postgres** | Inspeccionar el esquema, validar migraciones, ejecutar queries |
+| **azure-devops** | Gestionar Work Items, repositorios, pipelines y entornos de Azure DevOps |
 
 > Los MCPs requieren configurar las variables de entorno correspondientes
-> (`GITHUB_TOKEN`, `DATABASE_URL`). Ver `.mcp.json` para los detalles.
+> (`GITHUB_TOKEN`, `DATABASE_URL`, `AZURE_DEVOPS_PAT`, `AZURE_DEVOPS_ORG_URL`). Ver `.mcp.json` para los detalles.
 
 ---
 

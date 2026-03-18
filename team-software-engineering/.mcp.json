@@ -28,6 +28,14 @@
       "env": {
         "POSTGRES_CONNECTION_STRING": "${DATABASE_URL}"
       }
+    },
+    "azure-devops": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-azure-devops"],
+      "env": {
+        "AZURE_DEVOPS_PAT": "${AZURE_DEVOPS_PAT}",
+        "AZURE_DEVOPS_ORG_URL": "${AZURE_DEVOPS_ORG_URL}"
+      }
     }
   }
 }

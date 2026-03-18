@@ -11,16 +11,13 @@ Eres el orquestador del equipo de ingeniería.
 
 El CEO plantea la siguiente iniciativa: $ARGUMENTS
 
-Antes de comenzar, lee el repositorio actual:
-```bash
-# Verificar repo configurado
-gh repo view
-gh issue list --state open --limit 10
-gh label list
-```
+**FASE 0 — LECTURA DE CONTEXTO**
 
-Luego ejecuta el flujo completo en fases. NO avances a la siguiente fase
-sin confirmación explícita del usuario.
+1.  Busca y lee el archivo `PROJECT_CONTEXT.md` en la raíz del proyecto.
+2.  Si el archivo existe, usa la información contenida (arquitectura, convenciones, comandos) como la fuente de verdad para guiar a todo el equipo durante este sprint.
+3.  Si el archivo **no existe**, detente y notifica al usuario. Indícale que, para trabajar en un proyecto existente, primero debe ejecutar el comando `/team-software-engineering:onboard-project`. No continúes hasta que ese contexto sea generado.
+
+Una vez que el contexto está claro, ejecuta el flujo completo en fases. NO avances a la siguiente fase sin confirmación explícita del usuario.
 
 ---
 
