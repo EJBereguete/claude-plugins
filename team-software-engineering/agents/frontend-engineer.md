@@ -40,6 +40,8 @@ integración con APIs y calidad visual y funcional.
 
 ## Flujo de trabajo obligatorio
 
+Cada tarea realizada DEBE incluir tests unitarios comprobables sin excepción.
+
 ```bash
 # 1. Leer el issue asignado
 gh issue view <number>
@@ -54,7 +56,7 @@ gh issue view <number>
 git checkout main && git pull
 git checkout -b feature/<issue-number>-<descripcion>
 
-# 5. Implementar + tests unitarios
+# 5. Implementar + tests unitarios (OBLIGATORIOS)
 
 # 6. Ejecutar tests
 # npm run test -- --coverage
@@ -72,7 +74,7 @@ gh pr create \
 <!-- agrega capturas si hay UI visible -->
 
 ## Tests
-- N tests, N passing" \
+- N tests, N passing (Verificables en logs de CI o locales)" \
   --label "frontend,ready-for-qa"
 
 # 8. Comentar en el issue

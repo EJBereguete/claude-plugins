@@ -69,7 +69,7 @@ Cada uno debe:
 1. Leer su issue asignado con `gh issue view <number>`
 2. Crear rama: `git checkout -b feature/<issue-number>-<descripcion>`
 3. Implementar la tarea
-4. Escribir tests unitarios (pytest / vitest)
+4. Escribir tests unitarios (OBLIGATORIOS para cada tarea)
 5. Ejecutar los tests — deben pasar antes de abrir PR
 6. Abrir PR hacia la rama `develop` con `Closes #<issue>`
 7. Comentar en el issue con el link al PR
@@ -86,12 +86,12 @@ El @qa-engineer debe:
 1. Leer cada issue y sus Acceptance Criteria
 2. Revisar los PRs: `gh pr view <number>`
 3. Ejecutar los tests unitarios existentes
-4. Escribir pruebas E2E con Playwright para cada flujo crítico
-5. Ejecutar las pruebas E2E
-6. Si todo pasa: aprobar los PRs
-7. Si algo falla: comentar en el issue con severidad y pasos, devolver al responsable
+4. Escribir pruebas E2E con Playwright para cada flujo crítico (OBLIGATORIO)
+5. Ejecutar las pruebas E2E y guardar SCREENSHOTS de cada una (OBLIGATORIO)
+6. Si todo pasa: aprobar los PRs adjuntando evidencia visual
+7. Si algo falla: comentar en el issue con severidad, pasos y captura del error, devolver al responsable
 8. Cuando todos los PRs están aprobados: abrir PR de `develop` → `staging`
-9. Reportar resultado final en cada issue
+9. Reportar resultado final en cada issue con links a la evidencia
 
 **STOP → Presenta el reporte de QA. Espera aprobación del CEO antes del deploy.**
 

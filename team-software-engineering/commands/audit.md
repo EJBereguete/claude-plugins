@@ -35,11 +35,17 @@ Lee la estructura del proyecto:
 - ¿El cliente HTTP está centralizado?
 - ¿Hay `console.log` en el código?
 
-#### @qa-engineer — Cobertura y seguridad
+#### @qa-engineer — Cobertura y calidad
 - ¿Cuántos tests existen? ¿Qué cubren?
-- ¿Hay secrets hardcodeados en el código?
-- ¿Las rutas protegidas verifican autenticación?
-- ¿`.env` está en `.gitignore`?
+- ¿Los criterios de aceptación se cumplen?
+- ¿Existen pruebas E2E automatizadas?
+
+#### @security-engineer — Seguridad y vulnerabilidades
+- ¿Hay secrets hardcodeados en el código? (API keys, passwords)
+- ¿Las dependencias tienen vulnerabilidades conocidas (CVEs)?
+- ¿Se validan y sanean todos los inputs del usuario?
+- ¿Se aplican las políticas de CORS y CSP correctamente?
+- ¿Están protegidas todas las rutas sensibles?
 
 #### @devops-engineer — Estado del deployment
 - ¿El Dockerfile sigue las mejores prácticas?
@@ -61,6 +67,7 @@ Lee la estructura del proyecto:
 | Backend | 🟢/🟡/🔴 | N | N |
 | Frontend | 🟢/🟡/🔴 | N | N |
 | Testing/QA | 🟢/🟡/🔴 | N | N |
+| Seguridad | 🟢/🟡/🔴 | N | N |
 | DevOps | 🟢/🟡/🔴 | N | N |
 
 ## 🔴 Issues críticos a resolver esta semana

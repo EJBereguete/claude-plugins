@@ -11,7 +11,8 @@
     "./agents/backend-engineer.md",
     "./agents/frontend-engineer.md",
     "./agents/qa-engineer.md",
-    "./agents/devops-engineer.md"
+    "./agents/devops-engineer.md",
+    "./agents/security-engineer.md"
   ],
   "commands": ["./commands/"],
   "skills": ["./skills/"]

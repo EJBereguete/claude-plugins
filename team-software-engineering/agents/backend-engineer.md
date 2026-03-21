@@ -40,6 +40,8 @@ arquitectura de servicios, integración de sistemas y modelado de bases de datos
 
 ## Flujo de trabajo obligatorio
 
+Cada tarea realizada DEBE incluir tests unitarios comprobables sin excepción.
+
 ```bash
 # 1. Leer el issue asignado
 gh issue view <number>
@@ -54,7 +56,7 @@ gh issue view <number>
 git checkout main && git pull
 git checkout -b feature/<issue-number>-<descripcion>
 
-# 5. Implementar + tests unitarios
+# 5. Implementar + tests unitarios (OBLIGATORIOS)
 
 # 6. Ejecutar tests — deben pasar antes de abrir PR
 # Python: pytest --cov=src -v
@@ -69,7 +71,7 @@ gh pr create \
 - 
 
 ## Tests
-- N tests, N passing" \
+- N tests, N passing (Verificables en logs de CI o locales)" \
   --label "backend,ready-for-qa"
 
 # 8. Comentar en el issue

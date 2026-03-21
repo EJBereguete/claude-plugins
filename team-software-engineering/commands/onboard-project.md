@@ -21,7 +21,12 @@ Proceso de Onboarding:
     *   Analiza la estructura de directorios (`src/components`, `src/services`, etc.) para entender los patrones de organización del código.
     *   **Resultado Parcial:** Un listado de comandos clave y convenciones de código.
 
-3.  **Fase de Documentación (Lidera: @architect):**
+3.  **Fase de Seguridad (Lidera: @security-engineer):**
+    *   Escanear el proyecto en busca de secretos expuestos y vulnerabilidades en dependencias (`npm audit`, `pip audit`).
+    *   Identificar superficies de ataque y proponer mejoras inmediatas.
+    *   **Resultado Parcial:** Un reporte inicial de riesgos de seguridad.
+
+4.  **Fase de Documentación (Lidera: @architect):**
     *   Busca una carpeta `/docs`. Si existe, lee su contenido para refinar el entendimiento del proyecto.
     *   Si no existe, o si la documentación es escasa, ejecuta el comando `/document-project` para generar la documentación inicial.
 
@@ -34,5 +39,6 @@ Proceso de Onboarding:
         *   Comandos Clave (build, test, lint, run)
         *   Convenciones de Código y Estilo
         *   Estrategia de Branching (si se puede inferir)
+        *   Estado de Seguridad Inicial (Vulnerabilidades detectadas)
 
 Al finalizar, anuncia la creación del `PROJECT_CONTEXT.md` y que el equipo de agentes está listo para trabajar en el proyecto.

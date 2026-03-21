@@ -23,6 +23,7 @@ chore/update-dependencies
 ```
 feat(scope): add JWT refresh token rotation
 fix(invoices): correct total calculation
+security(auth): patch SQL injection in login
 test(users): add registration unit tests
 chore: upgrade fastapi to 0.110.0
 refactor(auth): extract token validation service
@@ -30,7 +31,7 @@ docs: update API README
 ci: add coverage reporting to GitHub Actions
 ```
 
-**Tipos:** feat | fix | refactor | test | docs | chore | ci | perf | style
+**Tipos:** feat | fix | refactor | test | docs | chore | ci | perf | style | security
 
 ## PR — estructura obligatoria
 
@@ -44,12 +45,18 @@ Closes #<issue-number>
 - Modifiqué Y para Z
 
 ## Testing
-- [ ] Tests unitarios pasando
+- [ ] Tests unitarios pasando (OBLIGATORIO)
+- [ ] Tests E2E pasando (con screenshots adjuntos)
 - [ ] Probado localmente
 - [ ] Sin regresiones
 
-## Notes
-Consideraciones para el reviewer.
+## Security Checklist
+- [ ] Sin secrets expuestos
+- [ ] Inputs validados/saneados
+- [ ] Auditoría de seguridad pasada
+
+## Evidence (Screenshots)
+<!-- Adjuntar capturas de pantalla de los tests E2E y resultados -->
 ```
 
 ## Reglas del equipo

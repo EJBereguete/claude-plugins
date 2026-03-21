@@ -44,12 +44,16 @@ Sigue este proceso:
    [diagrama]
    ```
 
+   ### 🔒 Consideraciones de Seguridad
+   [Análisis de riesgos, protección de datos, autenticación/autorización]
+
    ### Plan de implementación
    | # | Tarea | Agente | Estimación |
    |---|-------|--------|------------|
    | 1 | ... | @backend-engineer | ... |
    | 2 | ... | @frontend-engineer | ... |
-   | 3 | ... | @devops-engineer | ... |
+   | 3 | ... | @security-engineer | ... |
+   | 4 | ... | @devops-engineer | ... |
 
    ### ADR generado
    [Si la decisión es significativa, genera el ADR completo]

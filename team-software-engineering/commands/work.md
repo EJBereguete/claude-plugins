@@ -29,8 +29,9 @@ Proceso de trabajo:
     *   Escribe el código necesario, **adhiriéndote estrictamente a las convenciones de estilo y arquitectura documentadas en el contexto**.
     *   Asegura el manejo adecuado de errores, logging y configuraciones si aplica.
 
-5.  **Escribe tests unitarios**:
-    *   Añade o actualiza los tests unitarios.
+5.  **Escribe tests unitarios (OBLIGATORIO)**:
+    *   Añade o actualiza los tests unitarios para la tarea actual.
+    *   **Cada tarea debe tener sus propios tests unitarios comprobables.**
     *   **Ejecuta el comando de test** especificado en `PROJECT_CONTEXT.md` para verificar que todos los tests (nuevos y existentes) pasan.
 
 6.  **Prepara Pull Request**: Crea un Pull Request dirigido a la rama `testing` con un mensaje claro que resuma los cambios y haga referencia al issue o tarea.

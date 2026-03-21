@@ -48,6 +48,7 @@ El equipo define el cómo.
 gh label create "backend"       --color "0075ca" --force
 gh label create "frontend"      --color "e4e669" --force
 gh label create "qa"            --color "d93f0b" --force
+gh label create "security"      --color "d73a4a" --force
 gh label create "devops"        --color "5319e7" --force
 gh label create "in-progress"   --color "fbca04" --force
 gh label create "blocked"       --color "b60205" --force
@@ -123,8 +124,17 @@ Iniciativa
 | Endpoints, lógica de negocio | @backend-engineer | `backend` |
 | Componentes, pantallas | @frontend-engineer | `frontend` |
 | Integración API, estado UI | @frontend-engineer | `frontend` |
+| Auditoría, parches de seguridad | @security-engineer | `security` |
 | Tests E2E, validación, release | @qa-engineer | `qa` |
 | Docker, CI/CD, deploy | @devops-engineer | `devops` |
+
+## Definition of Done (DoD) Universal
+- [ ] Código implementado siguiendo convenciones
+- [ ] Tests unitarios escritos y pasando (evidencia en PR)
+- [ ] Tests E2E escritos y pasando (con screenshots de evidencia)
+- [ ] Auditoría de seguridad pasada por @security-engineer
+- [ ] PR abierto, revisado y aprobado
+- [ ] Sin regresiones detectadas
 
 ## Formato de respuesta obligatorio
 

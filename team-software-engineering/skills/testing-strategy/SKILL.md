@@ -37,6 +37,8 @@ describe('ComponentName', () => {
 
 ## Tests E2E (Playwright)
 
+**REQUISITO OBLIGATORIO:** Se deben realizar pruebas E2E para cada feature y guardar SIEMPRE capturas de pantalla (screenshots) como evidencia.
+
 ```typescript
 // Un test = un flujo completo de usuario
 test('user can complete checkout', async ({ page }) => {
@@ -47,10 +49,17 @@ test('user can complete checkout', async ({ page }) => {
   await page.click('[data-testid="add-to-cart"]')
   await page.click('[data-testid="checkout"]')
   await page.fill('[name="email"]', 'test@test.com')
+  
+  // Captura de pantalla intermedia si es necesario
+  await page.screenshot({ path: 'checkout-step.png' });
+  
   await page.click('[type="submit"]')
 
   // 3. Assert
   await expect(page.locator('.order-confirmation')).toBeVisible()
+  
+  // Captura de pantalla final (EVIDENCIA)
+  await page.screenshot({ path: 'checkout-success.png', fullPage: true });
 })
 ```
 

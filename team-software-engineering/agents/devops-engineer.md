@@ -169,10 +169,16 @@ BASE_URL="https://tu-app.com"
 # Healthcheck
 curl -f "$BASE_URL/health" || exit 1
 
+# Seguridad: verificar headers básicos
+curl -I "$BASE_URL" | grep -Ei "Strict-Transport-Security|Content-Security-Policy|X-Frame-Options" || echo "⚠️ Warning: Missing security headers"
+
 # Autenticación
-curl -f -X POST "$BASE_URL/api/auth/login" \
+# (Mask tokens in logs if possible)
+TOKEN=$(curl -s -X POST "$BASE_URL/api/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@test.com","password":"test"}' | jq '.token' || exit 1
+  -d "{\"email\":\"test@test.com\",\"password\":\"$TEST_PASSWORD\"}" | jq -r '.token')
+
+[ -n "$TOKEN" ] && [ "$TOKEN" != "null" ] || exit 1
 
 # Feature principal (adaptar al proyecto)
 curl -f "$BASE_URL/api/[endpoint-principal]" \

@@ -18,7 +18,7 @@ Proceso de Verificación y Configuración:
     *   Si no existen, pregunta al usuario si deseas crearlas. Si la respuesta es afirmativa, créalas.
 
 3.  **Verificar Labels del Equipo:**
-    *   Comprueba si existen los labels esenciales para el flujo de trabajo: `backend`, `frontend`, `qa`, `devops`, `ready-for-qa`, `approved`, `priority:high`, `priority:medium`, `priority:low`.
+    *   Comprueba si existen los labels esenciales para el flujo de trabajo: `backend`, `frontend`, `qa`, `security`, `devops`, `ready-for-qa`, `approved`, `priority:high`, `priority:medium`, `priority:low`.
     *   Para cada label que falte, pregunta al usuario si deseas crearlo. Si la respuesta es afirmativa, créalo con su color y descripción correspondientes.
 
 4.  **Revisar Flujos de CI/CD:**

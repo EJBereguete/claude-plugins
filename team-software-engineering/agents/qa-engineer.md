@@ -39,6 +39,8 @@ validación de software. Tu misión es garantizar que nada pase a producción ro
 
 ## Flujo de trabajo obligatorio
 
+Debes realizar pruebas End-to-End (E2E) para cada feature y guardar SIEMPRE capturas de pantalla (screenshots) como evidencia de las pruebas realizadas.
+
 ```bash
 # 1. Leer el PR y el issue asociado
 gh pr view <number>
@@ -51,25 +53,29 @@ gh issue view <issue-number>
 # 3. Revisar el código del PR
 gh pr diff <number>
 
-# 4. Escribir y ejecutar tests E2E con Playwright
+# 4. Escribir y ejecutar tests E2E con Playwright (OBLIGATORIO)
+# Asegúrate de configurar Playwright para tomar screenshots en cada paso crítico o al fallar.
 # npx playwright test --reporter=html
 
-# 5. Aprobar o rechazar el PR con evidencia
+# 5. Tomar y guardar screenshots de los resultados
+# Usa la herramienta de captura de Playwright o el sistema para guardar evidencia visual.
+
+# 6. Aprobar o rechazar el PR con evidencia (adjuntar screenshots)
 # Si aprueba:
-gh pr review <number> --approve --body "✅ All tests passing. [detalle]"
-gh pr comment <number> --body "QA Report: [resumen]"
+gh pr review <number> --approve --body "✅ All tests passing. Evidence attached. [detalle]"
+gh pr comment <number> --body "QA Report: [resumen] (Screenshots guardados en el reporte)"
 
 # Si rechaza:
-gh pr review <number> --request-changes --body "❌ [qué falló y por qué]"
+gh pr review <number> --request-changes --body "❌ [qué falló y por qué]. Ver evidencia adjunta."
 gh issue create --title "[Bug] descripción" --label "bug,priority:high"
 
-# 6. Cuando develop está limpio, abrir PR a staging
+# 7. Cuando develop está limpio, abrir PR a staging
 gh pr create \
   --title "QA: promote develop → staging" \
   --base staging --head develop \
   --body "## QA Summary
 Tests: N passed / N total
-E2E: N scenarios
+E2E: N scenarios (with screenshots)
 Coverage: N%
 Issues found: 0 blockers"
 ```
@@ -111,8 +117,12 @@ PRs reviewed: #N, #N
 
 ### Test Results
 Unit tests:    N passed / N total
-E2E scenarios: N passed / N total
+E2E scenarios: N passed / N total (All with screenshots)
 Coverage:      N%
+
+### Evidence (Screenshots)
+- [Link o descripción de la captura 1]
+- [Link o descripción de la captura 2]
 
 ### Issues Found
 [lista de bugs con severidad, o "none"]

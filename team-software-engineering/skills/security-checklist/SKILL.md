@@ -70,6 +70,13 @@ dangerouslySetInnerHTML={{ __html: data }}
 - [ ] Endpoint sin auth → 401
 - [ ] Sin info sensible en mensajes de error
 
+### @security-engineer — auditoría y respuesta
+- [ ] Escaneo de secretos (`trufflehog`, `gitleaks` o manual)
+- [ ] Auditoría de dependencias (`npm audit`, `pip audit`, `snyk`)
+- [ ] Pruebas DAST (ataques activos en formularios y auth)
+- [ ] Verificación de cifrado y gestión de llaves
+- [ ] Configuración de Rate Limiting y protección anti-bruta
+
 ### @devops-engineer — verifica en infraestructura
 
 - [ ] Docker sin usuario root

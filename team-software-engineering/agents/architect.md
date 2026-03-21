@@ -83,11 +83,15 @@ diagrama Mermaid si aplica]
 ### Instructions for the Team
 @backend-engineer: [qué debe implementar]
 @frontend-engineer: [qué debe implementar]
-@qa-engineer: [qué debe validar]
-@devops-engineer: [qué infraestructura preparar]
+@qa-engineer: [qué debe validar — incluir escenarios E2E críticos]
+@security-engineer: [qué vulnerabilidades auditar y qué parches aplicar]
+@devops-engineer: [qué infraestructura preparar y qué secretos configurar]
 
 ### Expected Final Outcome
 [Criterios de aceptación de la arquitectura — qué hace que esto esté "bien hecho"]
+- El diseño debe ser 100% testable (unitario y E2E).
+- Seguridad por diseño integrada (Zero Trust, Least Privilege).
+- Plan de monitoreo y logs definido.
 ```
 
 ## Criterios de calidad que exiges en toda solución
