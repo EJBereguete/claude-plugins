@@ -1,95 +1,47 @@
-# Skill: Security Checklist
+# Skill: Security Checklist (Expert Level)
 
-## OWASP Top 10 — por agente
+## 🛡️ Principios de Arquitectura de Seguridad (Zero Trust)
+- **Nunca confíes, siempre verifica**: Cada servicio y usuario requiere autenticación y autorización explícita.
+- **Least Privilege**: El código, los usuarios y los procesos corren con el mínimo permiso necesario.
+- **Security by Design**: La seguridad es parte del flujo de diseño inicial (Architect & Security Engineer).
 
-### @architect — verifica en diseño
-- [ ] Auth y autorización definidas desde el inicio
-- [ ] Datos sensibles identificados y plan de protección
-- [ ] HTTPS obligatorio en todos los environments
-- [ ] Principio de mínimo privilegio en roles y permisos
+## 🗺️ Threat Modeling (STRIDE) - Obligatorio en Diseño
+Antes de implementar, evaluamos amenazas en cada componente:
+- **S**poofing: ¿Pueden suplantar a un usuario o servicio? (Authn)
+- **T**ampering: ¿Pueden modificar los datos en tránsito o reposo? (Integridad)
+- **R**epudiation: ¿Podemos probar quién hizo qué? (Logging/Audit)
+- **I**nformation Disclosure: ¿Estamos exponiendo datos sensibles (PII)? (Privacidad)
+- **D**enial of Service: ¿El sistema es resiliente a ataques de carga? (Disponibilidad)
+- **E**levation of Privilege: ¿Puede un usuario normal volverse admin? (Authz)
 
-### @backend-engineer — verifica antes de cada PR
+## 🔐 Auth & Identity (OAuth2 / OIDC Advanced)
+- **Flujos Seguros**: Usar "Authorization Code with PKCE" para clientes públicos (SPA/Mobile).
+- **Token Handling**:
+  - **JWT**: Validar siempre `iss`, `aud`, `exp` y firma. No confiar en el header `alg: none`.
+  - **Almacenamiento**: `httpOnly`, `secure`, `SameSite=Strict` cookies. Nunca localStorage para tokens de acceso.
+- **MFA**: Requerir Multi-Factor Authentication para acciones críticas (Pagos, Admin).
 
-**Inyección SQL**
-```python
-# NUNCA
-query = f"SELECT * FROM users WHERE id = {user_id}"
-# SIEMPRE
-cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-```
+## 🤫 Secret Management (Zero Secrets Policy)
+- **No Hardcoded Secrets**: Prohibido el uso de API keys o passwords en el código o `.env` locales.
+- **Vault Integration**: Usar AWS Secrets Manager, HashiCorp Vault o Azure Key Vault.
+- **Dynamic Secrets**: Preferir secretos que expiren o se roten automáticamente.
 
-**Autorización a nivel de objeto (IDOR)**
-```python
-async def get_resource(resource_id, current_user):
-    resource = await db.get(resource_id)
-    if resource.owner_id != current_user.id:  # CRÍTICO
-        raise ForbiddenError()
-    return resource
-```
+## 🧱 Hardening de APIs (Secure by Default)
+- **Input Validation & Sanitization**: Tratar todo input como malicioso. Usar esquemas estrictos (Zod, Pydantic).
+- **Security Headers**:
+  - `Content-Security-Policy` (CSP): Prevenir XSS inyectando políticas de origen.
+  - `Strict-Transport-Security` (HSTS): Forzar HTTPS siempre.
+  - `X-Frame-Options: DENY`: Prevenir Clickjacking.
+- **Rate Limiting & Throttling**: Prevenir Brute Force y DoS en cada endpoint crítico.
 
-**Passwords y datos sensibles**
-- Hashear con bcrypt/argon2 — nunca MD5 o SHA1
-- Nunca logear passwords, tokens ni datos de tarjetas
-- Campos sensibles excluidos del JSON de respuesta
+## 📦 Dependency Security (Supply Chain)
+- **Audit Continuo**: `npm audit`, `pip audit`, `trivy` integrados en el pipeline de CI.
+- **Pin Versions**: Usar hashes (`sha256`) o versiones exactas para evitar ataques de inyección de dependencias.
 
-**Headers de seguridad mínimos**
-```
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-Strict-Transport-Security: max-age=31536000
-Content-Security-Policy: default-src 'self'
-```
-
-### @frontend-engineer — verifica antes de cada PR
-
-**XSS**
-```typescript
-// NUNCA
-element.innerHTML = userInput
-dangerouslySetInnerHTML={{ __html: data }}
-
-// Si necesitas HTML dinámico: DOMPurify.sanitize()
-// React y Vue escapan por defecto — no saltarse esto
-```
-
-**Tokens de auth**
-- httpOnly cookies → preferido
-- Memoria (variable) → aceptable
-- localStorage → NUNCA para tokens de auth
-
-**Datos sensibles**
-- Sin API keys en código frontend
-- Sin datos sensibles en URL params
-- Sin datos sensibles en console.log
-
-### @qa-engineer — verifica en testing
-
-- [ ] Token expirado → debe rechazar (401)
-- [ ] Token de otro usuario → debe rechazar (403)
-- [ ] Input con `<script>` → no debe ejecutarse
-- [ ] Endpoint sin auth → 401
-- [ ] Sin info sensible en mensajes de error
-
-### @security-engineer — auditoría y respuesta
-- [ ] Escaneo de secretos (`trufflehog`, `gitleaks` o manual)
-- [ ] Auditoría de dependencias (`npm audit`, `pip audit`, `snyk`)
-- [ ] Pruebas DAST (ataques activos en formularios y auth)
-- [ ] Verificación de cifrado y gestión de llaves
-- [ ] Configuración de Rate Limiting y protección anti-bruta
-
-### @devops-engineer — verifica en infraestructura
-
-- [ ] Docker sin usuario root
-- [ ] Secrets en variables de entorno, no en imagen
-- [ ] SSL configurado y auto-renovable
-- [ ] Puertos mínimos expuestos
-- [ ] Firewall configurado
-
-## Severidad
-
-| Severidad | Ejemplo | Acción |
-|-----------|---------|--------|
-| Crítica | SQL injection, auth bypass | Bloquear PR, fix inmediato |
-| Alta | Datos sensibles expuestos | Bloquear PR |
-| Media | Headers faltantes | Issue + fix en sprint |
-| Baja | Mejoras menores | Issue + backlog |
+## 📊 Security Audit Checklist (Definition of Done)
+- [ ] ¿Se realizó Threat Modeling (STRIDE) para esta feature?
+- [ ] ¿Los datos sensibles están cifrados en reposo (AES-256-GCM)?
+- [ ] ¿Se validaron los permisos a nivel de recurso (IDOR protection)?
+- [ ] ¿El logging incluye Request-ID pero NO incluye PII/Passwords?
+- [ ] ¿El escaneo de SAST/DAST pasa sin vulnerabilidades críticas?
+- [ ] ¿Se verificó que no existan secretos hardcodeados con herramientas (Gitleaks)?

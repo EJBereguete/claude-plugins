@@ -1,28 +1,27 @@
-# 🤖 team-software-engineering
+# 🤖 team-software-engineering (Expert Edition v4.0.0)
 
-> Plugin de Claude Code que simula un equipo completo de ingeniería de software.
-> Desde la idea del CEO hasta el deploy en producción, con 6 agentes especializados
-> que colaboran siguiendo un flujo de ramas profesional y real.
-
----
-
-## ¿Qué hace este plugin?
-
-Convierte a Claude Code en un equipo de ingeniería completo. En lugar de pedirle
-a Claude que haga todo, el plugin orquesta 6 agentes especializados que trabajan
-juntos de la misma forma que lo haría un equipo real:
-
-- El **Architect** diseña la solución técnica antes de escribir una línea de código
-- El **PM** crea los issues en GitHub con criterios de aceptación claros
-- **Backend** y **Frontend** implementan en paralelo con tests unitarios
-- **QA** revisa los PRs, ejecuta tests E2E y aprueba antes de subir a staging
-- **DevOps** verifica el CI, despliega y hace rollback si algo falla
-
-Todo con branches reales en GitHub, PRs reales, issues reales y GitHub Actions.
+> Plugin de Claude Code que simula un equipo completo de ingeniería de software de élite.
+> Desde la idea estratégica del CEO y el Product Owner hasta el deploy resiliente de SRE, orquestando 7 agentes especializados que colaboran siguiendo un flujo de ramas profesional y real.
 
 ---
 
-## Instalación
+## 🌟 ¿Qué hace este plugin?
+
+Convierte a Claude Code en un equipo de ingeniería completo de alto rendimiento. En lugar de pedirle a Claude que haga todo de forma genérica, el plugin orquesta a especialistas que trabajan juntos de la misma forma que lo haría un equipo real en una empresa de tecnología de primer nivel (FAANG/Silicon Valley):
+
+- **El @product-owner (PO)** (evolucionado de PM): Asegura que cada feature tenga un valor de negocio (ROI) y KPIs definidos antes de tocar una línea de código.
+- **El @architect**: Diseña la solución técnica, evalúa trade-offs y documenta decisiones en **ADRs** (Architecture Decision Records).
+- **El @frontend-ui-ux-engineer**: Crea interfaces intuitivas, accesibles (WCAG 2.1) y consistentes mediante **Design Systems**.
+- **@backend-engineer**: Implementa la lógica de servidor con patrones de **Clean Architecture** e idempotencia.
+- **@qa-engineer**: Revisa PRs, ejecuta tests **E2E (Playwright)**, **Mutation Testing** y **Regresión Visual**.
+- **@security-engineer**: Protege el sistema mediante modelado de amenazas **STRIDE** y arquitectura **Zero Trust**.
+- **@devops-engineer (SRE)**: Verifica el CI, despliega de forma segura y monitorea la salud con **Sentry** y **SonarQube**.
+
+Todo esto se realiza con branches reales en GitHub/Azure, PRs reales, issues estructurados y automatización profesional.
+
+---
+
+## 🛠️ Instalación y Configuración
 
 ### Desde el marketplace (recomendado)
 
@@ -39,512 +38,296 @@ Todo con branches reales en GitHub, PRs reales, issues reales y GitHub Actions.
 # → team-software-engineering · team-plugins · ✓ enabled
 ```
 
----
-
-## Flujo de ramas
-
-El equipo trabaja con 4 ramas permanentes:
-
-```
-main        → producción (solo DevOps puede mergear aquí)
-staging     → pre-producción (CI corre tests automáticos aquí)
-testing     → territorio de QA (recibe los PRs de los developers)
-feature/*   → donde backend y frontend implementan (se crean desde main)
-```
-
-### Ciclo de vida de una feature
-
-```
-CEO plantea idea
-  → @architect diseña la solución
-    → @pm crea issues en GitHub
-      → @backend-engineer y @frontend-engineer
-          crean feature/* desde main
-          implementan + tests unitarios
-          abren PR → testing
-        → @qa-engineer
-            revisa PRs en testing
-            ejecuta tests E2E
-            si aprueba → backend/frontend abren PR → staging
-          → GitHub Actions corre tests en staging
-            → @devops-engineer
-                verifica CI
-                smoke tests en staging
-                merge staging → main
-                smoke tests en producción
-                ✅ Feature en producción
-```
-
-### Flujo de errores
-
-```
-DevOps detecta fallo en staging/producción
-  → rollback automático
-  → notifica a @qa-engineer con los logs
-    → @qa-engineer analiza y notifica a @pm
-      → @pm crea issue de corrección
-        → backend o frontend crea feature/fix-* desde main
-          → mismo ciclo desde el principio
-```
+### Configuración de MCPs (Requerido)
+El plugin utiliza 9 servidores MCP. Configura las siguientes variables de entorno:
+- `GITHUB_TOKEN`: Acceso a repositorios, issues y PRs.
+- `DATABASE_URL`: Para inspección de esquemas con el MCP de Postgres.
+- `AZURE_DEVOPS_PAT`: Si utilizas Azure DevOps.
+- `SENTRY_AUTH_TOKEN`: Para monitoreo de errores.
+- `SONAR_TOKEN`: Para auditoría de calidad de código.
 
 ---
 
-## Trabajando con Proyectos Existentes: El Flujo de Onboarding
+## 🏗️ Flujo de Ramas (GitFlow Moderno)
 
-A diferencia de un proyecto que empieza de cero, al unirse a un proyecto existente, el equipo de agentes primero debe **aprender**. Para esto, se introduce un nuevo flujo de trabajo centrado en el comando `/onboard-project`.
+El equipo trabaja con 4 ramas permanentes para garantizar la estabilidad total del software:
+
+```
+main        → producción (solo DevOps/SRE puede mergear aquí tras smoke tests)
+staging     → pre-producción (entorno donde el CI corre tests de integración automáticos)
+testing     → territorio de QA (recibe los PRs de desarrollo para validación y E2E)
+feature/*   → donde se implementa la lógica (se crean siempre desde main)
+```
+
+### Ciclo de vida de una feature (Expert Flow)
+
+```
+CEO plantea idea o requerimiento de negocio
+  → @product-owner analiza el valor de negocio (ROI) y define KPIs
+    → @architect diseña la solución técnica y registra ADRs
+      → @product-owner crea los Issues detallados en GitHub/Azure con criterios de aceptación
+        → @frontend-ui-ux-engineer define el UX Flow y Design Tokens
+        → @security-engineer realiza el análisis de amenazas STRIDE preventivo
+          → @backend-engineer y @frontend-ui-ux-engineer
+              crean feature/* desde main
+              implementan lógica + Tests unitarios y de mutación
+              abren PR → testing
+            → @qa-engineer
+                revisa el PR (6 dimensiones de calidad)
+                ejecuta tests E2E, Regresión Visual y Accesibilidad
+                si aprueba → abre PR → staging
+              → GitHub Actions / CI corre tests automáticos en staging
+                → @devops-engineer
+                    verifica CI y métricas en SonarQube
+                    smoke tests en staging
+                    merge staging → main
+                    smoke tests en producción y monitoreo en Sentry
+                    ✅ Feature en producción con valor medible
+```
+
+### Flujo de errores y Rollback
+
+```
+DevOps detecta fallo en staging o producción
+  → Rollback automático a la última versión estable
+  → Notifica a @qa-engineer y @security-engineer con los logs de Sentry
+    → @qa-engineer analiza la causa raíz y notifica al @product-owner
+      → @product-owner crea issue de corrección priorizado (Hotfix)
+        → El equipo inicia el ciclo desde feature/fix-* sobre main
+```
+
+---
+
+## 🛠️ Trabajando con Proyectos Existentes: El Flujo de Onboarding
+
+A diferencia de un proyecto que empieza de cero, al unirse a un codebase existente, el equipo de agentes primero debe **aprender**. Para esto, se utiliza un flujo centrado en el comando `/onboard-project`.
 
 ```
 Tú ejecutas /onboard-project
-  → @architect, @devops-engineer y otros analizan el codebase
-    → Leen la estructura, archivos de configuración, CI/CD y código fuente.
-    → Usan las nuevas skills (code-analysis, convention-detection) para inferir la arquitectura y convenciones.
+  → @architect, @devops-engineer y @product-owner analizan el codebase
+    → Leen la estructura, archivos de configuración (package.json, pyproject.toml), CI/CD y código fuente.
+    → Usan las skills de 'code-analysis' y 'convention-detection' para inferir arquitectura y estilo.
   → Se genera el archivo PROJECT_CONTEXT.md
-    → Este archivo contiene el "ADN" del proyecto: comandos, estilo, patrones.
+    → Este archivo contiene el "ADN" del proyecto: comandos de build/test, estilo de código, patrones y stack.
   → Opcionalmente, se ejecuta /document-project para crear o actualizar la carpeta /docs.
-    → Se genera documentación humana sobre la arquitectura, configuración, etc.
+    → Se genera documentación de arquitectura (ADRs), API y UI/UX mediante diagramas Mermaid.js.
 ```
 
-Una vez completado el onboarding, los agentes están "conscientes del contexto" y todos los comandos (`/sprint`, `/work`) usarán el `PROJECT_CONTEXT.md` como su guía principal para asegurar que su trabajo se alinee perfectamente con el proyecto existente.
+Una vez completado el onboarding, los agentes están "conscientes del contexto" y todos los comandos posteriores usarán el `PROJECT_CONTEXT.md` como guía para asegurar que su trabajo se alinee perfectamente con el proyecto.
 
 ---
 
-## Comandos Principales (Flujo de Sprint)
+## 📋 Comandos del Equipo (Detallados)
 
-
-
-### `/sprint` — El comando principal
-
-
-
-Punto de entrada para una feature completa de principio a fin. Antes de ejecutarse, ahora verifica la existencia de `PROJECT_CONTEXT.md` si se usa en un proyecto existente.
-
-
-
+### Comandos de Ciclo Completo
+#### `/sprint` — El comando principal
+Punto de entrada para una feature completa de principio a fin. Verifica la existencia de `PROJECT_CONTEXT.md` antes de empezar.
 ```bash
-
-/team-software-engineering:sprint Sistema de facturación con exportación a PDF
-
+/team-software-engineering:sprint "Sistema de facturación con exportación a PDF y Dashboard"
 ```
 
-
-
----
-
-### `/work` — Trabajar en una tarea asignada
-
-
-
-Activa al ingeniero adecuado para implementar una tarea específica. Se basa en `PROJECT_CONTEXT.md` para seguir las convenciones del proyecto.
-
-
-
+#### `/work` — Implementación en tarea asignada
+Activa al ingeniero adecuado (Backend o Frontend) para implementar una tarea específica en un proyecto existente, incluyendo tests y preparación de PR.
 ```bash
-
-/team-software-engineering:work Corregir error de paginación en el endpoint GET /products
-
+/team-software-engineering:work "Corregir error de paginación en el endpoint GET /products"
 ```
 
-
-
----
-
-## Comandos para Proyectos Existentes y Mantenimiento
-
-
-
-### `/onboard-project` — Analizar un proyecto existente
-
-
-
-El comando más importante para empezar a trabajar en un codebase ya existente. Orquesta al equipo para analizar el proyecto y crear el `PROJECT_CONTEXT.md`, que es esencial para el resto de los comandos.
-
-
-
+### Comandos de Planificación y Diseño
+#### `/plan` — Planificación Estratégica
+Solo el **@product-owner** y el **@architect** trabajan. Útil para definir el roadmap, KPIs y diseño técnico antes de comprometer recursos.
 ```bash
-
-/team-software-engineering:onboard-project
-
+/team-software-engineering:plan "Módulo de suscripciones con Stripe"
 ```
+**Produce:** Diseño técnico + ADRs + Issues en GitHub listos para ejecutar.
 
-
-
----
-
-
-
-### `/document-project` — Generar documentación del proyecto
-
-
-
-Analiza el código y genera una carpeta `/docs` con documentos clave sobre la arquitectura, configuración y comandos del proyecto.
-
-
-
+#### `/design` — Diseño de Arquitectura
+Solo el **@architect**. Para decisiones técnicas puntuales sin crear el backlog completo.
 ```bash
-
-/team-software-engineering:document-project
-
+/team-software-engineering:design "¿Cómo manejar uploads de archivos de más de 1GB?"
+/team-software-engineering:design "Estrategia de caché para el catálogo de productos"
 ```
 
-
-
----
-
-
-
-### `/verify-setup` — Verificar la configuración del repositorio
-
-
-
-Verifica que el repositorio remoto (GitHub/Azure DevOps) tenga las ramas (`testing`, `staging`) y labels necesarios para el flujo de trabajo del equipo, y ofrece crearlos si faltan.
-
-
-
+### Comandos de Implementación Granular
+#### `/build-api` — Implementación Backend
+Solo el **@backend-engineer**. Implementa endpoints, migraciones, servicios o lógica de negocio servidora.
 ```bash
-
-/team-software-engineering:verify-setup
-
+/team-software-engineering:build-api "POST /invoices con generación de PDF"
+/team-software-engineering:build-api "Migración para agregar tabla de 'audit_logs'"
 ```
 
-
-
----
-
-
-
-### `/improve-skill` — Mejorar una skill de un agente
-
-
-
-Permite dar feedback directo a un agente para que actualice su base de conocimiento (sus `skills`).
-
-
-
+#### `/build-ui` — Implementación UI/UX
+Solo el **@frontend-ui-ux-engineer**. Implementa componentes, flujos de usuario, temas o integraciones de API.
 ```bash
-
-/team-software-engineering:improve-skill git-workflow "Usar 'squash and merge' para los PRs"
-
+/team-software-engineering:build-ui "Formulario de checkout con validación en tiempo real y A11y"
+/team-software-engineering:build-ui "Dashboard de métricas con gráficas interactivas"
 ```
 
-
-
----
-
-
-
-### `/plan` — Planificación sin implementación
-
-
-
-Solo el @architect y el @pm trabajan. Útil para planificar antes de comprometerse.
-
-
-
-```bash
-
-/team-software-engineering:plan Módulo de suscripciones con Stripe
-
-```
-
-
-
-Produce: diseño técnico + issues en GitHub listos para que el equipo empiece.
-
----
-
-### `/design` — Diseño de arquitectura
-
-Solo el @architect. Para decisiones técnicas puntuales sin crear issues.
-
-```bash
-/team-software-engineering:design ¿Cómo manejar uploads de archivos grandes?
-/team-software-engineering:design Estrategia de caché para el dashboard
-```
-
----
-
-### `/build-api` — Implementación de backend
-
-Solo el @backend-engineer. Para implementar un endpoint, migración o servicio específico.
-
-```bash
-/team-software-engineering:build-api POST /invoices con generación de PDF
-/team-software-engineering:build-api Migración para agregar tabla de subscriptions
-/team-software-engineering:build-api Webhook handler para eventos de Stripe
-```
-
----
-
-### `/build-ui` — Implementación de frontend
-
-Solo el @frontend-engineer. Para implementar componentes, páginas o integraciones.
-
-```bash
-/team-software-engineering:build-ui Formulario de pago con validación en tiempo real
-/team-software-engineering:build-ui Dashboard con gráficas de métricas
-/team-software-engineering:build-ui Modal de confirmación reutilizable
-```
-
----
-
-### `/work` — Trabajar en una tarea asignada
-
-Activa al ingeniero adecuado (Backend o Frontend) para implementar una tarea específica
-en un proyecto existente, incluyendo tests unitarios y la preparación de un PR.
-
-```bash
-/team-software-engineering:work Implementar validación de email en el formulario de registro
-/team-software-engineering:work Corregir error de paginación en el endpoint GET /products
-```
-
----
-
-### `/review` — Code review y QA
-
-El @qa-engineer revisa código o PRs con las 6 dimensiones de calidad.
-
+### Comandos de Calidad y Mantenimiento
+#### `/review` — Code Review y QA
+El **@qa-engineer** revisa código o PRs analizando: correctitud, seguridad, tests, performance, mantenibilidad y criterios de aceptación.
 ```bash
 /team-software-engineering:review #42
-/team-software-engineering:review src/api/routes/invoices.py
-/team-software-engineering:review src/components/PaymentForm.tsx
+/team-software-engineering:review src/api/routes/payments.py
 ```
 
-Analiza: correctitud, seguridad, tests, performance, mantenibilidad y criterios de aceptación.
-
----
-
-### `/deploy` — Deploy de un servicio
-
-El @devops-engineer prepara o ejecuta el deploy.
-
-```bash
-/team-software-engineering:deploy api-service
-/team-software-engineering:deploy frontend production
-```
-
-Verifica CI, hace smoke tests en staging, mergea a main y monitorea producción.
-
----
-
-### `/debug` — Debugging colaborativo
-
-Múltiples agentes analizan un error desde distintas perspectivas.
-
-```bash
-/team-software-engineering:debug Error 500 en /api/invoices al generar PDF
-/team-software-engineering:debug Memory leak en el worker de Celery
-```
-
----
-
-### `/audit` — Auditoría completa del proyecto
-
-Revisión integral del estado del proyecto.
-
+#### `/audit` — Auditoría Integral (Potenciado)
+Genera un **Radar de Deuda Técnica** categorizado: Código, Arquitectura, Seguridad, UI/UX y Documentación.
 ```bash
 /team-software-engineering:audit
 ```
 
-Revisa: seguridad, deuda técnica, cobertura de tests, configuración de CI/CD,
-dependencias desactualizadas y calidad general del código.
+#### `/onboard-project` — Análisis de proyecto existente
+Orquesta al equipo para analizar un proyecto y crear el `PROJECT_CONTEXT.md`.
+```bash
+/team-software-engineering:onboard-project
+```
+
+#### `/document-project` — Generación de Documentación Viva
+Analiza el código y genera una carpeta `/docs` con diagramas Mermaid.js, ADRs y contratos de API.
+```bash
+/team-software-engineering:document-project
+```
+
+#### `/deploy` — Despliegue de Servicios
+El **@devops-engineer** prepara o ejecuta el deploy, verifica el CI, hace smoke tests y monitorea producción.
+```bash
+/team-software-engineering:deploy "api-service production"
+```
+
+#### `/debug` — Debugging Colaborativo de Élite
+Múltiples agentes analizan un fallo complejo desde perspectivas de negocio, seguridad y técnica.
+```bash
+/team-software-engineering:debug "Error 500 intermitente en el procesamiento de pagos"
+```
 
 ---
 
-## Agentes
+## 🎭 El Equipo de Agentes de Élite
 
 ### 🏛️ Architect (`@architect`)
+Diseña sistemas antes de que se escriba código. Su foco es la escalabilidad y la coherencia técnica.
+- **Cuándo usarlo**: Decisiones técnicas críticas, elección de stack, diseño de sistemas o ADRs.
+- **Skills**: `code-architecture`, `api-design`, `performance-optimization`, `git-workflow`.
+- **MCPs**: `context7`, `filesystem`, `github`.
 
-Diseña sistemas antes de que se escriba código. Produce decisiones técnicas
-documentadas y claras para que el equipo las ejecute sin ambigüedad.
+### 💎 Product Owner (`@product-owner`)
+El guardián del valor de negocio. Convierte ideas en requerimientos accionables con KPIs claros.
+- **Cuándo usarlo**: Crear issues, priorizar backlog, definir valor de negocio y criterios de aceptación.
+- **Skills**: `product-strategy`, `business-analysis`, `git-workflow`, `documentation-skill`.
+- **MCPs**: `github`, `filesystem`, `sonarqube`.
 
-**Cuándo usarlo:** Al empezar algo nuevo, ante decisiones técnicas importantes,
-o cuando hay que evaluar trade-offs de arquitectura.
-
-**Skills:** `code-architecture`, `security-checklist`, `git-workflow`,
-`performance-optimization`, `env-configuration`
-
----
-
-### 📋 PM (`@pm`)
-
-Convierte decisiones técnicas en GitHub Issues accionables. Escribe criterios
-de aceptación verificables y mantiene el flujo del equipo cuando algo falla.
-
-**Cuándo usarlo:** Para crear issues, priorizar el backlog, gestionar el sprint,
-o coordinar cuando hay bloqueos o bugs.
-
-**Skills:** `git-workflow`
-
----
+### 🎨 Principal UI/UX & Frontend (`@frontend-ui-ux-engineer`)
+Experto híbrido en diseño y desarrollo. Asegura que el producto sea intuitivo, accesible y hermoso.
+- **Cuándo usarlo**: Diseño de interfaces, sistemas de diseño, accesibilidad WCAG 2.1 y componentes.
+- **Skills**: `frontend-patterns`, `design-systems`, `a11y-testing`, `visual-regression`.
+- **MCPs**: `playwright`, `context7`, `sonarqube`.
 
 ### ⚙️ Backend Engineer (`@backend-engineer`)
+Implementa APIs, lógica de negocio, migraciones y servicios con patrones Clean Architecture.
+- **Especialidades**: Python (FastAPI), C#/.NET, Node.js (NestJS), SQL, Redis, Docker.
+- **Skills**: `api-design`, `db-migrations`, `security-checklist`, `idempotency`, `error-handling`.
+- **MCPs**: `postgres`, `filesystem`, `github`.
 
-Implementa APIs, lógica de negocio, migraciones y servicios. Siempre entrega
-código con tests unitarios y PR hacia `testing`.
+### 🧪 QA Automation Expert (`@qa-engineer`)
+Dueño de la calidad. Valida PRs, ejecuta tests y asegura que no haya regresiones.
+- **Cuándo usarlo**: Revisar PRs, automatizar tests E2E, auditoría de accesibilidad.
+- **Skills**: `mutation-testing`, `testing-strategy`, `visual-regression`, `code-review`.
+- **MCPs**: `playwright`, `github`, `sonarqube`.
 
-**Compatible con:** Python (FastAPI, Django), C#/.NET, Node.js (Express, NestJS),
-PostgreSQL, MySQL, Redis, SQLAlchemy, Prisma, Entity Framework.
+### 🛡️ AppSec Specialist (`@security-engineer`)
+Protege el sistema proactivamente. Identifica vulnerabilidades mediante modelado de amenazas.
+- **Especialidades**: OWASP Top 10, STRIDE, OAuth2/OIDC, Gestión de Secretos.
+- **Skills**: `threat-modeling-stride`, `security-checklist`, `zero-trust`, `git-workflow`.
+- **MCPs**: `github`, `filesystem`, `playwright`.
 
-**Skills:** `api-design`, `db-migrations`, `security-checklist`, `git-workflow`,
-`error-handling`, `logging-observability`, `performance-optimization`,
-`docker-containers`, `env-configuration`
-
----
-
-### 🎨 Frontend Engineer (`@frontend-engineer`)
-
-Implementa interfaces, componentes, formularios e integraciones con APIs.
-Siempre entrega código con tests unitarios y PR hacia `testing`.
-
-**Compatible con:** React, Vue, Angular, Blazor, Razor, MAUI, TypeScript,
-Tailwind, Zustand, Pinia, React Query, Vitest.
-
-**Skills:** `frontend-patterns`, `security-checklist`, `git-workflow`,
-`error-handling`, `performance-optimization`, `env-configuration`
-
----
-
-### 🧪 QA Engineer (`@qa-engineer`)
-
-Dueño del branch `testing`. Revisa PRs, ejecuta tests unitarios y E2E,
-aprueba o rechaza cambios. Nada sale de testing sin su visto bueno.
-
-**Frameworks E2E:** usa el que el proyecto ya tenga — Playwright, Selenium,
-Cypress, Puppeteer, WebdriverIO. Si es proyecto nuevo, elige el más adecuado.
-
-**Skills:** `testing-strategy`, `security-checklist`, `git-workflow`, `code-review`
+### 🚀 DevOps / SRE Engineer (`@devops-engineer`)
+Opera la infraestructura y el despliegue. Su foco es la observabilidad y la resiliencia.
+- **Especialidades**: CI/CD, Docker, Kubernetes, Cloud Run, Sentry, Prometheus.
+- **Skills**: `devops-workflows`, `observability`, `docker-containers`, `env-configuration`.
+- **MCPs**: `docker`, `sentry`, `azure-devops`.
 
 ---
 
-### 🚀 DevOps Engineer (`@devops-engineer`)
+## 🧠 Skills Maestro (18 en total)
 
-Opera staging → main. Verifica CI, hace smoke tests, deploya y ejecuta rollback
-si algo falla. Notifica a QA cuando hay problemas post-staging.
+Las skills son las bases de conocimiento experto que los agentes consultan automáticamente:
 
-**Compatible con:** Cloud Run, Vercel, Railway, Fly.io, VPS con Docker,
-GitHub Actions, cualquier plataforma de hosting.
-
-**Skills:** `devops-workflows`, `security-checklist`, `git-workflow`,
-`logging-observability`, `docker-containers`, `env-configuration`
-
----
-
-## Skills (14 en total)
-
-Las skills son bases de conocimiento que los agentes consultan automáticamente
-según el contexto de la tarea. No las invocas tú — el agente las usa cuando
-las necesita.
-
-| Skill | Qué aporta | Agentes que la usan |
-|-------|-----------|---------------------|
-| `code-architecture` | Patrones SOLID, Clean Architecture, ADRs | Architect |
-| `api-design` | REST conventions, OpenAPI, versionado, paginación | Backend |
-| `db-migrations` | Migraciones seguras, rollback, índices, Alembic/Prisma | Backend |
-| `frontend-patterns` | Componentes, estado, formularios, accesibilidad | Frontend |
-| `testing-strategy` | Unit, integration, E2E, cobertura mínima, mocks | QA |
-| `devops-workflows` | CI/CD, pipelines, rollout, rollback, SLOs | DevOps |
-| `security-checklist` | OWASP top 10, auth, secrets, SQL injection | Backend, Frontend, QA, DevOps |
-| `git-workflow` | Branch strategy, conventional commits, PR template | Todos |
-| `error-handling` | Jerarquía de errores, HTTP mapping, error boundaries | Backend, Frontend |
-| `logging-observability` | Structured logging, Sentry, healthchecks, request ID | Backend, DevOps |
-| `performance-optimization` | N+1 queries, índices, caché, bundle size, virtualización | Backend, Frontend |
-| `docker-containers` | Multi-stage Dockerfiles, docker-compose, healthchecks | Backend, DevOps |
-| `env-configuration` | .env structure, Pydantic Settings, Zod, GitHub Secrets | Backend, Frontend, DevOps |
-| `code-review` | 6-dimension review, comentarios estructurados, criterios de aprobación | QA |
-| `code-analysis` | Análisis de código, identificación de arquitectura, lenguaje y frameworks | Architect, Backend, Frontend |
-| `safe-refactoring` | Técnicas de refactorización seguras, uso de tests como red de seguridad | Backend, Frontend |
-| `convention-detection` | Inferencia de estilos de código, comandos de build/test, linting | Todos |
-| `documentation-skill` | Creación de docs con Mermaid, JSDoc, generación de plantillas | Todos |
+| Skill | Lo que aporta al equipo | Agentes que la usan |
+|-------|-------------------------|---------------------|
+| `code-architecture` | Patrones SOLID, Clean Architecture y registro de ADRs. | Architect, PO |
+| `testing-strategy` | Mutation Testing, Visual Regression y Contract Testing (Pact). | QA, Backend |
+| `security-checklist` | Modelado STRIDE, Zero Trust, OAuth2/OIDC y gestión de secretos. | Todos |
+| `ui-ux-patterns` | Atomic Design, Design Tokens y Accesibilidad WCAG 2.1. | Frontend |
+| `documentation-skill`| Estándar de diagramas Mermaid.js y Living Documentation. | Todos |
+| `api-design` | REST/GraphQL experto, idempotencia y paginación por cursor. | Backend, Architect |
+| `db-migrations` | Migraciones seguras, rollback, índices y performance. | Backend |
+| `devops-workflows` | CI/CD avanzado, estrategias de Rollout y observabilidad. | DevOps |
+| `git-workflow` | Branch strategy avanzada, conventional commits y PR templates. | Todos |
+| `error-handling` | Jerarquía de errores, HTTP mapping y Error Boundaries. | Backend, Frontend |
+| `performance-opt` | N+1 queries, índices, caché y optimización de bundles. | Backend, Frontend |
+| `docker-containers` | Multi-stage Dockerfiles y orquestación resiliente. | Backend, DevOps |
+| `env-configuration` | Gestión de secretos, Vaults y esquemas de configuración (Zod/Pydantic). | Todos |
+| `code-review` | Revisión en 6 dimensiones, comentarios estructurados. | QA, Security |
+| `code-analysis` | Análisis de código para identificar arquitectura y lenguaje. | Todos |
+| `safe-refactoring` | Técnicas de refactorización segura con red de tests. | Backend, Frontend |
+| `convention-detect` | Inferencia de estilos de código y comandos del proyecto. | Todos |
+| `logging-observability`| Structured logging, Sentry y trazabilidad (Request-ID). | Backend, DevOps |
 
 ---
 
-## MCPs integrados
+## 🔌 Infraestructura MCP (9 Servidores)
 
-El plugin incluye 5 MCP servers que los agentes usan directamente:
+El equipo utiliza herramientas reales mediante el Model Context Protocol para actuar sobre tu entorno:
 
 | MCP | Para qué lo usan los agentes |
 |-----|------------------------------|
-| **github** | Crear issues, PRs, labels, milestones, comentar, aprobar |
-| **context7** | Consultar documentación actualizada de frameworks y librerías |
-| **playwright** | Ejecutar tests E2E directamente desde el agente QA |
-| **filesystem** | Explorar la estructura del proyecto antes de escribir código |
-| **postgres** | Inspeccionar el esquema, validar migraciones, ejecutar queries |
-| **azure-devops** | Gestionar Work Items, repositorios, pipelines y entornos de Azure DevOps |
-
-> Los MCPs requieren configurar las variables de entorno correspondientes
-> (`GITHUB_TOKEN`, `DATABASE_URL`, `AZURE_DEVOPS_PAT`, `AZURE_DEVOPS_ORG_URL`). Ver `.mcp.json` para los detalles.
-
----
-
-## Hooks de seguridad
-
-El plugin incluye hooks que se ejecutan automáticamente antes de ciertos comandos:
-
-- **Bloquea SQL destructivo** — previene `DROP TABLE`, `TRUNCATE` y `DELETE` sin `WHERE`
-  antes de ejecutarlos sin confirmación
-- **Detecta secrets hardcodeados** — alerta si detecta patrones de API keys,
-  passwords o tokens en el código antes de un commit
+| **github** | Crear/Gestionar issues, PRs, labels, milestones y comentarios. |
+| **sonarqube** | Análisis estático de calidad, seguridad y monitoreo de deuda técnica. |
+| **sentry** | Monitoreo de errores en tiempo real y performance en producción/staging. |
+| **playwright** | Ejecutar tests E2E y Regresión Visual directamente. |
+| **filesystem** | Explorar y editar la estructura del proyecto con seguridad. |
+| **postgres** | Inspeccionar esquemas, validar migraciones y ejecutar queries seguras. |
+| **docker** | Gestión de contenedores, builds locales y despliegues. |
+| **context7** | Consultar documentación actualizada de cualquier framework o librería. |
+| **azure-devops** | Gestionar Work Items, repositorios y pipelines en ecosistemas Azure. |
 
 ---
 
-## Estructura del plugin
+## 🛡️ Hooks de Seguridad e Integridad Automatizados
+
+El plugin incluye hooks que se ejecutan automáticamente para proteger tu proyecto:
+
+- **Anti-SQL Destructivo**: Bloquea comandos como `DROP TABLE`, `TRUNCATE` o `DELETE` sin `WHERE` en Bash.
+- **Secret Scanning**: Detecta patrones de API Keys, Passwords o Tokens antes de que se commiteen.
+- **Quality Feedback**: Sugiere automáticamente la ejecución de Linters (Ruff, ESLint, Black) al crear nuevos archivos.
+
+---
+
+## 📂 Estructura del Plugin
 
 ```
 team-software-engineering/
 ├── .claude-plugin/
-│   └── plugin.json                    # Manifiesto — v3.3.0
-├── .mcp.json                          # 5 MCP servers configurados
-├── agents/
-│   ├── architect.md
-│   ├── pm.md
-│   ├── backend-engineer.md
-│   ├── frontend-engineer.md
-│   ├── qa-engineer.md
-│   └── devops-engineer.md
-├── commands/
-│   ├── sprint.md                      # Flujo completo end-to-end
-│   ├── setup-repo.md                  # Configuración inicial del repo
-│   ├── plan.md                        # Planificación sin implementar
-│   ├── design.md                      # Arquitectura puntual
-│   ├── build-api.md                   # Implementación backend
-│   ├── build-ui.md                    # Implementación frontend
-│   ├── review.md                      # Code review y QA
-│   ├── deploy.md                      # Deploy a producción
-│   ├── debug.md                       # Debugging colaborativo
-│   └── audit.md                       # Auditoría del proyecto
-├── skills/
-│   ├── code-architecture/SKILL.md
-│   ├── api-design/SKILL.md
-│   ├── db-migrations/SKILL.md
-│   ├── frontend-patterns/SKILL.md
-│   ├── testing-strategy/SKILL.md
-│   ├── devops-workflows/SKILL.md
-│   ├── security-checklist/SKILL.md
-│   ├── git-workflow/SKILL.md
-│   ├── error-handling/SKILL.md
-│   ├── logging-observability/SKILL.md
-│   ├── performance-optimization/SKILL.md
-│   ├── docker-containers/SKILL.md
-│   ├── env-configuration/SKILL.md
-│   └── code-review/SKILL.md
-├── hooks/
-│   └── hooks.json
-└── README.md
+│   └── plugin.json                    # Manifiesto v4.0.0 (Expert Edition)
+├── .mcp.json                          # Configuración de los 9 MCP servers
+├── agents/                            # Prompts expertos de los 7 agentes de élite
+├── commands/                          # Definición de flujos de trabajo orquestados
+├── skills/                            # 18 Bases de conocimiento especializadas
+├── hooks/                             # Seguridad e integridad automatizada
+└── README.md                          # Guía definitiva del equipo
 ```
 
 ---
 
-## Actualizar el plugin
+## Actualización y Mantenimiento
 
 ```bash
 /plugin marketplace update team-plugins
-/plugin list  # verificar versión
+/plugin list  # Verificar versión 4.0.0
 ```
 
 ---
 
 ## Autor
-
 **EJBereguete** — [github.com/EJBereguete](https://github.com/EJBereguete)
-
-Plugin versión `3.3.0`
+Plugin versión `4.0.0` (Expert Edition)

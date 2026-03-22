@@ -1,93 +1,62 @@
-# Skill: Testing Strategy
+# Skill: Testing Strategy (Expert Level)
 
-## Pirámide de tests
+## Pirámide de Calidad Total
 
 ```
-         E2E Tests (pocos, lentos, alto valor)
-        /                                    \
-      Integration Tests (medios)
-     /                                        \
-   Unit Tests (muchos, rápidos, bajo costo)
+         E2E & Visual Regression (Valor UI/UX)
+        /                                     \
+      Contract & Integration Tests (Protocolos)
+     /                                         \
+   Unit & Mutation Tests (Lógica y Robustez)
 ```
 
-## Tests unitarios
+## 🧪 Mutation Testing (Confianza Real)
+No basta con cobertura de líneas; usamos **Mutation Testing** (Stryker, PIT) para asegurar que los tests fallan si el código cambia.
+- **Goal**: Score de mutación > 80%.
+- **Action**: Si un mutante sobrevive, el test es débil.
 
-### Backend (Python / Node)
-```python
-# pytest — estructura por feature
-class TestFeatureName:
-    def test_happy_path(self): ...
-    def test_invalid_input(self): ...
-    def test_unauthorized(self): ...
-    def test_not_found(self): ...
-    def test_edge_case(self): ...
-```
-
-### Frontend (Vitest / Jest)
+## 👁️ Visual Regression (Pixel Perfect)
+Usamos **Playwright / Applitools** para detectar cambios visuales no deseados.
 ```typescript
-// Testing Library — comportamiento, no implementación
-describe('ComponentName', () => {
-  it('renders with expected content')
-  it('handles user interaction')
-  it('shows loading state')
-  it('shows error state')
-  it('calls callbacks correctly')
-})
+test('visual consistency', async ({ page }) => {
+  await page.goto('/dashboard');
+  await expect(page).toHaveScreenshot('dashboard-master.png');
+});
 ```
 
-## Tests E2E (Playwright)
+## ♿ Accessibility (A11y) Testing
+La accesibilidad es obligatoria (WCAG 2.1).
+- **Automated**: `axe-core` integrado en tests E2E.
+- **Manual**: Navegación por teclado y lectores de pantalla en flujos críticos.
 
-**REQUISITO OBLIGATORIO:** Se deben realizar pruebas E2E para cada feature y guardar SIEMPRE capturas de pantalla (screenshots) como evidencia.
+## 🤝 Contract Testing (Consumer-Driven)
+Usamos **Pact** para asegurar que el Frontend (Consumer) y el Backend (Provider) están sincronizados sin necesidad de levantar todo el sistema.
 
-```typescript
-// Un test = un flujo completo de usuario
-test('user can complete checkout', async ({ page }) => {
-  // 1. Setup
-  await page.goto('/shop')
+## 🛠️ Tests Unitarios y de Integración
 
-  // 2. Acción
-  await page.click('[data-testid="add-to-cart"]')
-  await page.click('[data-testid="checkout"]')
-  await page.fill('[name="email"]', 'test@test.com')
-  
-  // Captura de pantalla intermedia si es necesario
-  await page.screenshot({ path: 'checkout-step.png' });
-  
-  await page.click('[type="submit"]')
+### Backend (Robustez)
+- **Property-Based Testing**: Usar `hypothesis` o `fast-check` para encontrar edge cases.
+- **DB Integration**: Tests contra contenedores reales (Testcontainers) no solo mocks.
 
-  // 3. Assert
-  await expect(page.locator('.order-confirmation')).toBeVisible()
-  
-  // Captura de pantalla final (EVIDENCIA)
-  await page.screenshot({ path: 'checkout-success.png', fullPage: true });
-})
-```
+### Frontend (Comportamiento)
+- **Testing Library**: Siempre testear desde la perspectiva del usuario.
+- **Hook Testing**: Validar lógica compleja de estado aislada.
 
-### Selectores — prioridad
-1. `getByRole` — mejor para accesibilidad
-2. `getByLabel` — inputs y formularios
-3. `data-testid` — cuando no hay semántica
-4. `text` — para contenido estático
+## 📊 Cobertura y Métricas de Éxito
 
-## Cobertura mínima por tipo
+| Tipo | Mínimo | Expert Target | Herramienta |
+|------|--------|---------------|-------------|
+| Unit (Lógica) | 80% | 95% | Vitest / Pytest |
+| Mutation Score | - | 80% | Stryker / Mutmut |
+| A11y Score | 100% | 100% | Axe / Lighthouse |
+| Critical E2E Flows | 100% | 100% | Playwright |
 
-| Tipo | Mínimo | Ideal |
-|------|--------|-------|
-| Servicios/lógica de negocio | 80% | 90% |
-| Controllers/handlers | 70% | 85% |
-| Utilidades y helpers | 90% | 100% |
-| Componentes UI | 60% | 80% |
+## 🚫 Políticas de Bloqueo (Strict Mode)
+1. **Regresión Visual detectada**: Bloquear (requiere aprobación de @frontend-ui-ux-engineer).
+2. **A11y Violations (Critical/Serious)**: Bloquear.
+3. **Contract Break**: Bloquear inmediatamente.
+4. **Mutation Score < 60% en código nuevo**: Bloquear.
 
-## Datos de test
-
-- Factories o fixtures para datos de prueba — no hardcodear
-- Mocks para servicios externos (email, pagos, APIs de terceros)
-- Base de datos de test separada — nunca en la de desarrollo
-- Limpiar estado entre tests
-
-## Cuándo bloquear un PR
-
-- Tests unitarios fallan → siempre bloquear
-- Cobertura baja en código crítico → bloquear
-- E2E falla en flujo principal → bloquear
-- E2E falla en flujo secundario → issue + warning, no bloquear
+## Datos de Test y Fixtures
+- **Snapshot Testing**: Para estructuras de datos y respuestas de API grandes.
+- **Factory Bot / MSW**: Para mocks de API consistentes y tipados.

@@ -1,84 +1,69 @@
 ---
 description: >
-  Auditoría completa del proyecto: seguridad, calidad, performance y estado
-  del deployment. Todos los agentes participan para generar un reporte ejecutivo.
+  Auditoría integral de ingeniería: seguridad, arquitectura, calidad de código
+  y deuda técnica. Todos los agentes (Principal UI/UX, PO, Architect, etc.) 
+  colaboran para generar un Radar de Deuda Técnica.
   Uso: /team-software-engineering:audit
 ---
 
-Eres el equipo completo de ingeniería haciendo una auditoría del proyecto.
+Eres el equipo completo de ingeniería realizando una auditoría de nivel experto.
 
-## Proceso de auditoría completa
+## Proceso de Auditoría Estratégica
 
-### 1. Exploración inicial (todos los agentes)
-Lee la estructura del proyecto:
-- CLAUDE.md y README.md para entender el contexto
-- `package.json` / `pyproject.toml` para dependencias y versiones
-- Estructura de carpetas con Glob
+### 1. Análisis Multidimensional
+Cada agente analiza el proyecto con su nueva experticia:
+- **@product-owner**: ¿La deuda técnica impide entregar valor? ¿Los KPIs son medibles?
+- **@architect**: ¿La arquitectura es escalable o hay acoplamiento rígido?
+- **@frontend-ui-ux-engineer**: ¿Hay consistencia en el Design System? ¿Se cumple WCAG 2.1?
+- **@backend-engineer**: ¿Hay cuellos de botella N+1? ¿Lógica de negocio en controladores?
+- **@security-engineer**: ¿Threat Modeling (STRIDE) revela vulnerabilidades críticas?
+- **@qa-engineer**: ¿Mutation score y cobertura E2E son suficientes?
+- **@devops-engineer**: ¿Resiliencia de infraestructura y observabilidad (SRE)?
 
-### 2. Auditoría por área
+### 2. Generación del Radar de Deuda Técnica (Categorizado)
 
-#### @architect — Salud de la arquitectura
-- ¿La estructura de módulos es coherente?
-- ¿Hay violaciones de Separation of Concerns?
-- ¿Existe documentación de arquitectura?
-- ¿Hay deuda técnica arquitectural identificada?
-
-#### @backend-engineer — Calidad del backend
-- ¿Los endpoints tienen manejo de errores?
-- ¿Las queries son eficientes? (buscar N+1)
-- ¿Hay validación de inputs en todos los endpoints?
-- ¿Las migraciones tienen rollback?
-
-#### @frontend-engineer — Calidad del frontend
-- ¿Los componentes tienen tipos TypeScript correctos?
-- ¿Hay estados de loading/error en los fetches?
-- ¿El cliente HTTP está centralizado?
-- ¿Hay `console.log` en el código?
-
-#### @qa-engineer — Cobertura y calidad
-- ¿Cuántos tests existen? ¿Qué cubren?
-- ¿Los criterios de aceptación se cumplen?
-- ¿Existen pruebas E2E automatizadas?
-
-#### @security-engineer — Seguridad y vulnerabilidades
-- ¿Hay secrets hardcodeados en el código? (API keys, passwords)
-- ¿Las dependencias tienen vulnerabilidades conocidas (CVEs)?
-- ¿Se validan y sanean todos los inputs del usuario?
-- ¿Se aplican las políticas de CORS y CSP correctamente?
-- ¿Están protegidas todas las rutas sensibles?
-
-#### @devops-engineer — Estado del deployment
-- ¿El Dockerfile sigue las mejores prácticas?
-- ¿Existe CI/CD configurado?
-- ¿Hay health endpoint?
-- ¿Los secrets están en Secret Manager?
-
-### 3. Reporte ejecutivo final
+El reporte final debe incluir el Radar de Deuda Técnica:
 
 ```markdown
-# 📊 Auditoría del Proyecto: [nombre]
-**Fecha**: [fecha]
-**Estado general**: 🟢 Saludable / 🟡 Necesita atención / 🔴 Crítico
+# 📊 Auditoría de Ingeniería de Élite: [Proyecto]
+**Fecha**: [Fecha] | **Score Global de Salud**: [0-100]%
 
-## Resumen por área
-| Área | Estado | Issues Críticos | Issues Menores |
-|------|--------|-----------------|----------------|
-| Arquitectura | 🟢/🟡/🔴 | N | N |
-| Backend | 🟢/🟡/🔴 | N | N |
-| Frontend | 🟢/🟡/🔴 | N | N |
-| Testing/QA | 🟢/🟡/🔴 | N | N |
-| Seguridad | 🟢/🟡/🔴 | N | N |
-| DevOps | 🟢/🟡/🔴 | N | N |
+## 📡 Radar de Deuda Técnica
+| Categoría | Nivel de Deuda | Impacto en Negocio | Esfuerzo Fix |
+|-----------|----------------|--------------------|--------------|
+| **Código** | Alta/Med/Baja | [Impacto] | [Esfuerzo] |
+| **Arquitectura** | Alta/Med/Baja | [Impacto] | [Esfuerzo] |
+| **Seguridad** | Alta/Med/Baja | [Impacto] | [Esfuerzo] |
+| **Documentación**| Alta/Med/Baja | [Impacto] | [Esfuerzo] |
+| **UI/UX & A11y** | Alta/Med/Baja | [Impacto] | [Esfuerzo] |
 
-## 🔴 Issues críticos a resolver esta semana
-1. ...
+## 🏗️ Análisis de Arquitectura y ADRs
+- **Estado de ADRs**: [N] ADRs registrados.
+- **Riesgos Identificados**: [Lista de cuellos de botella arquitectónicos].
 
-## 🟡 Issues importantes para el próximo sprint
-1. ...
+## 🎨 UI/UX & Accesibilidad (Reporte Experto)
+- **Cumplimiento WCAG**: [Pasa/Falla] - [Top Violaciones].
+- **Salud del Design System**: [% Componentes reutilizables vs Ad-hoc].
 
-## ✅ Fortalezas del proyecto
-1. ...
+## 🛡️ Seguridad y Resiliencia (Zero Trust Audit)
+- **Vulnerabilidades Críticas (CVEs)**: [N].
+- **Secret Scanning**: [Pass/Fail].
+- **Observabilidad (SRE)**: ¿Hay Dashboards/Alertas configuradas? [Sí/No].
 
-## Próximos pasos recomendados
-1. ...
+## 🧪 Calidad y Testing (Expert Target)
+- **Cobertura Unit/E2E**: [%].
+- **Mutation Score**: [%] (Confianza de los tests).
+- **Contract Tests**: [Activos/Inactivos].
+
+## 🔴 Plan de Mitigación Inmediato (P0)
+1. [Issue] - [Responsable] - [Justificación ROI].
+
+## ✅ Fortalezas y "Good Patterns" Detectados
+1. [Patrón positivo que debe preservarse].
 ```
+
+### 3. Ejecución de Herramientas de Auditoría
+- `npm audit` / `pip audit` / `trivy` (Seguridad)
+- `sonarqube scan` (Calidad de código)
+- `lighthouse` / `pa11y` (Accesibilidad)
+- `pytest --dead-fixtures` / `vitest --coverage` (Testing)

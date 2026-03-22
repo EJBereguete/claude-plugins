@@ -1,124 +1,47 @@
 ---
 description: >
-  Punto de entrada principal del equipo. El CEO plantea una idea de negocio
-  y el equipo completo la convierte en software deployado: Architect diseña,
-  PM planifica en GitHub, Backend y Frontend implementan con tests, QA valida
-  con E2E, DevOps despliega a staging y producción.
-  Uso: /team-software-engineering:sprint [idea o iniciativa de negocio]
+  Orquestador de Sprint Inteligente (v5.0.0). Maneja apps nuevas y existentes, 
+  detecta capas impactadas (FE/BE), gestiona mockups evolutivos y 
+  obtiene aprobación del CEO antes de programar.
+  Uso: /team-software-engineering:sprint <idea_o_feature>
 ---
 
-Eres el orquestador del equipo de ingeniería.
+Eres el equipo completo de ingeniería de software realizando un sprint de alto rendimiento.
 
-El CEO plantea la siguiente iniciativa: $ARGUMENTS
+## 🚀 FASES DEL SPRINT ADAPTATIVO
 
-**FASE 0 — LECTURA DE CONTEXTO**
+### FASE 0: CONTEXT & IMPACT (PO + Architect)
+1. **Detección**: Verifica `PROJECT_CONTEXT.md`. Si no existe, lanza `/onboard` automáticamente.
+2. **Análisis de Impacto**: `@architect` y `@product-owner` analizan la idea:
+   - **Capas**: ¿Es [Frontend], [Backend] o [Fullstack]?
+   - **Esfuerzo**: ¿Qué agentes deben activarse? (Desactivar los no necesarios).
+3. **Mimetismo**: Si es app existente, `@architect` analiza patrones de código actuales.
 
-1.  Busca y lee el archivo `PROJECT_CONTEXT.md` en la raíz del proyecto.
-2.  Si el archivo existe, usa la información contenida (arquitectura, convenciones, comandos) como la fuente de verdad para guiar a todo el equipo durante este sprint.
-3.  Si el archivo **no existe**, detente y notifica al usuario. Indícale que, para trabajar en un proyecto existente, primero debe ejecutar el comando `/team-software-engineering:onboard-project`. No continúes hasta que ese contexto sea generado.
+### FASE 1: DISCOVERY & DESIGN (PO + UX Designer)
+1. **Auditoría Visual (@ui-ux-designer)**: Si el cambio es en Frontend, el diseñador analiza las vistas actuales afectadas.
+2. **Mockup de Integración (@ui-ux-designer)**: Crea una propuesta visual que sea 100% consistente con la estética actual pero que incluya lo nuevo pedido por el CEO.
+3. **Business Value (@product-owner)**: Define los KPIs y el ROI esperado de esta feature.
 
-Una vez que el contexto está claro, ejecuta el flujo completo en fases. NO avances a la siguiente fase sin confirmación explícita del usuario.
+### FASE 2: CEO APPROVAL (MANDATORIA)
+1. **@ui-ux-designer**: Presenta el Mockup al CEO (Usuario).
+   - "CEO, aquí tienes el diseño de cómo se integrará la feature en tus vistas actuales. ¿Apruebas?"
+2. **ESPERAR APROBACIÓN**: Si el CEO no aprueba, se ajusta el diseño.
 
----
+### FASE 3: SPRINT PLANNING (PM)
+1. **@project-manager**: Descompone el diseño aprobado en tickets técnicos detallados.
+2. **Setup Técnico**: Crea las ramas `feature/*` necesarias.
 
-## FASE 1 — ARQUITECTURA (@architect)
+### FASE 4: EXECUTION & QA (Devs + QA + Security)
+1. **Implementación**: Los ingenieros construyen sobre la base técnica y visual existente.
+2. **Hardening (@security-engineer)**: Análisis STRIDE proactivo.
+3. **Validación (@qa-engineer)**: Verifica que la nueva feature no rompa la estética ni la funcionalidad previa (Regression).
 
-Invoca al @architect con la idea del CEO.
-
-El @architect debe:
-1. Leer el README y estructura del proyecto si existe
-2. Interpretar el objetivo de negocio real
-3. Responder en su formato ejecutivo obligatorio:
-   - Executive Summary
-   - Business Goal
-   - Technical Direction (stack, patrones, módulos)
-   - Constraints and Risks
-   - Instructions for the Team
-   - Expected Final Outcome
-
-**STOP → Presenta el diseño. Espera aprobación del CEO antes de continuar.**
-
----
-
-## FASE 2 — PLANIFICACIÓN (@pm)
-
-Invoca al @pm con la Technical Direction del @architect.
-
-El @pm debe:
-1. Configurar el repo si es primera vez (labels, milestone del sprint)
-2. Descomponer en issues atómicos siguiendo esta jerarquía:
-   - [Backend] Modelo de datos y migración
-   - [Backend] Endpoints y lógica de negocio (depende del anterior)
-   - [Frontend] Componentes y pantallas (puede ir en paralelo)
-   - [Frontend] Integración con API (depende de endpoints)
-   - [QA] Validación E2E del flujo completo (depende de frontend y backend)
-3. Crear cada issue con: Context, User Story, Acceptance Criteria, DoD
-4. Asignar con label correcto y milestone
-5. Entregar Sprint Plan con orden y dependencias
-
-**STOP → Presenta los issues creados. Espera aprobación del CEO antes de continuar.**
+### FASE 5: RELEASE & OBSERVABILITY (SRE)
+1. **Deploy**: Despliegue monitoreado y smoke tests.
+2. **KPI Review**: El PO mide los resultados iniciales contra los objetivos de negocio.
 
 ---
 
-## FASE 3 — IMPLEMENTACIÓN (Backend + Frontend en paralelo)
-
-Invoca @backend-engineer para sus issues asignados.
-En paralelo invoca @frontend-engineer para sus issues.
-
-Cada uno debe:
-1. Leer su issue asignado con `gh issue view <number>`
-2. Crear rama: `git checkout -b feature/<issue-number>-<descripcion>`
-3. Implementar la tarea
-4. Escribir tests unitarios (OBLIGATORIOS para cada tarea)
-5. Ejecutar los tests — deben pasar antes de abrir PR
-6. Abrir PR hacia la rama `develop` con `Closes #<issue>`
-7. Comentar en el issue con el link al PR
-
-**STOP → Presenta los PRs abiertos. Espera aprobación del CEO antes de pasar a QA.**
-
----
-
-## FASE 4 — QA Y VALIDACIÓN (@qa-engineer)
-
-Invoca al @qa-engineer con los PRs abiertos.
-
-El @qa-engineer debe:
-1. Leer cada issue y sus Acceptance Criteria
-2. Revisar los PRs: `gh pr view <number>`
-3. Ejecutar los tests unitarios existentes
-4. Escribir pruebas E2E con Playwright para cada flujo crítico (OBLIGATORIO)
-5. Ejecutar las pruebas E2E y guardar SCREENSHOTS de cada una (OBLIGATORIO)
-6. Si todo pasa: aprobar los PRs adjuntando evidencia visual
-7. Si algo falla: comentar en el issue con severidad, pasos y captura del error, devolver al responsable
-8. Cuando todos los PRs están aprobados: abrir PR de `develop` → `staging`
-9. Reportar resultado final en cada issue con links a la evidencia
-
-**STOP → Presenta el reporte de QA. Espera aprobación del CEO antes del deploy.**
-
----
-
-## FASE 5 — DEPLOY (@devops-engineer)
-
-Invoca al @devops-engineer con el PR de staging aprobado.
-
-El @devops-engineer debe:
-1. Verificar checklist pre-deploy completo
-2. Mergear el PR `develop` → `staging`
-3. Monitorear el pipeline de GitHub Actions CI
-4. Si el CI pasa: ejecutar smoke tests en staging
-5. Si staging está OK: abrir PR `staging` → `main` (producción)
-6. Mergear a main y monitorear el pipeline de producción
-7. Ejecutar smoke tests en producción
-8. Reportar resultado en los issues y cerrar el milestone del sprint
-
-**STOP → Presenta el resultado final del deploy al CEO.**
-
----
-
-## Regla de manejo de fallos
-
-Si en cualquier fase algo falla:
-1. Reportar qué falló, en qué fase y a qué agente corresponde
-2. Devolver el trabajo al agente responsable con feedback específico
-3. NO continuar con la siguiente fase
-4. Cuando esté corregido, retomar desde la fase donde se detuvo
+## 📉 GESTIÓN DE TOKENS (Surgical Execution)
+- Solo los agentes necesarios para la capa impactada (FE/BE) se activan en la Fase 4.
+- Se utiliza el **SQUAD_HANDOVER.md** entre fases para reducir contexto.
