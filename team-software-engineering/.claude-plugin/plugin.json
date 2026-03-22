@@ -1,18 +1,20 @@
 {
   "name": "team-software-engineering",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "Equipo completo de ingenieria: CEO idea a produccion",
   "author": {
     "name": "EJBereguete"
   },
   "agents": [
     "./agents/architect.md",
-    "./agents/pm.md",
     "./agents/backend-engineer.md",
-    "./agents/frontend-engineer.md",
-    "./agents/qa-engineer.md",
     "./agents/devops-engineer.md",
-    "./agents/security-engineer.md"
+    "./agents/frontend-engineer.md",
+    "./agents/product-owner.md",
+    "./agents/project-manager.md",
+    "./agents/qa-engineer.md",
+    "./agents/security-engineer.md",
+    "./agents/ux-ui-designer.md"
   ],
   "commands": ["./commands/"],
   "skills": ["./skills/"]
