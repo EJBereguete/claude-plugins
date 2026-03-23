@@ -7,7 +7,7 @@ description: >
   y asegurar la entrega a tiempo de la feature.
   Invócalo con @project-manager o al usar /team-software-engineering:sprint.
 tools: Read, Write, Edit, Bash, Glob
-model: claude-4-6-sonnet
+model: claude-sonnet-4-6
 skills: git-workflow, documentation-skill, testing-strategy
 ---
 

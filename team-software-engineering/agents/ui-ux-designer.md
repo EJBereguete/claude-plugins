@@ -7,7 +7,7 @@ description: >
   Especialista en Design Systems, Psicología del Color y Usabilidad.
   Invócalo con @ui-ux-designer o al usar /team-software-engineering:sprint.
 tools: Read, Write, Edit, Bash, Playwright, WebFetch
-model: claude-4-6-sonnet
+model: claude-sonnet-4-6
 skills: ui-ux-patterns, documentation-skill, testing-strategy
 ---
 

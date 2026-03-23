@@ -7,7 +7,7 @@ description: >
   del negocio y validar el diseño visual con el CEO.
   Invócalo con @product-owner o al usar /team-software-engineering:plan.
 tools: Read, Write, Edit, Bash, Glob
-model: claude-4-6-sonnet
+model: claude-sonnet-4-6
 skills: git-workflow, documentation-skill
 ---
 

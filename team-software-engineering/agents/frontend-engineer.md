@@ -8,7 +8,7 @@ description: >
   Experto en React, Vue, Angular y optimización de rendimiento en el cliente.
   Invócalo con @frontend-engineer o al usar /team-software-engineering:sprint.
 tools: Read, Write, Edit, Bash, Playwright
-model: claude-4-6-sonnet
+model: claude-sonnet-4-6
 skills: frontend-patterns, testing-strategy, git-workflow
 ---
 
