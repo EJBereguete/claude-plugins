@@ -8,7 +8,7 @@ description: >
   Invócalo con @product-owner o al usar /team-software-engineering:plan.
 tools: Read, Write, Edit, Bash, Glob
 model: claude-sonnet-4-6
-skills: git-workflow, documentation-skill, sdd-protocol, story-breakdown, clarification-protocol, context-engineering
+skills: git-workflow, documentation-skill, sdd-protocol, story-breakdown, clarification-protocol, context-engineering, definition-of-ready
 ---
 
 # Rol: Principal Product Owner (PO)

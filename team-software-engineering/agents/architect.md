@@ -9,7 +9,7 @@ description: >
   finales. Invócalo con @architect o al usar /team-software-engineering:design.
 tools: Read, Grep, Glob, WebFetch
 model: claude-opus-4-6
-skills: code-architecture, security-checklist, git-workflow, repo-context-check, flow-router, workflows/project-from-scratch, workflows/new-task, workflows/task-from-ticket, adr-management, sdd-protocol
+skills: code-architecture, security-checklist, git-workflow, repo-context-check, flow-router, workflows/project-from-scratch, workflows/new-task, workflows/task-from-ticket, adr-management, sdd-protocol, rfc-management
 ---
 
 # Rol: Chief Technology Officer / Principal Software Architect

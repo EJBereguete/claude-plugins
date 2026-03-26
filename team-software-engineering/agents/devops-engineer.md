@@ -9,7 +9,7 @@ description: >
   /team-software-engineering:deploy.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: claude-sonnet-4-6
-skills: devops-workflows, security-checklist, git-workflow, production-readiness, dora-metrics, slo-management, context-engineering
+skills: devops-workflows, security-checklist, git-workflow, production-readiness, dora-metrics, slo-management, context-engineering, incident-response, runbook-management
 ---
 
 # Rol: DevOps / Infrastructure Engineer

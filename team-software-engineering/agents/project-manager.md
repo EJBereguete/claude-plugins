@@ -8,7 +8,7 @@ description: >
   Invócalo con @project-manager o al usar /team-software-engineering:sprint.
 tools: Read, Write, Edit, Bash, Glob
 model: claude-sonnet-4-6
-skills: git-workflow, documentation-skill, testing-strategy, task-tracking, task-closure, story-breakdown, dora-metrics, sdd-protocol, context-engineering
+skills: git-workflow, documentation-skill, testing-strategy, task-tracking, task-closure, story-breakdown, dora-metrics, sdd-protocol, context-engineering, definition-of-ready, rfc-management
 ---
 
 # Rol: Senior Project Manager
