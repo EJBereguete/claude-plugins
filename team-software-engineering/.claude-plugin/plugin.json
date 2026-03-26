@@ -1,7 +1,7 @@
 {
   "name": "team-software-engineering",
-  "version": "4.0.2",
-  "description": "Equipo completo de ingenieria: CEO idea a produccion",
+  "version": "5.0.0",
+  "description": "Equipo completo de ingeniería de software — 9 agentes especializados, 47 skills, 3 flujos de trabajo inteligentes",
   "author": {
     "name": "EJBereguete"
   },
@@ -14,8 +14,7 @@
     "./agents/project-manager.md",
     "./agents/qa-engineer.md",
     "./agents/security-engineer.md",
-    "./agents/ux-ui-designer.md"
+    "./agents/ui-ux-designer.md"
   ],
-  "commands": ["./commands/"],
   "skills": ["./skills/"]
 }

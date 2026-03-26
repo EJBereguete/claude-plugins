@@ -1,333 +1,856 @@
-# 🤖 team-software-engineering (Expert Edition v4.0.0)
+# team-software-engineering v5.0.0
 
-> Plugin de Claude Code que simula un equipo completo de ingeniería de software de élite.
-> Desde la idea estratégica del CEO y el Product Owner hasta el deploy resiliente de SRE, orquestando 7 agentes especializados que colaboran siguiendo un flujo de ramas profesional y real.
-
----
-
-## 🌟 ¿Qué hace este plugin?
-
-Convierte a Claude Code en un equipo de ingeniería completo de alto rendimiento. En lugar de pedirle a Claude que haga todo de forma genérica, el plugin orquesta a especialistas que trabajan juntos de la misma forma que lo haría un equipo real en una empresa de tecnología de primer nivel (FAANG/Silicon Valley):
-
-- **El @product-owner (PO)** (evolucionado de PM): Asegura que cada feature tenga un valor de negocio (ROI) y KPIs definidos antes de tocar una línea de código.
-- **El @architect**: Diseña la solución técnica, evalúa trade-offs y documenta decisiones en **ADRs** (Architecture Decision Records).
-- **El @frontend-ui-ux-engineer**: Crea interfaces intuitivas, accesibles (WCAG 2.1) y consistentes mediante **Design Systems**.
-- **@backend-engineer**: Implementa la lógica de servidor con patrones de **Clean Architecture** e idempotencia.
-- **@qa-engineer**: Revisa PRs, ejecuta tests **E2E (Playwright)**, **Mutation Testing** y **Regresión Visual**.
-- **@security-engineer**: Protege el sistema mediante modelado de amenazas **STRIDE** y arquitectura **Zero Trust**.
-- **@devops-engineer (SRE)**: Verifica el CI, despliega de forma segura y monitorea la salud con **Sentry** y **SonarQube**.
-
-Todo esto se realiza con branches reales en GitHub/Azure, PRs reales, issues estructurados y automatización profesional.
+> Plugin de Claude Code que simula un equipo completo de ingeniería de élite.
+> **9 agentes** · **47 skills** · **3 flujos inteligentes** · **SDD + Context Engineering**
 
 ---
 
-## 🛠️ Instalación y Configuración
+## El flujo completo de un vistazo
 
-### Desde el marketplace (recomendado)
+```mermaid
+graph TD
+    U([👤 Usuario]) -->|cualquier solicitud| A
 
-```bash
-# En Claude Code
-/plugin marketplace add https://github.com/EJBereguete/claude-plugins
-/plugin install team-software-engineering@team-plugins
-```
+    A["🏛️ @architect<br/>(punto de entrada)"]
+    A --> RC["⚙️ Step 0<br/>repo-context-check"]
+    RC --> FR["🔀 Step 1<br/>flow-router"]
 
-### Verificar instalación
+    FR -->|"repo vacío"| F1["📦 FLUJO 1<br/>project-from-scratch"]
+    FR -->|"lenguaje natural"| F2["✏️ FLUJO 2<br/>new-task"]
+    FR -->|"#42, URL, AB#1234"| F3["🎫 FLUJO 3<br/>task-from-ticket"]
 
-```bash
-/plugin list
-# → team-software-engineering · team-plugins · ✓ enabled
-```
+    F1 -->|"hand-off automático"| F2
+    F2 -->|"crea ticket + hand-off"| F3
 
-### Configuración de MCPs (Requerido)
-El plugin utiliza 9 servidores MCP. Configura las siguientes variables de entorno:
-- `GITHUB_TOKEN`: Acceso a repositorios, issues y PRs.
-- `DATABASE_URL`: Para inspección de esquemas con el MCP de Postgres.
-- `AZURE_DEVOPS_PAT`: Si utilizas Azure DevOps.
-- `SENTRY_AUTH_TOKEN`: Para monitoreo de errores.
-- `SONAR_TOKEN`: Para auditoría de calidad de código.
+    F3 --> DONE["✅ PR mergeado<br/>ticket cerrado<br/>docs archivados"]
 
----
-
-## 🏗️ Flujo de Ramas (GitFlow Moderno)
-
-El equipo trabaja con 4 ramas permanentes para garantizar la estabilidad total del software:
-
-```
-main        → producción (solo DevOps/SRE puede mergear aquí tras smoke tests)
-staging     → pre-producción (entorno donde el CI corre tests de integración automáticos)
-testing     → territorio de QA (recibe los PRs de desarrollo para validación y E2E)
-feature/*   → donde se implementa la lógica (se crean siempre desde main)
-```
-
-### Ciclo de vida de una feature (Expert Flow)
-
-```
-CEO plantea idea o requerimiento de negocio
-  → @product-owner analiza el valor de negocio (ROI) y define KPIs
-    → @architect diseña la solución técnica y registra ADRs
-      → @product-owner crea los Issues detallados en GitHub/Azure con criterios de aceptación
-        → @frontend-ui-ux-engineer define el UX Flow y Design Tokens
-        → @security-engineer realiza el análisis de amenazas STRIDE preventivo
-          → @backend-engineer y @frontend-ui-ux-engineer
-              crean feature/* desde main
-              implementan lógica + Tests unitarios y de mutación
-              abren PR → testing
-            → @qa-engineer
-                revisa el PR (6 dimensiones de calidad)
-                ejecuta tests E2E, Regresión Visual y Accesibilidad
-                si aprueba → abre PR → staging
-              → GitHub Actions / CI corre tests automáticos en staging
-                → @devops-engineer
-                    verifica CI y métricas en SonarQube
-                    smoke tests en staging
-                    merge staging → main
-                    smoke tests en producción y monitoreo en Sentry
-                    ✅ Feature en producción con valor medible
-```
-
-### Flujo de errores y Rollback
-
-```
-DevOps detecta fallo en staging o producción
-  → Rollback automático a la última versión estable
-  → Notifica a @qa-engineer y @security-engineer con los logs de Sentry
-    → @qa-engineer analiza la causa raíz y notifica al @product-owner
-      → @product-owner crea issue de corrección priorizado (Hotfix)
-        → El equipo inicia el ciclo desde feature/fix-* sobre main
+    style U fill:#4F46E5,color:#fff
+    style A fill:#7C3AED,color:#fff
+    style F1 fill:#059669,color:#fff
+    style F2 fill:#D97706,color:#fff
+    style F3 fill:#DC2626,color:#fff
+    style DONE fill:#065F46,color:#fff
 ```
 
 ---
 
-## 🛠️ Trabajando con Proyectos Existentes: El Flujo de Onboarding
+## Step 0 — repo-context-check
 
-A diferencia de un proyecto que empieza de cero, al unirse a un codebase existente, el equipo de agentes primero debe **aprender**. Para esto, se utiliza un flujo centrado en el comando `/onboard-project`.
+**Se ejecuta SIEMPRE, antes de cualquier otra cosa.**
 
-```
-Tú ejecutas /onboard-project
-  → @architect, @devops-engineer y @product-owner analizan el codebase
-    → Leen la estructura, archivos de configuración (package.json, pyproject.toml), CI/CD y código fuente.
-    → Usan las skills de 'code-analysis' y 'convention-detection' para inferir arquitectura y estilo.
-  → Se genera el archivo PROJECT_CONTEXT.md
-    → Este archivo contiene el "ADN" del proyecto: comandos de build/test, estilo de código, patrones y stack.
-  → Opcionalmente, se ejecuta /document-project para crear o actualizar la carpeta /docs.
-    → Se genera documentación de arquitectura (ADRs), API y UI/UX mediante diagramas Mermaid.js.
-```
+```mermaid
+graph TD
+    START([Repositorio actual]) --> Q1{"¿Tiene archivos<br/>de código?<br/>.py .ts .cs .go..."}
 
-Una vez completado el onboarding, los agentes están "conscientes del contexto" y todos los comandos posteriores usarán el `PROJECT_CONTEXT.md` como guía para asegurar que su trabajo se alinee perfectamente con el proyecto.
+    Q1 -->|NO| F1["→ FLUJO 1<br/>Proyecto desde cero"]
 
----
+    Q1 -->|SÍ| Q2{"¿Existe<br/>/docs con<br/>contenido?"}
 
-## 📋 Comandos del Equipo (Detallados)
+    Q2 -->|SÍ| Q3{"¿Hay tareas<br/>activas en<br/>/docs/tasks/active/?"}
+    Q2 -->|NO| GEN["🔧 Generar /docs<br/>por ingeniería inversa<br/>(no bloquea)"]
+    GEN --> Q3
 
-### Comandos de Ciclo Completo
-#### `/sprint` — El comando principal
-Punto de entrada para una feature completa de principio a fin. Verifica la existencia de `PROJECT_CONTEXT.md` antes de empezar.
-```bash
-/team-software-engineering:sprint "Sistema de facturación con exportación a PDF y Dashboard"
-```
+    Q3 -->|SÍ| RESUME["💬 Preguntar al usuario:<br/>'Encontré TASK-42 en progreso.<br/>¿Continúo o empezamos algo nuevo?'"]
+    Q3 -->|NO| ROUTER["→ flow-router"]
+    RESUME --> ROUTER
 
-#### `/work` — Implementación en tarea asignada
-Activa al ingeniero adecuado (Backend o Frontend) para implementar una tarea específica en un proyecto existente, incluyendo tests y preparación de PR.
-```bash
-/team-software-engineering:work "Corregir error de paginación en el endpoint GET /products"
+    style START fill:#1E40AF,color:#fff
+    style F1 fill:#059669,color:#fff
+    style GEN fill:#D97706,color:#fff
+    style RESUME fill:#7C3AED,color:#fff
+    style ROUTER fill:#DC2626,color:#fff
 ```
 
-### Comandos de Planificación y Diseño
-#### `/plan` — Planificación Estratégica
-Solo el **@product-owner** y el **@architect** trabajan. Útil para definir el roadmap, KPIs y diseño técnico antes de comprometer recursos.
-```bash
-/team-software-engineering:plan "Módulo de suscripciones con Stripe"
-```
-**Produce:** Diseño técnico + ADRs + Issues en GitHub listos para ejecutar.
+### Qué genera si no existe /docs
 
-#### `/design` — Diseño de Arquitectura
-Solo el **@architect**. Para decisiones técnicas puntuales sin crear el backlog completo.
-```bash
-/team-software-engineering:design "¿Cómo manejar uploads de archivos de más de 1GB?"
-/team-software-engineering:design "Estrategia de caché para el catálogo de productos"
 ```
-
-### Comandos de Implementación Granular
-#### `/build-api` — Implementación Backend
-Solo el **@backend-engineer**. Implementa endpoints, migraciones, servicios o lógica de negocio servidora.
-```bash
-/team-software-engineering:build-api "POST /invoices con generación de PDF"
-/team-software-engineering:build-api "Migración para agregar tabla de 'audit_logs'"
-```
-
-#### `/build-ui` — Implementación UI/UX
-Solo el **@frontend-ui-ux-engineer**. Implementa componentes, flujos de usuario, temas o integraciones de API.
-```bash
-/team-software-engineering:build-ui "Formulario de checkout con validación en tiempo real y A11y"
-/team-software-engineering:build-ui "Dashboard de métricas con gráficas interactivas"
-```
-
-### Comandos de Calidad y Mantenimiento
-#### `/review` — Code Review y QA
-El **@qa-engineer** revisa código o PRs analizando: correctitud, seguridad, tests, performance, mantenibilidad y criterios de aceptación.
-```bash
-/team-software-engineering:review #42
-/team-software-engineering:review src/api/routes/payments.py
-```
-
-#### `/audit` — Auditoría Integral (Potenciado)
-Genera un **Radar de Deuda Técnica** categorizado: Código, Arquitectura, Seguridad, UI/UX y Documentación.
-```bash
-/team-software-engineering:audit
-```
-
-#### `/onboard-project` — Análisis de proyecto existente
-Orquesta al equipo para analizar un proyecto y crear el `PROJECT_CONTEXT.md`.
-```bash
-/team-software-engineering:onboard-project
-```
-
-#### `/document-project` — Generación de Documentación Viva
-Analiza el código y genera una carpeta `/docs` con diagramas Mermaid.js, ADRs y contratos de API.
-```bash
-/team-software-engineering:document-project
-```
-
-#### `/deploy` — Despliegue de Servicios
-El **@devops-engineer** prepara o ejecuta el deploy, verifica el CI, hace smoke tests y monitorea producción.
-```bash
-/team-software-engineering:deploy "api-service production"
-```
-
-#### `/debug` — Debugging Colaborativo de Élite
-Múltiples agentes analizan un fallo complejo desde perspectivas de negocio, seguridad y técnica.
-```bash
-/team-software-engineering:debug "Error 500 intermitente en el procesamiento de pagos"
+/docs/
+├── 01-architecture/
+│   ├── PROJECT_CONTEXT.md    ← stack detectado, dependencias, patrones
+│   └── adr/                  ← decisiones arquitectónicas registradas
+├── 02-api/
+│   └── openapi.yml           ← endpoints encontrados en el código
+├── 03-design/
+│   └── DESIGN_SYSTEM.md      ← tokens extraídos de CSS/Tailwind/theme
+├── 04-project/
+│   └── BACKLOG.md
+├── 05-security/
+└── tasks/
+    ├── active/               ← tareas en curso
+    └── completed/            ← tareas archivadas
 ```
 
 ---
 
-## 🎭 El Equipo de Agentes de Élite
+## Step 1 — flow-router
 
-### 🏛️ Architect (`@architect`)
-Diseña sistemas antes de que se escriba código. Su foco es la escalabilidad y la coherencia técnica.
-- **Cuándo usarlo**: Decisiones técnicas críticas, elección de stack, diseño de sistemas o ADRs.
-- **Skills**: `code-architecture`, `api-design`, `performance-optimization`, `git-workflow`.
-- **MCPs**: `context7`, `filesystem`, `github`.
+```mermaid
+graph TD
+    INPUT([Input del usuario]) --> Q1{"¿El input contiene<br/>referencia a ticket?"}
 
-### 💎 Product Owner (`@product-owner`)
-El guardián del valor de negocio. Convierte ideas en requerimientos accionables con KPIs claros.
-- **Cuándo usarlo**: Crear issues, priorizar backlog, definir valor de negocio y criterios de aceptación.
-- **Skills**: `product-strategy`, `business-analysis`, `git-workflow`, `documentation-skill`.
-- **MCPs**: `github`, `filesystem`, `sonarqube`.
+    Q1 -->|"#42<br/>https://github.com/.../issues/42<br/>AB#1234<br/>dev.azure.com/..."| F3
 
-### 🎨 Principal UI/UX & Frontend (`@frontend-ui-ux-engineer`)
-Experto híbrido en diseño y desarrollo. Asegura que el producto sea intuitivo, accesible y hermoso.
-- **Cuándo usarlo**: Diseño de interfaces, sistemas de diseño, accesibilidad WCAG 2.1 y componentes.
-- **Skills**: `frontend-patterns`, `design-systems`, `a11y-testing`, `visual-regression`.
-- **MCPs**: `playwright`, `context7`, `sonarqube`.
+    Q1 -->|No hay referencia| Q2{"¿El repo tiene<br/>código real?"}
 
-### ⚙️ Backend Engineer (`@backend-engineer`)
-Implementa APIs, lógica de negocio, migraciones y servicios con patrones Clean Architecture.
-- **Especialidades**: Python (FastAPI), C#/.NET, Node.js (NestJS), SQL, Redis, Docker.
-- **Skills**: `api-design`, `db-migrations`, `security-checklist`, `idempotency`, `error-handling`.
-- **MCPs**: `postgres`, `filesystem`, `github`.
+    Q2 -->|NO| F1
+    Q2 -->|SÍ| F2
 
-### 🧪 QA Automation Expert (`@qa-engineer`)
-Dueño de la calidad. Valida PRs, ejecuta tests y asegura que no haya regresiones.
-- **Cuándo usarlo**: Revisar PRs, automatizar tests E2E, auditoría de accesibilidad.
-- **Skills**: `mutation-testing`, `testing-strategy`, `visual-regression`, `code-review`.
-- **MCPs**: `playwright`, `github`, `sonarqube`.
+    F1["📦 FLUJO 1<br/>project-from-scratch"]
+    F2["✏️ FLUJO 2<br/>new-task"]
+    F3["🎫 FLUJO 3<br/>task-from-ticket"]
 
-### 🛡️ AppSec Specialist (`@security-engineer`)
-Protege el sistema proactivamente. Identifica vulnerabilidades mediante modelado de amenazas.
-- **Especialidades**: OWASP Top 10, STRIDE, OAuth2/OIDC, Gestión de Secretos.
-- **Skills**: `threat-modeling-stride`, `security-checklist`, `zero-trust`, `git-workflow`.
-- **MCPs**: `github`, `filesystem`, `playwright`.
+    style F1 fill:#059669,color:#fff
+    style F2 fill:#D97706,color:#fff
+    style F3 fill:#DC2626,color:#fff
+```
 
-### 🚀 DevOps / SRE Engineer (`@devops-engineer`)
-Opera la infraestructura y el despliegue. Su foco es la observabilidad y la resiliencia.
-- **Especialidades**: CI/CD, Docker, Kubernetes, Cloud Run, Sentry, Prometheus.
-- **Skills**: `devops-workflows`, `observability`, `docker-containers`, `env-configuration`.
-- **MCPs**: `docker`, `sentry`, `azure-devops`.
+**Ejemplos de detección:**
+
+| Input del usuario | Flujo activado |
+|-------------------|---------------|
+| `"Quiero crear una app de inventarios"` + repo vacío | Flujo 1 |
+| `"Agrega notificaciones por email"` + proyecto existente | Flujo 2 |
+| `"#42"` o `"issue 42"` | Flujo 3 (GitHub) |
+| `https://github.com/user/repo/issues/42` | Flujo 3 (GitHub) |
+| `"AB#1234"` | Flujo 3 (Azure DevOps) |
 
 ---
 
-## 🧠 Skills Maestro (18 en total)
+## FLUJO 1 — Proyecto desde cero
 
-Las skills son las bases de conocimiento experto que los agentes consultan automáticamente:
+```mermaid
+sequenceDiagram
+    actor CEO as 👤 Usuario/CEO
+    participant PO as @product-owner
+    participant ARC as @architect
+    participant UX as @ui-ux-designer
+    participant DEV as @devops-engineer
+    participant PM as @project-manager
 
-| Skill | Lo que aporta al equipo | Agentes que la usan |
-|-------|-------------------------|---------------------|
-| `code-architecture` | Patrones SOLID, Clean Architecture y registro de ADRs. | Architect, PO |
-| `testing-strategy` | Mutation Testing, Visual Regression y Contract Testing (Pact). | QA, Backend |
-| `security-checklist` | Modelado STRIDE, Zero Trust, OAuth2/OIDC y gestión de secretos. | Todos |
-| `ui-ux-patterns` | Atomic Design, Design Tokens y Accesibilidad WCAG 2.1. | Frontend |
-| `documentation-skill`| Estándar de diagramas Mermaid.js y Living Documentation. | Todos |
-| `api-design` | REST/GraphQL experto, idempotencia y paginación por cursor. | Backend, Architect |
-| `db-migrations` | Migraciones seguras, rollback, índices y performance. | Backend |
-| `devops-workflows` | CI/CD avanzado, estrategias de Rollout y observabilidad. | DevOps |
-| `git-workflow` | Branch strategy avanzada, conventional commits y PR templates. | Todos |
-| `error-handling` | Jerarquía de errores, HTTP mapping y Error Boundaries. | Backend, Frontend |
-| `performance-opt` | N+1 queries, índices, caché y optimización de bundles. | Backend, Frontend |
-| `docker-containers` | Multi-stage Dockerfiles y orquestación resiliente. | Backend, DevOps |
-| `env-configuration` | Gestión de secretos, Vaults y esquemas de configuración (Zod/Pydantic). | Todos |
-| `code-review` | Revisión en 6 dimensiones, comentarios estructurados. | QA, Security |
-| `code-analysis` | Análisis de código para identificar arquitectura y lenguaje. | Todos |
-| `safe-refactoring` | Técnicas de refactorización segura con red de tests. | Backend, Frontend |
-| `convention-detect` | Inferencia de estilos de código y comandos del proyecto. | Todos |
-| `logging-observability`| Structured logging, Sentry y trazabilidad (Request-ID). | Backend, DevOps |
+    CEO->>ARC: "Quiero crear un SaaS de facturación"
+    ARC->>CEO: clarification-protocol (7 preguntas en un mensaje)
+    CEO->>ARC: Respuestas
 
----
+    ARC->>ARC: Define stack + arquitectura + ADRs
+    ARC-->>CEO: ✅ PROJECT_CONTEXT.md + ADR-001, 002, 003
 
-## 🔌 Infraestructura MCP (9 Servidores)
+    PO->>PO: Define visión, personas, ACs, roadmap
+    PO-->>CEO: ✅ requirements.md + ROADMAP.md
 
-El equipo utiliza herramientas reales mediante el Model Context Protocol para actuar sobre tu entorno:
+    UX->>CEO: Propone DESIGN_SYSTEM.md
+    CEO-->>UX: Aprobación
 
-| MCP | Para qué lo usan los agentes |
-|-----|------------------------------|
-| **github** | Crear/Gestionar issues, PRs, labels, milestones y comentarios. |
-| **sonarqube** | Análisis estático de calidad, seguridad y monitoreo de deuda técnica. |
-| **sentry** | Monitoreo de errores en tiempo real y performance en producción/staging. |
-| **playwright** | Ejecutar tests E2E y Regresión Visual directamente. |
-| **filesystem** | Explorar y editar la estructura del proyecto con seguridad. |
-| **postgres** | Inspeccionar esquemas, validar migraciones y ejecutar queries seguras. |
-| **docker** | Gestión de contenedores, builds locales y despliegues. |
-| **context7** | Consultar documentación actualizada de cualquier framework o librería. |
-| **azure-devops** | Gestionar Work Items, repositorios y pipelines en ecosistemas Azure. |
+    DEV->>DEV: Scaffold: dirs, Dockerfile, docker-compose, CI/CD
+    DEV-->>CEO: ✅ Repo listo, ramas creadas, pipeline configurado
+
+    PM->>PM: Lee requirements.md, crea issues en GitHub/Azure
+    PM-->>CEO: ✅ 5 issues creados, milestone MVP
+
+    ARC-->>PM: Hand-off automático → FLUJO 2 (primera feature)
+```
+
+**Resultado al finalizar Flujo 1:**
+- `/docs` completamente poblado
+- Repo con código skeleton que compila
+- `docker-compose up` funciona
+- CI/CD configurado y pasando
+- Backlog inicial en GitHub/Azure
 
 ---
 
-## 🛡️ Hooks de Seguridad e Integridad Automatizados
+## FLUJO 2 — Tarea nueva sin ticket
 
-El plugin incluye hooks que se ejecutan automáticamente para proteger tu proyecto:
+```mermaid
+sequenceDiagram
+    actor CEO as 👤 Usuario/CEO
+    participant PO as @product-owner
+    participant ARC as @architect
+    participant UX as @ui-ux-designer
+    participant PM as @project-manager
 
-- **Anti-SQL Destructivo**: Bloquea comandos como `DROP TABLE`, `TRUNCATE` o `DELETE` sin `WHERE` en Bash.
-- **Secret Scanning**: Detecta patrones de API Keys, Passwords o Tokens antes de que se commiteen.
-- **Quality Feedback**: Sugiere automáticamente la ejecución de Linters (Ruff, ESLint, Black) al crear nuevos archivos.
+    CEO->>ARC: "Quiero agregar notificaciones por email"
+
+    Note over ARC: clarification-protocol
+    ARC->>CEO: "3-5 preguntas focalizadas:<br/>¿qué eventos? ¿proveedor? ¿templates?"
+    CEO->>ARC: Respuestas
+
+    ARC->>PO: Contexto completo
+    PO->>PO: Escribe specs/requirements.md<br/>con ACs en Given/When/Then
+    PO-->>CEO: "¿Apruebas estos criterios?"
+    CEO-->>PO: ✅ Aprobado
+
+    ARC->>ARC: Analiza capas impactadas<br/>Escribe specs/design.md
+    ARC-->>CEO: "¿Apruebas el diseño técnico?"
+    CEO-->>ARC: ✅ Aprobado
+
+    alt Feature toca Frontend
+        UX->>CEO: Presenta wireframe/mockup
+        CEO-->>UX: ✅ Aprobado (MANDATORIO antes de codear)
+    end
+
+    Note over PM: story-breakdown (INVEST check)
+    PM->>PM: ¿Es XL? → split en subtareas<br/>Crea ticket(s) en GitHub/Azure<br/>Escribe specs/tasks.md
+
+    PM-->>ARC: Hand-off automático → FLUJO 3
+```
+
+**SDD Checkpoints en Flujo 2:**
+
+```
+requirements.md  →  [CEO aprueba ACs]  →  design.md  →  [CEO aprueba diseño]  →  tasks.md  →  FLUJO 3
+```
 
 ---
 
-## 📂 Estructura del Plugin
+## FLUJO 3 — Tarea desde ticket existente
+
+```mermaid
+sequenceDiagram
+    actor CEO as 👤 Usuario/CEO
+    participant ARC as @architect
+    participant BE as @backend-engineer
+    participant FE as @frontend-engineer
+    participant SEC as @security-engineer
+    participant QA as @qa-engineer
+    participant PM as @project-manager
+
+    CEO->>ARC: "#42" o URL de ticket
+
+    ARC->>ARC: Lee ticket via MCP github/azure-devops
+    Note over ARC: definition-of-ready check
+    alt Ticket incompleto
+        ARC->>CEO: Preguntas para completar el ticket
+        CEO->>ARC: Respuestas
+    end
+
+    Note over ARC: story-breakdown (INVEST)
+    alt Ticket es L/XL
+        ARC->>PM: Split en subtareas
+        PM->>PM: Crea sub-issues
+    end
+
+    PM->>PM: Inicializa /docs/tasks/active/TASK-42/
+    PM->>PM: Crea task.yml + TASK-42.md
+    PM->>PM: git checkout -b feature/42-email-notifications
+
+    ARC->>ARC: Escribe specs/design.md
+    ARC-->>CEO: "¿Apruebas el diseño técnico?"
+    CEO-->>ARC: ✅ Aprobado
+
+    par Backend (si aplica)
+        BE->>BE: Implementa + unit tests (mín 3)
+        BE->>BE: Documenta en TASK-42.md
+    and Frontend (si aplica)
+        FE->>FE: Implementa + component tests
+        FE->>FE: Documenta en TASK-42.md
+    end
+
+    SEC->>SEC: Análisis STRIDE + ASVS checklist
+
+    QA->>QA: Tests E2E con Playwright
+    QA->>QA: Screenshots → evidence/
+    QA->>QA: Accessibility audit
+
+    Note over PM: task-closure
+    PM->>PM: PR con "Closes #42"
+    QA-->>PM: ✅ Aprobado con evidencia
+    PM->>PM: Merge + cierre ticket + archive TASK-42/
+```
+
+---
+
+## SDD — Spec-Driven Development
+
+**El principio:** la especificación es la fuente de verdad. El código es su expresión.
+
+```mermaid
+graph LR
+    subgraph "SPEC (antes de codear)"
+        R["📋 requirements.md<br/>QUÉ<br/>@product-owner"]
+        D["🏗️ design.md<br/>CÓMO<br/>@architect"]
+        T["📝 tasks.md<br/>CUÁNDO<br/>@project-manager"]
+    end
+
+    subgraph "APROBACIONES"
+        AR["👤 CEO aprueba<br/>requirements.md"]
+        AD["👤 CEO aprueba<br/>design.md"]
+    end
+
+    subgraph "IMPLEMENTACIÓN (después)"
+        BE["⚙️ @backend-engineer"]
+        FE["🎨 @frontend-engineer"]
+        QA["🧪 @qa-engineer"]
+    end
+
+    R --> AR --> D --> AD --> T
+    T --> BE
+    T --> FE
+    T --> QA
+
+    QA -->|"valida contra"| R
+
+    style R fill:#1E40AF,color:#fff
+    style D fill:#7C3AED,color:#fff
+    style T fill:#065F46,color:#fff
+    style AR fill:#D97706,color:#fff
+    style AD fill:#D97706,color:#fff
+```
+
+### Los 3 artefactos en detalle
+
+**1. requirements.md** — escrito por `@product-owner`
+```markdown
+# Feature: Email Notifications
+
+## Objetivo de negocio
+Reducir el churn un 15% enviando recordatorios antes de vencimiento.
+
+## User Stories
+- Como usuario registrado, quiero recibir un email al completar mi registro,
+  para confirmar que mi cuenta fue creada exitosamente.
+
+## Acceptance Criteria
+- [ ] Given: usuario completa el registro
+  When: hace click en "Crear cuenta"
+  Then: recibe email de bienvenida en menos de 60 segundos
+
+## Out of Scope
+- Notificaciones push (ticket separado)
+- Emails de marketing
+
+## Definition of Done
+- [ ] Todos los ACs pasan
+- [ ] Unit tests: happy path + error + edge
+- [ ] E2E con screenshots como evidencia
+- [ ] PR aprobado por QA
+```
+
+**2. design.md** — escrito por `@architect`
+````markdown
+# Design: Email Notifications
+
+## Arquitectura
+```mermaid
+graph LR
+    API[FastAPI] --> SVC[NotificationService]
+    SVC --> SG[SendGrid SDK]
+    SVC --> DB[(notifications table)]
+```
+
+## Modelo de datos
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id),
+  type VARCHAR(50) NOT NULL,
+  sent_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+## Decisiones técnicas
+| Decisión | Alternativas | Razón |
+|----------|-------------|-------|
+| SendGrid | SMTP, SES | SDK oficial Python, deliverability superior |
+| Cola async | Síncrono | No bloquear la respuesta al usuario |
+````
+
+**3. tasks.md** — escrito por `@project-manager`
+```markdown
+# Tasks: Email Notifications
+## Branch: feature/42-email-notifications
+
+### Backend (@backend-engineer)
+1. [ ] Migration: CREATE TABLE notifications
+2. [ ] NotificationService.send_welcome()
+3. [ ] NotificationService.send_reset_password()
+4. [ ] POST /api/notifications/send (admin)
+5. [ ] Unit tests (4 tests mínimo)
+
+### QA (@qa-engineer)
+6. [ ] E2E: usuario recibe email en < 60s
+7. [ ] Screenshots en evidence/
+8. [ ] Accessibility audit
+```
+
+---
+
+## Context Engineering — Cómo los agentes no pierden contexto
+
+**El problema:** los modelos de IA tienen ventanas de tokens finitas. Un sprint largo puede requerir múltiples sesiones.
+
+**La solución:** todo el estado vive en archivos, nunca en la conversación.
+
+```mermaid
+graph TD
+    subgraph "Sesión 1"
+        A1["@architect<br/>define diseño"] -->|escribe| D1["specs/design.md"]
+        B1["@backend-engineer<br/>implementa BE"] -->|escribe| T1["TASK-42.md<br/>Step 3: COMPLETED ✅<br/>Step 4: IN_PROGRESS 🔄"]
+    end
+
+    subgraph "Sesión 2 (tokens agotados)"
+        T1 -->|lee| B2["@frontend-engineer<br/>lee Next Action:<br/>'Conectar NotificationBadge<br/>a POST /api/notifications'"]
+        B2 -->|escribe| T2["TASK-42.md<br/>Step 4: COMPLETED ✅<br/>Step 5: IN_PROGRESS 🔄"]
+    end
+
+    subgraph "Sesión 3"
+        T2 -->|lee| Q1["@qa-engineer<br/>lee qué está pendiente<br/>ejecuta E2E + screenshots"]
+    end
+
+    style T1 fill:#7C3AED,color:#fff
+    style T2 fill:#7C3AED,color:#fff
+```
+
+### La carpeta de cada tarea
+
+```
+/docs/tasks/active/TASK-42-email-notifications/
+│
+├── task.yml                    ← metadata estructurada
+│   id: "42"
+│   status: in_progress
+│   branch: feature/42-email-notifications
+│   layer: fullstack
+│   assigned_to: [backend-engineer, frontend-engineer]
+│
+├── TASK-42-email-notifications.md   ← ESTADO PERSISTENTE
+│   ├── Progress Log (step a step)
+│   ├── Files Modified (tabla)
+│   ├── Unit Tests Written (tabla)
+│   ├── Evidence / Screenshots (tabla)
+│   ├── Decisions Made (tabla)
+│   └── ⭐ Next Action ← lo primero que lee el agente que retoma
+│
+├── evidence/
+│   ├── e2e-registration-flow.png   ← screenshot obligatorio QA
+│   ├── e2e-email-received.png
+│   └── e2e-error-state.png
+│
+└── specs/
+    ├── requirements.md
+    ├── design.md
+    └── tasks.md
+```
+
+### El checkpoint protocol
+
+Cada agente actualiza `TASK-42.md` **en cada step**, no al final:
+
+```markdown
+## Next Action (si el contexto se resetea)
+
+> Resume point: Step 4 — Frontend integration
+> Branch: feature/42-email-notifications (último commit: abc123)
+> Ejecutar: git checkout feature/42-email-notifications && git log --oneline -3
+> Tarea: Conectar NotificationBadge.tsx a POST /api/notifications/send
+> Luego: escribir tests con Testing Library
+> Archivo: frontend/src/components/NotificationBadge.tsx (creado, falta integración)
+```
+
+### SQUAD_HANDOVER.md — entre agentes
+
+Cuando un agente termina y otro debe continuar:
+
+```markdown
+# SQUAD_HANDOVER.md
+
+## Tarea activa
+- ID: TASK-42 | Branch: feature/42-email-notifications
+
+## Completado
+- [x] DoR check (PASSED)
+- [x] design.md aprobado por CEO
+- [x] Backend: NotificationService + 4 unit tests (PASSING)
+- [x] Endpoint POST /api/notifications/send
+
+## Pendiente
+- [ ] Frontend: NotificationBadge component (@frontend-engineer)
+- [ ] E2E + screenshots (@qa-engineer)
+- [ ] task-closure
+
+## Contexto crítico
+- Usamos SendGrid (no SMTP) — ver ADR en design.md
+- Rate limit: 10 emails/min/usuario (implementado en service.py:47)
+- SENDGRID_API_KEY debe estar en .env
+```
+
+---
+
+## Mapa de interacción entre agentes
+
+```mermaid
+graph TD
+    CEO([👤 CEO / Usuario])
+
+    CEO -->|"idea / ticket / URL"| ARC
+    ARC -->|"requirements"| PO
+    ARC -->|"diseño aprobado"| BE
+    ARC -->|"diseño aprobado"| FE
+    ARC -->|"nueva feature"| SEC
+    PO -->|"ACs verificados"| CEO
+    UX -->|"mockup"| CEO
+    CEO -->|"aprobación UI"| UX
+    UX -->|"design tokens"| FE
+    PM -->|"tickets + tasks.md"| BE
+    PM -->|"tickets + tasks.md"| FE
+    BE -->|"PR ready-for-qa"| QA
+    FE -->|"PR ready-for-qa"| QA
+    QA -->|"approved + evidence"| PM
+    SEC -->|"STRIDE + ASVS"| PM
+    PM -->|"merge + deploy"| DEV
+    DEV -->|"smoke tests ✅"| CEO
+
+    ARC["🏛️ @architect<br/>CTO / Entry Point"]
+    PO["💎 @product-owner<br/>requirements.md"]
+    PM["📋 @project-manager<br/>tickets + tracking"]
+    BE["⚙️ @backend-engineer<br/>API + tests"]
+    FE["🎨 @frontend-engineer<br/>UI + tests"]
+    QA["🧪 @qa-engineer<br/>E2E + screenshots"]
+    SEC["🛡️ @security-engineer<br/>STRIDE + ASVS"]
+    DEV["🚀 @devops-engineer<br/>deploy + DORA"]
+    UX["✏️ @ui-ux-designer<br/>wireframes + tokens"]
+
+    style ARC fill:#7C3AED,color:#fff
+    style PO fill:#1E40AF,color:#fff
+    style PM fill:#065F46,color:#fff
+    style BE fill:#374151,color:#fff
+    style FE fill:#374151,color:#fff
+    style QA fill:#92400E,color:#fff
+    style SEC fill:#7F1D1D,color:#fff
+    style DEV fill:#1C1917,color:#fff
+    style UX fill:#4C1D95,color:#fff
+```
+
+---
+
+## Ciclo de vida completo de una tarea
+
+```mermaid
+stateDiagram-v2
+    [*] --> Detección: Usuario invoca @architect
+
+    Detección --> Flujo1: repo vacío
+    Detección --> Flujo2: lenguaje natural
+    Detección --> Flujo3: ticket existente
+
+    Flujo1 --> Flujo2: hand-off automático
+
+    Flujo2 --> Clarificación: clarification-protocol
+    Clarificación --> SDD_Req: requirements.md
+    SDD_Req --> AprobacionReq: CEO aprueba ACs
+    AprobacionReq --> SDD_Design: design.md
+    SDD_Design --> AprobacionDesign: CEO aprueba diseño
+    AprobacionDesign --> Flujo3: crea ticket + hand-off
+
+    Flujo3 --> DoR: definition-of-ready check
+    DoR --> DoR: ticket incompleto → preguntas
+    DoR --> Breakdown: ticket válido
+    Breakdown --> Breakdown: XL → split en subtareas
+    Breakdown --> Tracking: inicializa TASK-folder
+
+    Tracking --> Branch: git checkout -b feature/id-slug
+    Branch --> Implementación
+
+    Implementación --> Backend: si capa BE
+    Implementación --> Frontend: si capa FE
+    Backend --> UnitTests: obligatorios
+    Frontend --> ComponentTests: obligatorios
+    UnitTests --> Security: STRIDE + ASVS
+    ComponentTests --> Security
+    Security --> QA
+
+    QA --> E2E: Playwright
+    E2E --> Screenshots: evidence/ obligatorios
+    Screenshots --> PRReview
+
+    PRReview --> Aprobado: QA approve
+    PRReview --> Rechazado: QA request-changes
+    Rechazado --> Implementación: fix + re-submit
+
+    Aprobado --> Merge: squash merge
+    Merge --> CierreTicket: Closes #id automático
+    CierreTicket --> UpdateDocs: actualizar /docs si hubo cambios arch
+    UpdateDocs --> Archive: mover TASK a completed/
+    Archive --> DoraUpdate: actualizar DORA_METRICS.md
+    DoraUpdate --> [*]: ✅ Tarea cerrada
+```
+
+---
+
+## Mapa de skills por categoría
+
+```mermaid
+mindmap
+  root((47 Skills))
+    Workflows
+      project-from-scratch
+      new-task
+      task-from-ticket
+    Operaciones
+      audit-workflow
+      build-api-workflow
+      build-ui-workflow
+      debug-workflow
+      deploy-workflow
+      fix-workflow
+      onboard-workflow
+      review-workflow
+      improve-skill-workflow
+    Protocolo
+      repo-context-check
+      flow-router
+      clarification-protocol
+      sdd-protocol
+      context-engineering
+      context-protocol
+      task-tracking
+      task-closure
+      story-breakdown
+      definition-of-ready
+    Arquitectura
+      code-architecture
+      api-design
+      safe-refactoring
+      code-analysis
+      convention-detection
+      documentation-skill
+      frontend-patterns
+      db-migrations
+    DevOps y Ops
+      devops-workflows
+      git-workflow
+      dora-metrics
+      slo-management
+      production-readiness
+      pr-standards
+    Seguridad
+      security-checklist
+      threat-modeling
+      asvs-checklist
+      incident-response
+    Calidad
+      testing-strategy
+      adr-management
+      rfc-management
+      runbook-management
+```
+
+---
+
+## Cómo interactúan las skills entre sí
+
+```mermaid
+graph LR
+    RC[repo-context-check] --> FR[flow-router]
+
+    FR --> WPS[workflows/project-from-scratch]
+    FR --> WNT[workflows/new-task]
+    FR --> WTT[workflows/task-from-ticket]
+
+    WNT --> CP[clarification-protocol]
+    WNT --> SDD[sdd-protocol]
+    WNT --> SB[story-breakdown]
+    WNT --> WTT
+
+    WTT --> DoR[definition-of-ready]
+    WTT --> SB
+    WTT --> TT[task-tracking]
+    WTT --> SDD
+    WTT --> TC[task-closure]
+
+    SDD --> SDD1["requirements.md<br/>(WHAT)"]
+    SDD --> SDD2["design.md<br/>(HOW)"]
+    SDD --> SDD3["tasks.md<br/>(WHEN)"]
+
+    TC --> GW[git-workflow]
+    TC --> PRS[pr-standards]
+
+    style RC fill:#1E40AF,color:#fff
+    style FR fill:#7C3AED,color:#fff
+    style SDD fill:#065F46,color:#fff
+    style TT fill:#92400E,color:#fff
+    style TC fill:#7F1D1D,color:#fff
+```
+
+---
+
+## Los 9 agentes y sus skills
+
+| Agente | Modelo | Skills principales | Produce |
+|--------|--------|-------------------|---------|
+| **@architect** | opus-4 | repo-context-check, flow-router, 3 workflows, adr-management, sdd-protocol | design.md, ADRs, dirección técnica |
+| **@product-owner** | sonnet-4 | sdd-protocol, clarification-protocol, story-breakdown | requirements.md, ROADMAP.md |
+| **@project-manager** | sonnet-4 | task-tracking, task-closure, story-breakdown, dora-metrics | tasks.md, tickets, DORA_METRICS.md |
+| **@backend-engineer** | sonnet-4 | api-design, db-migrations, testing-strategy, task-tracking | endpoints, unit tests, migraciones |
+| **@frontend-engineer** | sonnet-4 | frontend-patterns, testing-strategy, sdd-protocol, task-tracking | componentes, component tests |
+| **@qa-engineer** | sonnet-4 | testing-strategy, pr-standards, production-readiness, task-tracking | E2E tests, screenshots, aprobaciones |
+| **@security-engineer** | sonnet-4 | threat-modeling, asvs-checklist, security-checklist | STRIDE analysis, ASVS checklist |
+| **@devops-engineer** | sonnet-4 | devops-workflows, production-readiness, dora-metrics, slo-management | CI/CD, deploy, PRR, DORA updates |
+| **@ui-ux-designer** | sonnet-4 | frontend-patterns, clarification-protocol, sdd-protocol | wireframes, DESIGN_SYSTEM.md |
+
+---
+
+## Standards — Código de referencia
+
+Los 11 archivos en `/standards/` son guías prescriptivas con código real:
+
+| Archivo | Qué cubre |
+|---------|-----------|
+| `clean-architecture.md` | Capas, regla de dependencias, Use Cases — Python/TS |
+| `solid-principles.md` | Los 5 principios con before/after — Python/TS |
+| `dry-kiss-yagni.md` | DRY, KISS, YAGNI + el AHA Principle |
+| `domain-driven-design.md` | Entities, Aggregates, Repos, Domain Events |
+| `api-design-standard.md` | REST naming, RFC 9457 errors, paginación, rate limiting |
+| `database-standard.md` | Naming, Expand-Contract migrations, índices, SQLAlchemy async |
+| `testing-standard.md` | Pirámide, Given/When/Then, factories, Playwright E2E |
+| `frontend-standard.md` | React/TS, WCAG 2.2, Core Web Vitals, Testing Library |
+| `git-standard.md` | Conventional Commits, PR template, merge strategy |
+| `security-standard.md` | OWASP Top 10, headers, secrets, ASVS L1 |
+| `devops-standard.md` | Dockerfile multi-stage, GH Actions, PRR, SLOs |
+
+---
+
+## DORA Metrics — Midiendo el rendimiento
+
+El plugin trackea automáticamente las 4 métricas DORA:
+
+```
+Deployment Frequency  → ¿Cuántas veces deployamos? (Meta: múltiples/semana)
+Lead Time for Changes → ¿Cuánto tarda un commit en llegar a prod? (Meta: < 1 día)
+Change Failure Rate   → ¿Qué % de deploys causa incidentes? (Meta: < 15%)
+MTTR                  → ¿Cuánto tardamos en recuperarnos? (Meta: < 1 hora)
+```
+
+Se actualizan en `/docs/04-project/DORA_METRICS.md` después de cada deploy.
+
+---
+
+## MCPs disponibles
+
+| MCP | Usado por | Para qué |
+|-----|-----------|----------|
+| `github` | Todos | Issues, PRs, reviews, labels, milestones |
+| `azure-devops` | PM, Architect | Work items, repos, pipelines en Azure |
+| `playwright` | QA, Security | E2E tests, screenshots de evidencia, DAST |
+| `filesystem` | Todos | Leer/escribir archivos del proyecto con seguridad |
+| `postgres` | Backend, DevOps | Inspeccionar esquemas, validar migraciones |
+| `docker` | DevOps | Builds, gestión de contenedores |
+| `sentry` | DevOps, QA | Errores en producción, alertas |
+| `sonarqube` | QA, Security | Análisis estático de calidad |
+| `context7` | Todos | Documentación actualizada de cualquier librería |
+
+---
+
+## Hooks de seguridad automáticos
+
+Se ejecutan sin que el usuario los invoque:
+
+```
+🔴 Anti-SQL destructivo  → bloquea DROP TABLE, TRUNCATE, DELETE sin WHERE
+🔴 Secret scanning       → detecta API keys, tokens, passwords en el código
+🟡 Quality feedback      → sugiere linters (Ruff, ESLint) al crear archivos
+```
+
+---
+
+## Instalación
+
+```bash
+/plugin install team-software-engineering
+```
+
+### Variables de entorno requeridas
+
+```bash
+GITHUB_TOKEN=ghp_...          # Issues, PRs, reviews, merges
+AZURE_DEVOPS_PAT=...          # (opcional) Si usas Azure DevOps
+DATABASE_URL=postgresql://... # Inspección de esquemas con MCP postgres
+SENTRY_AUTH_TOKEN=...         # Monitoreo de errores en producción
+SONAR_TOKEN=...               # Análisis estático de calidad
+```
+
+### Cómo invocarlo
+
+```bash
+# Proyecto nuevo
+@architect "Quiero crear una app de gestión de inventarios en FastAPI + React"
+
+# Feature nueva (proyecto existente)
+@architect "Agrega un módulo de reportes en PDF exportables"
+
+# Ticket existente — GitHub
+@architect "#42"
+@architect "https://github.com/miorg/mirepo/issues/42"
+
+# Ticket existente — Azure DevOps
+@architect "AB#1234"
+
+# Tareas específicas directas
+@backend-engineer "Implementa el endpoint POST /invoices"
+@qa-engineer "Haz code review del PR #15"
+@devops-engineer "Despliega el servicio api a Cloud Run"
+@security-engineer "Audita el módulo de autenticación"
+```
+
+---
+
+## Estructura del plugin
 
 ```
 team-software-engineering/
 ├── .claude-plugin/
-│   └── plugin.json                    # Manifiesto v4.0.0 (Expert Edition)
-├── .mcp.json                          # Configuración de los 9 MCP servers
-├── agents/                            # Prompts expertos de los 7 agentes de élite
-├── commands/                          # Definición de flujos de trabajo orquestados
-├── skills/                            # 18 Bases de conocimiento especializadas
-├── hooks/                             # Seguridad e integridad automatizada
-└── README.md                          # Guía definitiva del equipo
+│   └── plugin.json              ← manifiesto v5.0.0
+├── .mcp.json                    ← 9 MCP servers configurados
+├── agents/                      ← 9 agentes especializados
+│   ├── architect.md             ← punto de entrada, usa opus-4
+│   ├── backend-engineer.md
+│   ├── frontend-engineer.md
+│   ├── product-owner.md
+│   ├── project-manager.md
+│   ├── qa-engineer.md
+│   ├── security-engineer.md
+│   ├── devops-engineer.md
+│   └── ui-ux-designer.md
+├── skills/                      ← 47 skills organizadas
+│   ├── workflows/               ← 3 flujos de trabajo completos
+│   │   ├── project-from-scratch/SKILL.md
+│   │   ├── new-task/SKILL.md
+│   │   └── task-from-ticket/SKILL.md
+│   ├── audit-workflow/          ← operaciones (ex-commands)
+│   ├── build-api-workflow/
+│   ├── build-ui-workflow/
+│   ├── debug-workflow/
+│   ├── deploy-workflow/
+│   ├── fix-workflow/
+│   ├── onboard-workflow/
+│   ├── review-workflow/
+│   ├── improve-skill-workflow/
+│   ├── repo-context-check/      ← protocolo (Step 0)
+│   ├── flow-router/             ← protocolo (Step 1)
+│   ├── clarification-protocol/
+│   ├── sdd-protocol/
+│   ├── context-engineering/
+│   ├── task-tracking/
+│   ├── task-closure/
+│   ├── story-breakdown/
+│   ├── definition-of-ready/
+│   └── [28 skills más...]
+├── standards/                   ← 11 estándares con código real
+│   ├── clean-architecture.md
+│   ├── solid-principles.md
+│   ├── dry-kiss-yagni.md
+│   ├── domain-driven-design.md
+│   ├── api-design-standard.md
+│   ├── database-standard.md
+│   ├── testing-standard.md
+│   ├── frontend-standard.md
+│   ├── git-standard.md
+│   ├── security-standard.md
+│   └── devops-standard.md
+├── hooks/
+│   └── hooks.json               ← seguridad automática
+└── README.md                    ← este archivo
 ```
 
 ---
 
-## Actualización y Mantenimiento
-
-```bash
-/plugin marketplace update team-plugins
-/plugin list  # Verificar versión 4.0.0
-```
-
----
-
-## Autor
-**EJBereguete** — [github.com/EJBereguete](https://github.com/EJBereguete)
-Plugin versión `4.0.0` (Expert Edition)
+**Autor**: EJBereguete — [github.com/EJBereguete](https://github.com/EJBereguete)
+**Versión**: `5.0.0` | Sin commands · Solo skills · SDD + Context Engineering
