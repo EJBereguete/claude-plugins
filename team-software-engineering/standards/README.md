@@ -23,6 +23,18 @@ Each file is heavy on examples and light on theory.
 
 ---
 
+## Code Examples by Language
+
+The [`examples/`](./examples/) folder contains production-ready code that implements these standards in each stack:
+
+| Language | Folder | Contents |
+|----------|--------|---------|
+| C# / .NET | [examples/csharp/](./examples/csharp/) | Clean Architecture, CQRS/MediatR, Middleware, Design Patterns, Blazor, MAUI, Razor Pages, Testing |
+| Python | [examples/python/](./examples/python/) | Clean Architecture, SOLID, DDD, API Design, Database patterns, Testing |
+| TypeScript | [examples/typescript/](./examples/typescript/) | Clean Architecture, SOLID, API Design, React patterns, Testing |
+
+---
+
 ## How to use these files
 
 - Read the relevant standard before starting a task in that domain.

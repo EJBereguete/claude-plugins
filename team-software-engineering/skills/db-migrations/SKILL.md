@@ -356,3 +356,13 @@ dotnet ef database update 20240101_PreviousMigration # rollback a migración esp
 - [ ] No hay DROP TABLE / DROP COLUMN sin confirmación de que nada lo usa
 - [ ] Equipo notificado si la migración puede afectar disponibilidad
 - [ ] Monitoreo activo durante la ejecución
+
+---
+
+## Ejemplos de código por stack
+
+Para implementaciones concretas y copy-pasteable de estas reglas, consulta:
+
+- [`reference/python.md`](./reference/python.md) — Alembic: migrations, expand-contract, batch backfill, soft delete
+- [`reference/csharp.md`](./reference/csharp.md) — EF Core: migration classes, batch backfill SQL, SoftDeletableEntity, global filters
+- [`reference/typescript.md`](./reference/typescript.md) — Prisma: schema DSL, migrate commands, seed scripts, soft delete extension

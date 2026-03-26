@@ -477,3 +477,13 @@ test("dashboard page has no critical accessibility violations", async ({ page })
 - [ ] Integration tests usan contenedores reales (Testcontainers), no SQLite/mock DB
 - [ ] Contrato Pact actualizado cuando cambia la API
 - [ ] Performance test ejecutado antes de releases mayores
+
+---
+
+## Ejemplos de código por stack
+
+Para implementaciones concretas y copy-pasteable de estas reglas, consulta:
+
+- [`reference/python.md`](./reference/python.md) — pytest: factory_boy, AsyncMock, testcontainers, Pact, locust
+- [`reference/csharp.md`](./reference/csharp.md) — xUnit: FluentAssertions, Moq, WebApplicationFactory, builder pattern
+- [`reference/typescript.md`](./reference/typescript.md) — Vitest/Jest: factory functions, vi.mock, MSW, Playwright

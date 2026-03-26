@@ -546,3 +546,14 @@ def test_refund_process_updates_balance(): ...
 ### Using production data in tests
 
 Never seed tests with real customer emails, real payment methods, or any PII. Use factories with fake data generators (`factory.Faker`, `@faker-js/faker`).
+
+
+---
+
+## Ejemplos de código por lenguaje
+
+| Stack | Archivo |
+|-------|---------|
+| Python / pytest | [xamples/python/06-testing.md](./examples/python/06-testing.md) |
+| C# / xUnit | [xamples/csharp/08-testing-csharp.md](./examples/csharp/08-testing-csharp.md) |
+| TypeScript / Vitest | [xamples/typescript/05-testing.md](./examples/typescript/05-testing.md) |

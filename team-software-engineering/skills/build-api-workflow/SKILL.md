@@ -372,3 +372,13 @@ If there is an active task in `/docs/tasks/active/`, update its `TASK-*.md` with
 - Using `any` type in TypeScript or skipping Pydantic models — type safety is the first line of defence against injection and runtime errors
 - Opening a PR with failing tests — never, under any circumstances
 - Hardcoding values that belong in environment variables (URLs, keys, timeouts)
+
+---
+
+## Ejemplos de código por stack
+
+Para ejemplos completos y detallados con cada stack, consulta:
+
+- [`reference/python.md`](./reference/python.md) — FastAPI: router, service, repository, unit tests
+- [`reference/csharp.md`](./reference/csharp.md) — ASP.NET Core Minimal API: endpoints, CQRS/MediatR, unit tests
+- [`reference/typescript.md`](./reference/typescript.md) — Express/TypeScript: router, service, Zod validation, unit tests

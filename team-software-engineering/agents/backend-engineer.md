@@ -375,10 +375,10 @@ app.MapControllers();        // 9. Endpoints al final
 
 ## Ejemplos de código por stack
 
-Para ejemplos completos y detallados con cada stack, consulta los attachments:
-- `skills/build-api-workflow/examples/python-fastapi.md`
-- `skills/build-api-workflow/examples/csharp-aspnetcore.md`
-- `skills/build-api-workflow/examples/typescript-node.md`
+Para ejemplos completos y detallados con cada stack, consulta:
+- `skills/build-api-workflow/reference/python.md`
+- `skills/build-api-workflow/reference/csharp.md`
+- `skills/build-api-workflow/reference/typescript.md`
 
 ## Formato de respuesta obligatorio
 

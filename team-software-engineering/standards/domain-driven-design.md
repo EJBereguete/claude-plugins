@@ -639,3 +639,14 @@ src/
 - `infrastructure/` imports from `domain/` and `application/`.
 - `presentation/` imports from `application/` (use cases and schemas).
 - No context imports from another context's `domain/` or `infrastructure/` — only through explicit interfaces in `shared/` or via events.
+
+
+---
+
+## Ejemplos de código por lenguaje
+
+| Stack | Archivo |
+|-------|---------|
+| Python / FastAPI | [xamples/python/03-domain-driven-design.md](./examples/python/03-domain-driven-design.md) |
+| C# / ASP.NET Core | [xamples/csharp/01-clean-architecture.md](./examples/csharp/01-clean-architecture.md) + [ 2-cqrs-mediatr.md](./examples/csharp/02-cqrs-mediatr.md) |
+| TypeScript / Node.js | [xamples/typescript/01-clean-architecture.md](./examples/typescript/01-clean-architecture.md) |

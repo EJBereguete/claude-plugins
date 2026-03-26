@@ -390,3 +390,16 @@ async def test_create_user_duplicate_raises():
     with pytest.raises(DuplicateEmailError):
         await use_case.execute(CreateUserDTO(email="alice@example.com", name="Alice 2"))
 ```
+
+
+---
+
+## Ejemplos de código por lenguaje
+
+Para implementaciones concretas de estas reglas:
+
+| Stack | Archivo |
+|-------|---------|
+| Python / FastAPI | [xamples/python/01-clean-architecture.md](./examples/python/01-clean-architecture.md) |
+| C# / ASP.NET Core | [xamples/csharp/01-clean-architecture.md](./examples/csharp/01-clean-architecture.md) |
+| TypeScript / Node.js | [xamples/typescript/01-clean-architecture.md](./examples/typescript/01-clean-architecture.md) |

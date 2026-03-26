@@ -534,3 +534,14 @@ def to_model(invoice: Invoice) -> InvoiceModel:
 ```
 
 Domain entities never import from `infrastructure/`. The mapper is the only file that knows both sides.
+
+
+---
+
+## Ejemplos de código por lenguaje
+
+| Stack | Archivo |
+|-------|---------|
+| Python / SQLAlchemy + Alembic | [xamples/python/05-database.md](./examples/python/05-database.md) |
+| C# / EF Core | [xamples/csharp/01-clean-architecture.md](./examples/csharp/01-clean-architecture.md) |
+| TypeScript / Prisma | Ver skills/db-migrations/reference/typescript.md |

@@ -353,3 +353,13 @@ components:
 - [ ] Versión en URL: `/api/v1/`
 - [ ] OpenAPI actualizado con ejemplos en cada endpoint
 - [ ] Rate limit headers en respuestas
+
+---
+
+## Ejemplos de código por stack
+
+Para implementaciones concretas y copy-pasteable de estas reglas, consulta:
+
+- [`reference/python.md`](./reference/python.md) — FastAPI: RFC 9457, cursor pagination, OpenAPI docs
+- [`reference/csharp.md`](./reference/csharp.md) — ASP.NET Core: GlobalExceptionHandler, Minimal API, rate limiting
+- [`reference/typescript.md`](./reference/typescript.md) — Express/Hono: error middleware, Zod validation, cursor pagination

@@ -930,3 +930,13 @@ En la práctica, ambas se implementan casi igual. La diferencia es más de vocab
 3. **Al detectar violaciones SOLID:** Señalar la clase/función específica, nombrar el principio violado, proponer la refactorización concreta.
 4. **Al diseñar:** Preguntar primero por el bounded context antes de proponer estructura de carpetas.
 5. **Al decidir DRY vs duplicación:** Si dos fragmentos tienen razones distintas para cambiar, mantenerlos separados aunque sean idénticos hoy.
+
+---
+
+## Ejemplos de código por stack
+
+Para implementaciones concretas de Clean Architecture, SOLID y DDD en cada lenguaje, consulta:
+
+- [`reference/python.md`](./reference/python.md) — FastAPI: capas, SOLID, DDD con dataclasses y SQLAlchemy
+- [`reference/csharp.md`](./reference/csharp.md) — ASP.NET Core: Clean Architecture completa, CQRS/MediatR, DDD con EF Core
+- [`reference/typescript.md`](./reference/typescript.md) — Node.js/React: Clean Architecture con interfaces TypeScript, SOLID

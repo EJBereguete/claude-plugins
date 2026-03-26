@@ -581,3 +581,14 @@ curl http://localhost:8000/openapi.json > docs/02-api/openapi.json
 ```
 
 The spec lives at `docs/02-api/openapi.json` and is regenerated as part of the CI pipeline to keep it in sync with the implementation.
+
+
+---
+
+## Ejemplos de código por lenguaje
+
+| Stack | Archivo |
+|-------|---------|
+| Python / FastAPI | [xamples/python/04-api-design.md](./examples/python/04-api-design.md) |
+| C# / ASP.NET Core | [xamples/csharp/03-middleware-patterns.md](./examples/csharp/03-middleware-patterns.md) |
+| TypeScript / Node.js | [xamples/typescript/03-api-design.md](./examples/typescript/03-api-design.md) |

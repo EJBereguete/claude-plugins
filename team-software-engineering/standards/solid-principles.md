@@ -693,3 +693,14 @@ SOLID is a tool, not a religion. Skip it when:
 - **The team is small and the codebase is young** — premature abstraction makes onboarding harder and PRs longer.
 
 The test: ask "what is the second implementation?" If there is no honest answer, the abstraction is premature.
+
+
+---
+
+## Ejemplos de código por lenguaje
+
+| Stack | Archivo |
+|-------|---------|
+| Python / FastAPI | [xamples/python/02-solid-principles.md](./examples/python/02-solid-principles.md) |
+| C# / ASP.NET Core | [xamples/csharp/04-design-patterns.md](./examples/csharp/04-design-patterns.md) |
+| TypeScript / Node.js | [xamples/typescript/02-solid-principles.md](./examples/typescript/02-solid-principles.md) |
