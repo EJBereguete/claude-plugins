@@ -46,7 +46,13 @@
       "Bash(rm /c/Users/josu_/claude-plugins/team-software-engineering/commands/build-api.md)",
       "Bash(rm /c/Users/josu_/claude-plugins/team-software-engineering/commands/build-ui.md)",
       "Bash(rm /c/Users/josu_/claude-plugins/team-software-engineering/commands/debug.md)",
-      "Bash(rm /c/Users/josu_/claude-plugins/team-software-engineering/commands/deploy.md)"
+      "Bash(rm /c/Users/josu_/claude-plugins/team-software-engineering/commands/deploy.md)",
+      "Bash(__NEW_LINE_e605122bbe023691__ bash:*)",
+      "Bash(ls agents/*.md)",
+      "Bash(ls standards/*.md)",
+      "Bash(__NEW_LINE_440bc2608795ff64__ bash:*)",
+      "Bash(/tmp/report.txt:*)",
+      "Bash(__NEW_LINE_178296cf974c3274__ cat:*)"
     ]
   }
 }
