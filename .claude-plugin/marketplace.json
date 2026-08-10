@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "team-software-engineering",
-      "source": "./team-software-engineering",
-      "description": "Equipo completo de ingenieria: CEO idea a produccion",
-      "version": "5.0.0",
+      "name": "agteamos",
+      "source": "./agteamos",
+      "description": "AgTeamOS - equipo completo de ingenieria: de idea a produccion",
+      "version": "1.0.0",
       "author": {
         "name": "EJBereguete"
       }

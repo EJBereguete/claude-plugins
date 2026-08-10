@@ -52,7 +52,8 @@
       "Bash(ls standards/*.md)",
       "Bash(__NEW_LINE_440bc2608795ff64__ bash:*)",
       "Bash(/tmp/report.txt:*)",
-      "Bash(__NEW_LINE_178296cf974c3274__ cat:*)"
+      "Bash(__NEW_LINE_178296cf974c3274__ cat:*)",
+      "Bash(python -c \"import json; json.load\\(open\\('hooks/hooks.json', encoding='utf-8'\\)\\); print\\('OK - JSON valido'\\)\")"
     ]
   }
 }
