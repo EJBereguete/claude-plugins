@@ -1,0 +1,22 @@
+{
+  "name": "agteamos",
+  "displayName": "AgTeamOS",
+  "version": "1.0.0",
+  "description": "AgTeamOS — sistema operativo de equipo de ingenieria: 9 agentes especializados, skills con prefijo agteamos-, y una carpeta agteamos/ portable e instalable en cualquier proyecto",
+  "author": {
+    "name": "EJBereguete"
+  },
+  "agents": [
+    "./agents/architect.md",
+    "./agents/backend-engineer.md",
+    "./agents/devops-engineer.md",
+    "./agents/frontend-engineer.md",
+    "./agents/product-owner.md",
+    "./agents/project-manager.md",
+    "./agents/qa-engineer.md",
+    "./agents/security-engineer.md",
+    "./agents/ui-ux-designer.md"
+  ],
+  "skills": ["./skills/"]
+}
+
