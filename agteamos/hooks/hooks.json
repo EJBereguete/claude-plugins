@@ -87,6 +87,18 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/nudge-review.js"],
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }

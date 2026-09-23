@@ -37,9 +37,31 @@ Execute the `agteamos-repo-context-check` skill first. Then read `agteamos/archi
 
 If neither exists, run the `agteamos-onboard` skill before proceeding. An audit without project context produces unreliable results.
 
+**Cargar el audit anterior (si existe)**: buscar el `AUDIT-YYYY-MM-DD.md` más
+reciente en `agteamos/security/` antes de este. Su tabla "Radar de Deuda
+Tecnica" y "Vulnerabilidades Criticas" son la base para calcular la columna
+`Estado` del Step 6 (`NEW`/`SEEN`/`RESOLVED`). Volcar los hallazgos a un JSON
+temporal y correr:
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/lib/findings-ledger.js" \
+  reconcile AU findings.json agteamos/.cache/findings/audit.json
+```
+Si no hay audit anterior, todo se marca `NEW` y se dice explícitamente en el
+reporte ("primer audit registrado — sin baseline para comparar").
+
 ---
 
 ### Step 1 — Architecture analysis (@architect)
+
+**Scoping por hot spots (antes de leer todo el repo)**: correr
+`git log --since="90 days ago" --name-only --pretty=format: | sort | uniq -c | sort -rn | head -30`
+para identificar los archivos/módulos que más cambiaron recientemente — ahí
+es donde la arquitectura real está bajo más presión, y donde un problema
+estructural cuesta más caro. Priorizar la lectura profunda en esos módulos
+antes de hacer un barrido uniforme de todo el repo (YAGNI aplicado al propio
+audit: no vale la pena el mismo nivel de detalle en un módulo que nadie toca
+hace un año). El barrido completo (`Glob`) sigue haciéndose para el mapeo
+general, pero el análisis profundo se concentra en los hot spots.
 
 Examine the codebase structure:
 - Glob the entire project to map modules, layers and dependencies
@@ -49,6 +71,15 @@ Examine the codebase structure:
 - Flag any SOLID violations in the core domain logic
 
 Produce a list of findings with severity: Critical / High / Medium / Low.
+
+**Per-domain breakdown**: para cada bounded context o módulo grande
+identificado en el mapeo de arriba, invocar `agteamos-domain-review` sobre él
+(no sobre todo el repo de una — un módulo a la vez) para localizar smells
+concretos (God Module, leaky boundary, concepto disperso — ver
+`skills/domain-review/smells.md`) en vez de solo reportar "acoplamiento alto"
+a nivel general. Sus hallazgos se listan bajo "Analisis de Arquitectura" en
+el reporte final (Step 6), citando el módulo, no como bloqueantes de PR (un
+audit no bloquea un merge, solo prioriza deuda).
 
 ---
 
@@ -70,6 +101,11 @@ npm audit --audit-level=moderate 2>/dev/null
 
 # Check for hardcoded IPs or localhost references in non-dev files
 grep -rE "(127\.0\.0\.1|localhost)" . --include="*.py" --include="*.ts" -l
+
+# Scanner determinista (SQLi, XSS, secrets, eval, path traversal, command injection)
+find . -type f \( -name "*.py" -o -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -o -name "*.cs" \) \
+  -not -path "*/node_modules/*" -not -path "*/.venv/*" \
+  | xargs node "${CLAUDE_PLUGIN_ROOT}/scripts/security-scanner.mjs" scan --format json --fail-on none
 ```
 
 Apply OWASP Top 10 as a checklist:
@@ -142,6 +178,10 @@ Prioritize into:
 
 ### Step 6 — Generate the audit report
 
+Antes de publicarlo, correr el checklist pre-envío de `agteamos-pr-standards`
+Step 10 sobre el "Resumen"/"Score" inicial del reporte — la conclusión (score
++ hallazgo más crítico) va primero, no al final de un documento largo.
+
 Create `agteamos/security/AUDIT-YYYY-MM-DD.md` (use today's date):
 
 ```markdown
@@ -155,23 +195,37 @@ Create `agteamos/security/AUDIT-YYYY-MM-DD.md` (use today's date):
 
 ## Radar de Deuda Tecnica
 
-| Categoria | Nivel de Deuda | Impacto en Negocio | Esfuerzo Fix |
-|-----------|----------------|--------------------|--------------|
-| Codigo | Alta/Med/Baja | [descripcion] | S/M/L/XL |
-| Arquitectura | Alta/Med/Baja | [descripcion] | S/M/L/XL |
-| Seguridad | Alta/Med/Baja | [descripcion] | S/M/L/XL |
-| Documentacion | Alta/Med/Baja | [descripcion] | S/M/L/XL |
-| UI/UX & A11y | Alta/Med/Baja | [descripcion] | S/M/L/XL |
-| Tests | Alta/Med/Baja | [descripcion] | S/M/L/XL |
-| DevOps & Obs. | Alta/Med/Baja | [descripcion] | S/M/L/XL |
+| Categoria | Nivel de Deuda | Impacto en Negocio | Esfuerzo Fix | Estado |
+|-----------|----------------|--------------------|--------------|--------|
+| Codigo | Alta/Med/Baja | [descripcion] | S/M/L/XL | NEW/SEEN/RESOLVED |
+| Arquitectura | Alta/Med/Baja | [descripcion] | S/M/L/XL | NEW/SEEN/RESOLVED |
+| Seguridad | Alta/Med/Baja | [descripcion] | S/M/L/XL | NEW/SEEN/RESOLVED |
+| Documentacion | Alta/Med/Baja | [descripcion] | S/M/L/XL | NEW/SEEN/RESOLVED |
+| UI/UX & A11y | Alta/Med/Baja | [descripcion] | S/M/L/XL | NEW/SEEN/RESOLVED |
+| Tests | Alta/Med/Baja | [descripcion] | S/M/L/XL | NEW/SEEN/RESOLVED |
+| DevOps & Obs. | Alta/Med/Baja | [descripcion] | S/M/L/XL | NEW/SEEN/RESOLVED |
+
+`Estado` sale de `reconcile('AU', ...)` contra el audit anterior (ver Step 0):
+`NEW` = no estaba en el último audit, `SEEN` = ya se había reportado y sigue
+sin resolverse (con contador de veces), `RESOLVED` = estaba antes y ya no
+aparece (se lista en "Resuelto desde el último audit" más abajo, no en esta
+tabla).
 
 ---
 
 ## Vulnerabilidades Criticas
 
-| ID | Descripcion | OWASP | Severidad | Archivo:Linea |
-|----|-------------|-------|-----------|---------------|
-| V1 | [descripcion] | A0X | Critical | path/file.py:42 |
+| ID | Descripcion | OWASP | Severidad | Archivo:Linea | Estado |
+|----|-------------|-------|-----------|---------------|--------|
+| V1 | [descripcion] | A0X | Critical | path/file.py:42 | NEW/SEEN xN |
+
+---
+
+## Cambios desde el ultimo audit
+
+- **Resuelto**: [lista de IDs `AU-*` que estaban en el audit anterior y ya no
+  aparecen — o "sin baseline, primer audit" si Step 0 no encontró uno previo]
+- **Empeoró (SEEN con severidad mayor)**: [lista, o "ninguno"]
 
 ---
 
@@ -263,3 +317,4 @@ If Lead Time for Changes > 1 week, the team is accumulating release debt. Flag a
 - Scoring only what is measurable (coverage %) and ignoring qualitative factors (naming, coupling) — the score becomes misleading
 - Generating the audit report but not creating follow-up tickets — an audit without action items is a document graveyard
 - Doing a security analysis without running the actual secret scanning command — assumptions are not evidence
+- Reportar el Radar de Deuda Tecnica sin comparar contra el audit anterior cuando existe uno — sin la columna `Estado` no se puede saber si el equipo está mejorando o empeorando entre audits

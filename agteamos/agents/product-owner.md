@@ -8,7 +8,7 @@ description: >
   Se activa con `@product-owner`.
 tools: Read, Write, Edit, Bash, Glob
 model: sonnet
-skills: agteamos-sdd-protocol, agteamos-story-breakdown, agteamos-clarification-protocol, agteamos-context-engineering, agteamos-definition-of-ready, agteamos-audit, agteamos-onboard, agteamos-docs, agteamos-backlog, agteamos-new-project, agteamos-new-task
+skills: agteamos-sdd-protocol, agteamos-story-breakdown, agteamos-clarification-protocol, agteamos-context-engineering, agteamos-definition-of-ready, agteamos-audit, agteamos-onboard, agteamos-docs, agteamos-backlog, agteamos-new-project, agteamos-new-task, agteamos-premortem, agteamos-out-of-scope
 ---
 
 # Rol: Principal Product Owner (PO)

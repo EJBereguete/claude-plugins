@@ -3,7 +3,9 @@ name: agteamos-adr
 description: >
   Architecture Decision Records using the Nygard format. Covers the full
   lifecycle of an ADR, numbering conventions, index management, immutability
-  rules, and guidance on when to write an ADR vs. a lighter decision-log entry.
+  rules, guidance on when to write an ADR vs. a lighter decision-log entry,
+  and an optional agteamos-premortem pass before a decision moves to
+  Accepted.
 used_by:
   - architect
   - security-engineer
@@ -25,13 +27,24 @@ change its status to `Superseded`.
 
 ### What qualifies as an ADR
 
-Write an ADR when the decision:
+**Test de 3 cláusulas (AND, no OR)** — escribir un ADR solo si las tres son
+ciertas a la vez; si falta una sola, no califica, sin importar cuán
+importante se sienta la decisión:
 
-- Affects more than one service or team
-- Changes a technology choice, framework, library, or protocol
-- Establishes a cross-cutting pattern (auth strategy, error format, pagination)
-- Has meaningful long-term consequences if changed later
-- Would cause confusion if a new team member discovered it without context
+1. **Difícil de revertir** — cambiarla después cuesta caro (migración de
+   datos, romper un contrato público, reescribir una capa entera).
+2. **Sorprendente sin contexto** — alguien que lea el código sin la
+   deliberación detrás no entendería por qué se hizo así.
+3. **Resultado de un trade-off real** — hubo al menos una alternativa seria
+   evaluada y descartada, no una sola opción obvia.
+
+Si la decisión es reversible fácilmente, o es autoexplicativa leyendo el
+código, o no hubo ningún trade-off real (la opción elegida era la única
+sensata), **no escribir el ADR** — anotarla en `decision-log.md` si acaso, y
+seguir. ADRs ofrecidos con moderación valen más que un ADR por cada elección.
+
+Ejemplos que sí pasan las 3 cláusulas:
+- Affects more than one service or team, changes a technology choice/framework/library/protocol, or establishes a cross-cutting pattern (auth strategy, error format, pagination) — siempre que además sea difícil de revertir y haya habido alternativas reales evaluadas.
 
 Do NOT write an ADR for:
 
@@ -64,6 +77,19 @@ Write in present tense. Keep it factual, not opinionated.
 State the decision clearly in active voice.
 "We will use X because Y."
 
+## Premortem (optional — fill in only if `agteamos-premortem` was run)
+
+Distinto de "Consequences → Negative" abajo: esa lista es aditiva ("estos
+son los costos que aceptamos"); esto es un caso argumentado en contra de la
+decisión — construido para encontrar la grieta que la mata, no para listar
+trade-offs conocidos. Omitir esta sección por completo si no se corrió el
+premortem — no rellenarla con una versión suave de "Negative".
+
+**Veredicto:** {una a tres frases, sin anestesia}
+**Grieta más letal:** {la que invalidaría esta decisión si se materializa}
+**Mitigación aceptada:** {qué se decidió hacer al respecto, o "se acepta el
+riesgo tal cual" si el equipo decidió seguir de todos modos}
+
 ## Consequences
 
 ### Positive
@@ -84,6 +110,13 @@ Proposed → Accepted → Deprecated   (decision still valid but being phased ou
 ```
 
 - **Proposed**: draft, open for team discussion. Can be changed freely.
+  **Premortem opcional (nunca automático, nunca bloqueante)** antes de pasar
+  a `Accepted`: para decisiones de alto impacto o difíciles de revertir,
+  ofrecer correr `agteamos-premortem` sobre la decisión propuesta. Si se
+  corre, el veredicto se anexa en la sección `## Premortem` del ADR (ver
+  template) — no bloquea la aceptación, es información para decidir con los
+  ojos abiertos. Una vez `Accepted`, el ADR (y su sección Premortem, si la
+  tiene) queda inmutable como el resto del documento.
 - **Accepted**: merged into the main branch. IMMUTABLE — no edits to content.
 - **Deprecated**: the decision is still in effect but being retired. Add a
   deprecation note at the top pointing to the migration path.
@@ -213,6 +246,7 @@ We will use JWT (RS256) for authenticating API requests.
 - [ ] File is named `ADR-NNN-slug.md` with sequential number
 - [ ] All four sections present: Context, Decision, Consequences (Positive /
       Negative / Neutral)
+- [ ] Para decisiones de alto impacto o difíciles de revertir, se ofreció (no necesariamente se corrió) `agteamos-premortem` antes de `Accepted` — si se corrió, la sección `## Premortem` está llena
 - [ ] Status field is one of: Proposed / Accepted / Deprecated / Superseded
 - [ ] Date field is set to the acceptance date
 - [ ] Deciders field lists who approved the decision
@@ -236,6 +270,11 @@ creates a false sense of documentation without the actual deliberation.
 If caught late, mark it as `Accepted` with the real date and note in Context
 that it was documented retroactively.
 
+**Escribir un ADR que solo pasa 1 o 2 de las 3 cláusulas.**
+Una decisión reversible-pero-sorprendente, o difícil-de-revertir-pero-obvia,
+no es un ADR — es ruido documental. Aplicar el AND-gate completo, no una
+mayoría.
+
 **Using ADRs for implementation details.**
 "We will use a `UserService` class with a `create_user` method" is not an
 ADR — it is a code-level design choice. ADRs document technology and
@@ -254,3 +293,14 @@ was abandoned, add a note explaining why and change status to a custom
 **One ADR for multiple unrelated decisions.**
 Each ADR must capture exactly one decision. Bundling multiple choices makes
 it impossible to supersede one without affecting the others.
+
+**Confundir la sección Premortem con Consequences → Negative.**
+Negative es una lista de costos ya aceptados por quien decide; Premortem es
+un caso argumentado en contra, construido antes de decidir. Rellenar
+Premortem con una copia suave de Negative (o viceversa) le quita el valor a
+ambas secciones.
+
+**Tratar `agteamos-premortem` como un gate obligatorio del ADR.**
+Es opcional siempre — forzarlo en cada ADR (incluso los triviales) convierte
+una herramienta de alto valor para decisiones grandes en burocracia
+adicional. Ofrecerlo quiere decir preguntarlo, no imponerlo.

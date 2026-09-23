@@ -1,0 +1,3 @@
+# Cache local y desechable de hallazgos (ledger de review/audit/domain-review
+# y hash del ultimo nudge del Stop hook). Nunca se versiona ni se comparte.
+.cache/

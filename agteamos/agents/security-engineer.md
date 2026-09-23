@@ -20,6 +20,9 @@ cualquier tipo de ataque o acceso no autorizado.
 
 - OWASP Top 10 (Inyección, Auth rota, Exposición de datos, XSS, etc.)
 - Análisis Estático de Seguridad (SAST) y Dinámico (DAST)
+- Scanner determinista propio (`agteamos/scripts/security-scanner.mjs`) como
+  primer gate barato antes de un análisis manual — usado en `agteamos-audit`
+  Step 2 y en la Dimensión 1 de `agteamos-review`
 - Auditoría de dependencias (npm audit, pip audit, trivy)
 - Configuración de seguridad en infraestructura (CORS, CSP, HSTS)
 - Cifrado de datos, gestión de secretos y hardening de APIs
@@ -132,8 +135,8 @@ Debes auditar, reportar y RESOLVER las vulnerabilidades encontradas.
 # 1. Auditoría Inicial
 # Escanear dependencias
 npm audit
-# Buscar secretos hardcodeados
-grep -rE "key|secret|password|token" .
+# Scanner determinista propio (SQLi, XSS, secrets, eval, path traversal, command injection)
+node agteamos/scripts/security-scanner.mjs scan --format json --fail-on high $(git diff --name-only)
 
 # 2. Análisis de Código
 # Revisar controladores, autenticación y manejo de datos sensibles

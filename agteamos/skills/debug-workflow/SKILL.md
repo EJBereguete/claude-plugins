@@ -48,6 +48,28 @@ grep -r "functionNameFromStackTrace" src/ --include="*.ts" --include="*.tsx" -l
 
 Confirm you can reproduce the error mentally by tracing the execution path from input to failure. If you cannot reproduce it from reading the code, add a minimal reproduction case before proceeding.
 
+**Gate obligatorio antes de teorizar**: no pasar al Step 3 (5 Whys) sin un
+**loop rojo/verde reproducible** — un comando o script que hoy falla de la
+misma forma que el bug reportado, y que pasaría a estar verde si el bug
+estuviera arreglado. Si te descubrís leyendo código para armar una teoría
+sin que ese comando exista todavía, parar y construirlo primero. Orden de
+preferencia (usar el más barato que alcance, no siempre el primero de la
+lista):
+
+1. Un test que falla (unit o integration) — el más barato si ya hay fixtures.
+2. Un script `curl`/HTTP contra el endpoint afectado.
+3. Un diff de CLI (correr el comando dos veces, comparar output esperado vs real).
+4. Un browser headless (Playwright) si el bug es solo reproducible en UI.
+5. Reproducir contra un trace/log capturado del incidente real, si existe.
+6. Un harness descartable (script de una sola vez, se borra después).
+7. Un loop de fuzzing acotado, si el bug depende de un input no determinístico.
+8. Bisección (`git bisect`) si no se sabe en qué commit se rompió.
+9. Un loop diferencial (correr versión vieja vs nueva del código con el mismo input).
+10. Último recurso: un script bash guiado por humano (HITL) si nada de lo anterior aplica.
+
+Sin este loop, cualquier "arreglo" es una corazonada — no hay forma de
+confirmar que lo resolvió ni de que el test de regresión (Step 6) sea real.
+
 ---
 
 ### Step 2 — Create the branch
@@ -84,6 +106,14 @@ Fill in this table before proposing any fix:
 | Why 3 | Why was that mechanism flawed? | [design or logic gap] |
 | Why 4 | Why was that gap not caught? | [missing test / missing validation] |
 | Why 5 (root cause) | Why was there no safeguard? | [process or architectural gap] |
+
+**Antes de aceptar la primera teoría que suene plausible**: listar 3-5
+hipótesis candidatas para "Why 1" en formato falsable — *"si [hipótesis] es
+la causa, entonces [cambio concreto] debería hacer que el bug desaparezca"*
+— rankeadas de más a menos probable, y mostrarlas al usuario/equipo **antes**
+de probar la primera. Esto evita anclarse en la primera explicación que
+viene a la mente solo porque fue la primera. Recién con el loop del Step 1
+se pueden probar una por una hasta confirmar cuál sobrevive.
 
 **Example — NullPointerException in invoice total calculation**:
 
@@ -259,6 +289,8 @@ Fix: Replace two-query pattern with `SELECT ... FOR UPDATE` + single transaction
 ## ANTI-PATTERNS
 
 - Fixing the symptom without completing the 5 Whys — the bug will reappear in a different form
+- Teorizar sobre la causa antes de tener un loop rojo/verde reproducible — sin eso, ninguna "confirmación" es real
+- Anclarse en la primera hipótesis plausible sin listar 3-5 candidatas falsables antes de probar — la primera idea rara vez es la correcta
 - Implementing the tactical patch and forgetting the structural fix — patches accumulate into unmaintainable code
 - Writing the regression test after the fix passes — write it first, verify it fails, then verify it passes
 - Not categorizing the bug — without categorization, the team cannot identify systemic patterns (e.g., "70% of our bugs are Type Errors — we need stricter schema validation")

@@ -3,7 +3,8 @@ name: agteamos-new-project
 description: >
   End-to-end workflow for bootstrapping a new project starting from an empty
   or near-empty repository. Covers stack definition, architecture, design system,
-  CI/CD setup, and backlog creation before handing off to the agteamos-new-task
+  CI/CD setup, backlog creation, and an optional formal SRS (IEEE 830 style,
+  opt-in, see srs-template.md) before handing off to the agteamos-new-task
   workflow for the first feature.
 used_by:
   - architect
@@ -45,6 +46,25 @@ preguntar nada de lo que ya contiene** — repetir esas preguntas duplica
 trabajo que el usuario ya hizo y arriesga una respuesta inconsistente con lo
 ya persistido.
 
+**Atajo opcional — detectar el "shape" del proyecto por señales léxicas**
+antes de armar las preguntas, para no preguntar lo que ya se puede inferir
+del pedido inicial del usuario (no reemplaza la interview, solo la acorta):
+
+| Señales en el pedido del usuario | Shape probable | Ajusta |
+|---|---|---|
+| "cart", "checkout", "catálogo", "inventario" | E-commerce | Preguntar pasarela de pago en vez de "integraciones" genérico |
+| "CLI", "paquete npm/pip", "MCP server", "SDK" | CLI/librería | Saltar preguntas de UI/deploy_target de servidor |
+| "landing", "blog", "portafolio" | Sitio de marketing | Saltar preguntas de base de datos/auth si no se mencionan |
+| "app móvil", "iOS", "Android", "React Native" | App móvil | Preguntar plataforma target antes que stack backend |
+| "dashboard interno", "herramienta para el equipo" | Herramienta interna | Asumir auth simple (SSO/allowlist) salvo que se diga lo contrario |
+| "agente", "bot", "automatización" | Agent app / bot | Preguntar qué dispara la ejecución (cron, webhook, manual) |
+
+Si el pedido no matchea ninguna señal clara, no forzar un shape — seguir con
+la interview genérica de abajo sin marcar ninguna casilla. Esto es
+deliberadamente liviano (una tabla, no 14 archivos de shape separados) — el
+objetivo es ahorrar 1-2 preguntas cuando la señal es obvia, no construir una
+taxonomía completa que hay que mantener.
+
 Preguntar en un único mensaje (máximo 5-7 preguntas, nunca una por una) SOLO
 lo que es específico de este proyecto y no vive en `platform.yml`:
 
@@ -53,6 +73,10 @@ lo que es específico de este proyecto y no vive en `platform.yml`:
 - ¿Cuáles son las 3-5 features que definen el MVP?
 - ¿Hay sistemas existentes con los que esto debe integrarse (proveedores de auth, APIs de terceros)?
 - ¿Cuál es la escala esperada al lanzamiento (usuarios, volumen de datos, rate de requests)?
+- ¿Este proyecto necesita un SRS (Especificación de Requisitos de Software)
+  formal? — típico cuando hay un cliente/contrato que lo pide como entregable,
+  una entrega académica, o un contexto regulado. Para un proyecto personal o
+  ágil sin ese requisito, la respuesta por default es no (ver Step 3.5).
 
 Preguntar de forma condicional, **solo si el campo quedó en `null`** en
 `platform.yml` (no se resolvió todavía en `agteamos-setup`):
@@ -69,6 +93,25 @@ default de branching contradice el principio rector de `agteamos-setup`
 Do not proceed to Step 2 until answers are received and unambiguous. See skill
 `agteamos-clarification-protocol` for the full question protocol.
 
+### Step 1.5 — Premortem opcional (nunca automático)
+
+Con las respuestas de Step 1 ya en mano, ofrecer — no ejecutar por
+default —: *"¿Querés que corra un pre-mortem de 8 ángulos sobre esta idea
+antes de comprometernos a construirla? Es una crítica dura a propósito,
+pensada para encontrar grietas ahora y no después."*
+
+- Si el usuario acepta: invocar la skill `agteamos-premortem` con las
+  respuestas de Step 1 como input (problema, usuarios, MVP, integraciones,
+  escala). El veredicto se muestra completo al usuario; **no bloquea** el
+  avance a Step 2 — es información para decidir con los ojos abiertos, no
+  un gate que hay que "pasar".
+- Si el usuario declina o no responde, continuar directo a Step 2 sin
+  insistir ni volver a ofrecerlo más adelante en este mismo workflow.
+- Si el veredicto del premortem señala una grieta letal y el usuario decide
+  seguir de todos modos, anotarla en `agteamos/product/mission.md` (Step 3)
+  bajo una sección `## Riesgos conocidos (premortem)` — no se oculta, se
+  documenta y se sigue.
+
 ### Step 2 — @architect: Define stack and architecture
 
 Using the answers from Step 1, the architect agent must:
@@ -82,6 +125,16 @@ Using the answers from Step 1, the architect agent must:
    - Architecture diagram
    - Stack table (layer → technology → justification)
    - Key architectural decisions (brief, full ADRs come next)
+   - **`## Comandos canonicos`** — la tabla de comandos reales de este
+     proyecto (`test`, `typecheck`/`lint`, `migrate`, `build`, `dev`), ej.
+     `pnpm test`, `pytest`, `alembic upgrade head`. Esta tabla se escribe
+     **antes** de cualquier AC/verify command en tareas futuras — todo
+     `requirements.md`/`verify-report.md` que cite un comando de verificación
+     debe usar únicamente comandos de esta tabla, nunca inventar uno nuevo
+     ad-hoc. Es lo que hace que los ACs verificables (`agteamos-sdd-protocol`)
+     y el gate de `agteamos-close-task` (exit-code discipline) sean
+     consistentes entre tareas distintas del mismo proyecto en vez de que
+     cada tarea reinvente su propio comando de verificación.
 5. Write initial ADRs under `agteamos/architecture/adr/`:
    - `ADR-001-stack-selection.md`
    - `ADR-002-database-model.md`
@@ -100,6 +153,10 @@ The product owner agent must:
    - User personas (at least one)
    - Out-of-scope list (explicit exclusions prevent scope creep)
    - Definition of Done for this project
+   - `## Riesgos conocidos (premortem)` — solo si Step 1.5 corrió y quedó al
+     menos una grieta que el usuario decidió aceptar en vez de resolver;
+     omitir la sección por completo si Step 1.5 no corrió o no encontró
+     nada que valga la pena registrar
 3. Write `agteamos/product/kpis.md` with:
    - KPIs to measure MVP success
 4. Write `agteamos/product/roadmap.md` with:
@@ -110,6 +167,49 @@ The product owner agent must:
 
 Output: `agteamos/product/mission.md`, `kpis.md`, and `roadmap.md` committed.
 Templates ya existen completas en esta skill — solo cambia la ruta de destino.
+
+### Step 3.5 — @product-owner: SRS formal (opcional, solo si Step 1 lo confirmó)
+
+**Condicional**: ejecutar solo si el usuario respondió que sí a la pregunta de
+Step 1 sobre necesitar un SRS formal. Si la respuesta fue no (el default),
+saltar este paso por completo — no generar `SRS.md` "por si acaso".
+
+Si aplica, el product owner debe:
+
+1. Leer `srs-template.md` (mismo directorio que esta skill) — es la
+   plantilla completa basada en IEEE 830 / ISO/IEC/IEEE 29148.
+2. Llenar cada sección con la información ya recolectada en Step 1
+   (problema, usuarios, restricciones, escala) y Step 2 (`PROJECT_CONTEXT.md`,
+   diagrama de arquitectura → secciones 2.1 y 11).
+3. La sección 5 (Requisitos Funcionales) es el **catálogo global** del
+   proyecto — cada requisito recibe un `RF-XXX` único. Estos IDs son la
+   fuente de verdad: cuando más adelante `agteamos-new-task` arranque una
+   feature concreta, su `requirements.md` (ver `agteamos-sdd-protocol`) debe
+   **citar** el `RF-XXX` correspondiente en vez de redactar el requisito de
+   nuevo. Si una feature no tiene un `RF-XXX` previo (surgió después del
+   SRS inicial), agregarlo al SRS primero, no crearlo solo en `requirements.md`.
+4. La sección 10.2 (matriz de trazabilidad) arranca con todas las filas en
+   `Pendiente` — se actualiza a `Verificado` automáticamente en
+   `agteamos-task-closure` (Step 5 — Verify), no a mano.
+5. **Si `agteamos/platform.yml` tiene `tracker: planner`**: por cada `RF-XXX`
+   de la sección 5, invocar `[operación: create-ticket]` contra
+   `agteamos/tracker/planner.md` (título = enunciado corto del requisito,
+   body = el requisito completo tal como quedó redactado en el SRS). Volcar
+   el `id` de tarea que devuelve Graph API en la columna 5 ("Planner Task
+   ID") de la fila correspondiente en la sección 10.2 (ver
+   `srs-template.md`). Si `tracker` no es `planner`, la tabla 10.2 se escribe
+   con las 4 columnas base, sin la columna 5 — no crear tickets en ningún
+   lado todavía (eso ya lo cubre el Step 6 genérico de backlog, vía la misma
+   abstracción de tracker, para el resto de las features del MVP).
+6. Escribir el resultado en `agteamos/architecture/SRS.md`.
+
+Output (solo si aplica): `agteamos/architecture/SRS.md` committed (y, si
+`tracker: planner`, una tarea de Planner por cada `RF-XXX`).
+
+> **Por qué es opt-in**: un SRS formal estilo IEEE 830 es pesado comparado
+> con el flujo ágil (SDD) que ya usa AgTeamOS por default — vale la pena
+> cuando hay una razón contractual/formal concreta, no como documentación
+> extra para un proyecto personal chico.
 
 ### Step 4 — @ui-ux-designer: Create design system baseline
 
@@ -200,6 +300,7 @@ agteamos/
 ├── architecture/
 │   ├── PROJECT_CONTEXT.md
 │   ├── ARCHITECTURE.md           (si aplica, ver skill agteamos-onboard o el agente @architect)
+│   ├── SRS.md                     (opcional, solo si Step 3.5 aplicó — ver srs-template.md)
 │   └── adr/
 ├── api/                           (esqueleto vacío si el proyecto no expone API todavía; openapi.yml + endpoints.md una vez que exista al menos un endpoint)
 ├── design/

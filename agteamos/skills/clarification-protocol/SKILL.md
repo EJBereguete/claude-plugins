@@ -32,13 +32,49 @@ Lee el request del usuario e identifica:
 - Lo que falta o es ambiguo (preguntar sobre esto)
 - Lo que puedes inferir del contexto del proyecto (confirmar, no preguntar)
 
-### Step 2: Hacer preguntas FOCALIZADAS
+### Step 2: Hacer preguntas FOCALIZADAS — mecanismo de frontera (grilling)
 
-**Reglas:**
+En vez de una tanda fija de preguntas pensada de una sola vez, modelar las
+preguntas como un **árbol de dependencias** y trabajarlo por **rondas**:
+
+1. Listar todas las preguntas posibles (lo ambiguo/faltante del Step 1).
+2. Marcar cuáles dependen de la respuesta a otra pregunta todavía sin
+   contestar (ej. "¿qué proveedor de email?" depende de "¿necesitamos
+   templates HTML?" si la respuesta cambia las opciones disponibles).
+3. **La frontera de esta ronda** = las preguntas cuyos prerequisitos ya
+   están resueltos. Las que dependen de algo aún abierto se difieren a la
+   ronda siguiente — nunca se preguntan antes de tiempo, aunque ya se te
+   hayan ocurrido.
+4. Repetir rondas hasta que la frontera quede vacía (no hay más preguntas
+   pendientes cuyos prerequisitos ya estén resueltos).
+
+**Regla separada, no negociable: averiguar hechos es tu trabajo, nunca del
+usuario.** Antes de poner una pregunta en la frontera, preguntarse: "¿esto
+es una decisión/preferencia que solo el usuario puede dar, o es un hecho que
+puedo comprobar leyendo el código/config del proyecto?" Si es lo segundo,
+usar `Read`/`Grep`/`Glob` (o un subagente de exploración si la búsqueda es
+amplia) para resolverlo — nunca preguntarlo. Esto no bloquea el resto de la
+ronda: solo las preguntas que dependían de ese hecho esperan, las demás
+preguntas de la ronda se hacen igual.
+
+**Formato de cada ronda**: preguntas numeradas, cada una con **una
+recomendación propia del agente ya incluida** (ver el ejemplo de
+`agteamos-new-project` Step 1: "¿Cuál es el entorno de despliegue objetivo?
+Si no tenés preferencia, recomiendo VPS por [razón]") — así el usuario puede
+aprobar en bloque en vez de responder todo desde cero.
+
+**Reglas generales (siguen aplicando dentro de cada ronda):**
 - Maximo 3-5 preguntas por ronda (no bombardear)
 - Preguntas concretas con opciones cuando sea posible
 - No preguntar lo que puedes inferir del codigo existente
 - Si algo es una decision tecnica que no afecta al usuario, decidir tu
+
+**Antes de abrir una pregunta o proponer una feature/dirección nueva**:
+revisar `agteamos/decisions/out-of-scope/` (si existe) por similitud
+conceptual — no keyword matching — con lo que se está por preguntar. Si algo
+ya fue rechazado explícitamente antes, decirlo ("esto ya se descartó el
+<fecha> por <razón> — ¿seguís queriendo revisitarlo?") en vez de volver a
+preguntarlo como si fuera nuevo. Ver skill `agteamos-out-of-scope`.
 
 ### Step 3: Confirmar entendimiento
 
@@ -127,3 +163,6 @@ Usuario: "Si, correcto"
 - **No preguntar decisiones tecnicas al usuario** — esas las toma el equipo
 - **No asumir sin confirmar** — si hay duda, pregunta
 - **No bloquear indefinidamente** — si despues de 2 rondas no hay claridad, proponer la solucion mas razonable y pedir aprobacion
+- **Preguntar algo que se puede comprobar leyendo el código** — si la respuesta está en el repo, léela; no le pases al usuario el trabajo de mirar su propio código
+- **Preguntar una pregunta de una ronda posterior antes de tiempo** — si depende de una respuesta que todavía no llegó, esperar a la ronda que corresponde
+- **Terminar sin haber vaciado la frontera** — parar en una ronda arbitraria (ej. "ya hice 2 rondas") en vez de seguir hasta que no queden preguntas con prerequisitos resueltos

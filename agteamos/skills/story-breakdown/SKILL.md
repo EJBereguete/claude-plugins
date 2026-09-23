@@ -16,6 +16,14 @@ used_by:
 - **Output**: Decision de split + sub-issues creados si aplica
 - **Trigger**: Despues de agteamos-definition-of-ready, antes de implementacion
 
+> **Nota**: si una story dispara "SI dividir" por ser grande o incierta (ver
+> "CUANDO DIVIDIR" abajo), es tambien candidata al gate opcional de
+> `agteamos-premortem` en `agteamos-new-task` (Step 1.5) — ese paso ya pasó
+> si la story viene de ese flujo; si esta skill se invoca sobre un ticket
+> que no pasó por ahí (ej. importado de un tracker externo) y el tamaño/
+> incertidumbre lo amerita, se puede ofrecer el premortem antes de dividir,
+> no después — dividir una mala idea solo la vuelve varias tareas malas.
+
 ## INVEST CRITERIA
 
 Cada user story debe cumplir INVEST:
@@ -43,6 +51,9 @@ Cada user story debe cumplir INVEST:
 
 ¿Hay un spike de investigacion necesario antes de implementar?
   SI → Crear ticket separado para spike, luego ticket de implementacion
+
+¿Es un cambio mecanico repetido en muchos call sites (renombrar, cambiar tipo compartido)?
+  SI → Usar el patron Expand/Migrate/Contract (ver mas abajo), NO dividir por capa/feature
 ```
 
 ## PATRONES DE SPLIT
@@ -89,7 +100,37 @@ Split:
 └── TASK-60d: Security hardening — PCI compliance, tokenization
 ```
 
-### 4. Spike + implementacion
+### 4.5. Expand / Migrate / Contract (refactor mecanico de blast-radius grande)
+
+Los 4 patrones anteriores asumen que la tarea se puede partir por capa,
+feature o complejidad. Un refactor **mecánico** (renombrar un símbolo
+compartido, cambiar la forma de un tipo usado en 400 archivos) no encaja en
+ninguno — forzarlo en una "vertical slice" fragmenta un cambio que en
+realidad es uno solo, repetido muchas veces. Para este caso:
+
+```
+Story: "Renombrar UserId (string) a UserId (branded type) en todo el backend"
+
+Split (NO por capa/feature — por fase del refactor):
+├── TASK-90a: [Expand] Introducir el tipo nuevo en paralelo al viejo,
+│             sin romper nada — ambos coexisten, todo el código viejo sigue
+│             compilando sin cambios.
+├── TASK-90b: [Migrate] Migrar los call sites en lotes (por módulo o por
+│             PR de tamaño manejable), cada lote usando el tipo nuevo,
+│             verificado independientemente antes de seguir con el siguiente.
+├── TASK-90c: [Migrate] ...lotes siguientes hasta cubrir el 100% de call sites.
+└── TASK-90d: [Contract] Eliminar el tipo viejo y cualquier shim de
+              compatibilidad — solo cuando TASK-90b/90c confirmaron que no
+              queda ningún call site sin migrar.
+```
+
+**Cuándo usar este patrón en vez de los de arriba**: el cambio es
+esencialmente el mismo diff mecánico repetido N veces (no lógica de negocio
+nueva), y N es grande (decenas o cientos de call sites). Si el cambio es
+chico (menos de ~10 call sites), no vale la pena partirlo — es una sola
+tarea.
+
+### 5. Spike + implementacion
 
 ```
 Story: "Migrar auth de sessions a JWT"
@@ -158,6 +199,21 @@ Decision: DIVIDIR.
 
 Cuando se divide, el @project-manager crea sub-issues en GitHub/Azure:
 
+**Si `tracker: azure_devops` y `process_template: agile`**: cada subtarea es
+un **Task** nativo, hijo del User Story original vía relación de jerarquía
+real (no una mención en texto):
+```
+[operación: create-task] (título "[BE] NotificationService + SendGrid
+  integration", body con Scope y ACs propios, Activity: Development;
+  se resuelve contra agteamos/tracker/azure_devops.md)
+[operación: link-parent-child] (id del Task recién creado como hijo,
+  target-id = #42 el User Story original)
+```
+Esto hace que el Task aparezca en el Task Board de Azure Boards bajo el
+User Story real, no solo referenciado en texto — habilita el burndown y las
+vistas de sprint nativas de Azure.
+
+**Cualquier otro tracker (GitHub, Planner, o Azure sin proceso Agile)**:
 ```
 [operación: create-ticket] (título "[BE] NotificationService + SendGrid
   integration", body con "Parent: #42", Scope y ACs, label backend/sub-task;
@@ -165,8 +221,8 @@ Cuando se divide, el @project-manager crea sub-issues en GitHub/Azure:
   tabla ya cubre tanto GitHub sub-issues como Azure DevOps child work items)
 ```
 
-Cada sub-issue tiene:
-- Referencia al parent ticket
+Cada sub-issue/Task tiene:
+- Referencia al parent ticket (relación nativa en Azure Agile, texto en el resto)
 - ACs propios (subset del parent)
-- Label de capa (backend, frontend, infra)
+- Label de capa (backend, frontend, infra) — o `Microsoft.VSTS.Common.Activity` en Azure
 - Asignado al agente correcto

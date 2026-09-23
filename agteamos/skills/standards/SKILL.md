@@ -23,6 +23,16 @@ used_by:
 - **Trigger**: `@architect` la ejecuta a demanda, o como parte de `agteamos-onboard` cuando el repo tiene código existente
 - **Quién ejecuta**: `@architect` (dueño conceptual de las reglas de arquitectura en `standards/` y de `agteamos-adr`)
 
+> **Nota — no confundir con `agteamos-domain-review`**: `standards` es una
+> foto puntual de convenciones (naming, capas, branch strategy, etc.),
+> generada por onboarding o a demanda — no se re-ejecuta en cada PR.
+> `agteamos-domain-review` es el chequeo continuo de smells de dominio
+> (concepto disperso, God Module, leaky boundary...) acotado al módulo que
+> cambia un PR concreto, con ratchet rule y cache entre corridas. Ambas
+> coexisten: `standards/domain-driven-design/README.md` define qué patrones
+> DDD aplican al proyecto; `domain-review` detecta cuándo un cambio concreto
+> se aleja de ellos.
+
 ---
 
 ## POR QUÉ EXISTE ESTA SKILL
