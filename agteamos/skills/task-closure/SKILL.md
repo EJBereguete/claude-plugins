@@ -282,6 +282,23 @@ genera `agteamos/changes/<id>-<slug>/verify-report.md` verificando:
    - `MUST` / `SHALL` no cumplido → **FAIL** (bloquea el cierre).
    - `SHOULD` no cumplido → **WARNING** (no bloquea, se documenta).
    - `MAY` → no se chequea.
+4. **Disciplina de exit-code en cada comando de verify citado por un AC**:
+   un AC verificado por un comando ejecutable (test, script, curl) solo
+   cuenta como cumplido si ese comando sale con exit code 0 exactamente
+   cuando el AC es cierto — nunca por inspección visual del output. Si el AC
+   cubre un camino de error esperado (ej. "debe rechazar con 400"), el
+   comando de verify tiene que envolver esa expectativa explícitamente
+   (`test $? -eq 0` después de un curl que espera 400, o
+   `! grep -q "500" response.txt`) — un comando que "falla" en el sentido
+   shell pero cuyo fallo ES el comportamiento correcto no puede marcarse
+   FAIL solo por su exit code crudo.
+5. **Path-closure check**: para cada comando de verify que referencia un
+   archivo (fixture, config, test file), confirmar que ese archivo existe y
+   fue realmente escrito por esta tarea (aparece en "Files Modified" de
+   `progress.md`) o ya existía antes. Un verify que apunta a un fixture que
+   nadie creó es una inconsistencia real — inconsistencia que la revisión
+   humana de un checklist marcado `[x]` no atrapa, pero un chequeo de rutas
+   sí. Reportarlo como **FAIL** si el archivo no existe.
 
 **Template de `verify-report.md`:**
 
@@ -309,6 +326,11 @@ Fuente: sección `## Requirements (RFC 2119)` de `requirements.md`.
 | R3 | El sistema SHOULD reintentar en caso de fallo de SendGrid | SHOULD | NO | ⚠️ WARNING |
 | R4 | El sistema MAY loguear el payload completo | MAY | — | no chequeado |
 
+## Path-closure check
+| Comando de verify | Archivo referenciado | Existe y fue escrito por esta tarea | Estado |
+|---|---|---|---|
+| `pytest tests/test_notifications.py::test_welcome_email` | `tests/test_notifications.py` | Sí — ver Files Modified | ✅ |
+
 ## Bloqueantes (FAIL)
 Ninguno.
 
@@ -325,6 +347,30 @@ continuar.
 Este archivo alimenta directamente el `report.html` de la tarea (skill
 `agteamos-dashboard`) — no es un artefacto aislado, es una fuente más del
 mismo reporte.
+
+**Si `agteamos/architecture/SRS.md` existe** (proyecto con SRS formal opt-in,
+ver `agteamos-new-project` Step 3.5) **y** `requirements.md` tiene la sección
+`## Requisito SRS relacionado` citando uno o más `RF-XXX`: cuando este
+`verify-report.md` da `PASS` (sin `FAIL` sin resolver), actualizar en
+`SRS.md` la fila correspondiente de la sección 10.2 (Matriz de trazabilidad)
+de `Pendiente`/`En progreso` a `Verificado`. Si el resultado es
+`PASS_WITH_WARNINGS`, dejarla en `En progreso` y anotar el warning. Si no
+existe `SRS.md` o `requirements.md` no cita ningún `RF-XXX`, omitir este paso
+— no es un gate, es solo sincronización de estado.
+
+**Si además `agteamos/platform.yml` tiene `tracker: planner`** y la fila del
+`RF-XXX` en la sección 10.2 tiene un valor en la columna "Planner Task ID"
+(no vacío): sincronizar también la tarea de Planner, resuelto igual que
+siempre contra `agteamos/tracker/planner.md`:
+- `PASS` → `[operación: close-ticket]` con ese task ID (marca
+  `percentComplete: 100`).
+- `PASS_WITH_WARNINGS` → `[operación: comment-ticket]` con ese task ID,
+  agregando el detalle del warning — la tarea de Planner queda abierta.
+- `FAIL` → no se toca la tarea de Planner (el cierre ya se detuvo arriba,
+  antes de llegar a este punto).
+Si `tracker` no es `planner`, o la fila no tiene Planner Task ID (proyecto
+con SRS pero sin ese tracker configurado), omitir esta sincronización —
+mismo criterio de "no es un gate" que el punto anterior.
 
 ### 6. Merge PR
 
@@ -506,6 +552,20 @@ iteración del backlog, o — si corresponde una revisión periódica — ejecut
   actualizar cuando sí había impacto de contrato.
 - **Cerrar una tarea `lite` que en implementación resultó cambiar contrato**
   sin promoverla a `full` primero — "documentarlo después" nunca pasa.
+
+### Verify (exit-code y path-closure)
+- **Marcar un AC cumplido por inspección visual del output** en vez de por
+  el exit code del comando de verify — la inspección visual es exactamente
+  lo que este chequeo existe para reemplazar.
+- **Reportar FAIL en un comando cuyo exit code distinto de 0 es el
+  comportamiento esperado** (ej. un test que confirma que algo se rechaza)
+  sin envolver esa expectativa en el propio comando — el comando de verify
+  tiene que declarar explícitamente qué exit code espera, no asumir que
+  "0 siempre es éxito."
+- **Saltarse el path-closure check "porque el test ya pasó"** — un test que
+  pasa contra un fixture que no existe en el repo (por ejemplo, generado a
+  mano fuera del control de versiones) no es reproducible por otra persona
+  ni por CI.
 
 ### Sync y concurrencia
 - **Aplicar un delta contra una copia vieja de la spec maestra** — releer

@@ -9,7 +9,7 @@ description: >
   finales. Se activa con `@architect` — es el punto de entrada del equipo.
 tools: Read, Write, Edit, Grep, Glob, WebFetch
 model: opus
-skills: agteamos-repo-context-check, agteamos-flow-router, agteamos-new-project, agteamos-new-task, agteamos-implement, agteamos-adr, agteamos-sdd-protocol, agteamos-rfc, agteamos-context-engineering, agteamos-audit, agteamos-onboard, agteamos-review, agteamos-production-readiness, agteamos-setup, agteamos-standards, agteamos-docs, agteamos-backlog, agteamos-build-api-workflow, agteamos-clarification-protocol, agteamos-dashboard, agteamos-dora-metrics, agteamos-improve-skill, agteamos-pr-standards, agteamos-self-audit, agteamos-slo-management, agteamos-story-breakdown, agteamos-threat-modeling, agteamos-explore
+skills: agteamos-repo-context-check, agteamos-flow-router, agteamos-new-project, agteamos-new-task, agteamos-implement, agteamos-adr, agteamos-sdd-protocol, agteamos-rfc, agteamos-context-engineering, agteamos-audit, agteamos-onboard, agteamos-review, agteamos-domain-review, agteamos-production-readiness, agteamos-setup, agteamos-standards, agteamos-docs, agteamos-backlog, agteamos-build-api-workflow, agteamos-clarification-protocol, agteamos-dashboard, agteamos-dora-metrics, agteamos-improve-skill, agteamos-pr-standards, agteamos-self-audit, agteamos-slo-management, agteamos-story-breakdown, agteamos-threat-modeling, agteamos-explore, agteamos-premortem, agteamos-out-of-scope
 ---
 
 # Rol: Chief Technology Officer / Principal Software Architect
@@ -184,6 +184,15 @@ cerrar una tarea, sugiere `agteamos-audit`, `agteamos-standards` o `agteamos-doc
 - **`standards`**: la ejecutas cuando el usuario pide detectar o documentar las
   convenciones reales del código existente (linters, estructura de carpetas, patrones
   de nombres). Forma parte del flujo `agteamos-onboard` o se dispara a demanda.
+- **`domain-review`**: eres el dueño conceptual (igual que `standards` y
+  `self-audit`). La ejecutas standalone sobre un módulo, o la invocas como
+  sub-paso cuando `@qa-engineer` corre `agteamos-review` sobre un cambio que
+  toca varios archivos relacionados del mismo dominio.
+- **`premortem`**: la ofreces (nunca la fuerzas) en `agteamos-new-project`
+  Step 1.5, antes de definir el stack — cubres los ángulos técnicos
+  (premisas, viabilidad, ejecución); `@product-owner` cubre los de negocio
+  (mercado, competencia, números) cuando el objeto es más de producto que
+  de arquitectura. Es standalone y de solo lectura — nunca bloquea el flujo.
 - **`docs`**: la ejecutas periódicamente o cuando el usuario pregunta si la
   documentación de `agteamos/` sigue reflejando el estado real del proyecto.
 - **`audit`, `onboard`, `review`**: son ejecutados principalmente por otros agentes

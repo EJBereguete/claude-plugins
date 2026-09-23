@@ -1,10 +1,13 @@
 ---
 name: agteamos-review
 description: >
-  Code review experto en 7 dimensiones. Analiza seguridad, correctitud,
-  performance, mantenibilidad, tests, deuda tecnica y conformidad con
-  agteamos/standards/. Usa agteamos-pr-standards para el formato de feedback
-  y genera reporte con severidades.
+  Code review experto en 8 dimensiones. Analiza seguridad, correctitud,
+  performance, mantenibilidad (incluye code-judo, regla de 1k lineas,
+  spaghetti y boundaries), tests, deuda tecnica, conformidad con
+  agteamos/standards/ y DevEx/feature-gate leaks. Aplica ratchet rule: solo
+  bloquea por lo que el cambio introduce o extiende, lo preexistente es
+  follow-up. Usa agteamos-pr-standards para el formato de feedback y genera
+  reporte con severidades.
 used_by:
   - qa-engineer
   - architect
@@ -50,11 +53,45 @@ Use Read, Grep, and Glob to examine the code. Start with the entry point and tra
 
 ---
 
-### Step 2 — Analyze in 7 dimensions
+### Step 2 — Analyze in 8 dimensions
 
 Work through each dimension systematically. Do not skip any.
 
+**Ratchet rule (aplica a todas las dimensiones)**: un hallazgo es
+**Bloqueante** solo si el cambio bajo review lo introduce o lo extiende. Todo
+lo preexistente que el diff no toca es **follow-up** — se reporta igual
+(nunca se oculta), pero baja a Importante o se marca explícitamente como
+"preexistente, no bloqueante", sin importar su severidad intrínseca. Para
+determinarlo:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/hooks/scripts/lib/findings-ledger.js" scope .
+# -> {"changedLines": ["path/file.py:42", ...], "base": "main"}
+```
+Un hallazgo está "introducido en este cambio" si su `file:line` (con margen de
++/-2 líneas) aparece en `changedLines`. Si `base` viene `null`, no se pudo
+determinar la base branch — tratar todo como preexistente (ver arriba).
+
+Si no se puede determinar la base branch (repo sin historial, rama huérfana),
+tratar todo como preexistente y decirlo en el Resumen — no asumir bloqueante
+por defecto. Cada hallazgo en el reporte final indica
+`(introducido en este cambio)` o `(preexistente → follow-up)`.
+
+Para PRs o archivos con contexto de módulo (varios archivos relacionados),
+considerar invocar `agteamos-domain-review` como sub-paso de la Dimensión 4 —
+ver esa nota más abajo.
+
 #### Dimension 1 — Security
+
+**Paso previo (barato, sin gastar el analisis del agente)**: correr el scanner
+determinista antes de leer el código a mano:
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/security-scanner.mjs" scan --format json <archivo(s)>
+```
+Detecta SQLi, XSS, secrets hardcodeados, `eval()`, path traversal y command
+injection por patrón regex. Sus hallazgos son un piso, no un techo — el
+agente sigue revisando manualmente lo que el regex no puede ver (lógica de
+autorización, IDOR, timing attacks).
 
 What to look for:
 - Inputs accepted from user or external sources without validation
@@ -107,6 +144,36 @@ What to look for:
 - Comments that explain WHAT (redundant with code) instead of WHY
 - Missing type annotations in Python or TypeScript `any` usage
 
+**Regla de 1k líneas**: si este cambio hace que un archivo cruce las 1000
+líneas sin justificación estructural clara (ej. un archivo generado, un
+enum largo) → Bloqueante presuntivo. Proponer extraer helpers/subcomponentes
+antes de aceptar el crecimiento.
+
+**Code-judo**: antes de aceptar el código tal como está, preguntar si existe
+una reestructuración que preserva el comportamiento pero colapsa una rama,
+condicional o helper entero (la solución que "en retrospectiva es obvia").
+Si existe y no se aplicó, es Importante — no Sugerencia — porque el diff
+final sería más chico y más simple, no solo "más lindo".
+
+**Spaghetti**: branching ad-hoc insertado en un flujo ya existente, banderas
+booleanas o modos "temporales" que probablemente se vuelvan permanentes,
+manejo de un caso borde metido en medio de una función ya ocupada. Es un
+problema de diseño → Importante, nunca solo Sugerencia. Remediación: mover a
+una abstracción, helper o state machine dedicados, no seguir tangleando el
+flujo existente.
+
+**Boundaries**: uso de `any`/`unknown`/casts que ocultan un invariante de
+datos o seguridad → Bloqueante; wrappers finos sin valor agregado, lógica de
+una feature filtrada a un módulo genérico, o un helper bespoke que duplica
+uno canónico ya existente en el repo → Importante.
+
+**Nota — domain-review**: si el cambio toca 3+ archivos relacionados del
+mismo módulo, considerar invocar `agteamos-domain-review` sobre ese módulo
+antes de cerrar esta dimensión — detecta smells de dominio (concepto
+disperso, God Module, leaky boundary, ver `skills/domain-review/smells.md`)
+que esta dimensión, centrada en un archivo, no alcanza a ver. Sus
+Bloqueantes se insertan aquí mismo con el prefijo `[DR-...]`.
+
 #### Dimension 5 — Tests
 
 What to look for:
@@ -116,6 +183,13 @@ What to look for:
 - Missing edge case tests: what happens when the input is empty, null, or at the boundary?
 - Missing error case tests: what happens when the dependency throws?
 - Absence of tests for security-critical code paths (auth, payment, data mutation)
+- **Tautological tests**: the expected value is computed with the same
+  logic as the implementation (`expect(total).toBe(sum(items))` when
+  `total` itself is computed as `sum(items)` in production code) — passes
+  by construction even if the underlying logic is wrong. A verifiable test
+  needs a concrete, independently-known expected value (`expect(total).toBe(45.50)`),
+  not a recomputed formula. See `agteamos-sdd-protocol`'s Acceptance
+  Criteria rule for the same anti-pattern at the spec level.
 
 #### Dimension 6 — Technical Debt
 
@@ -148,6 +222,27 @@ find . -maxdepth 3 -path "*/agteamos/standards/index.yml"
 
 **If it does not exist**: skip this dimension and state in the report's Resumen that
 "no `agteamos/standards/` found — conformance could not be verified", not silently.
+
+#### Dimension 8 — DevEx & Feature Gates
+
+What to look for:
+- Cambios en cómo o dónde se leen secrets/env vars (nueva fuente de config,
+  librería de secrets distinta a la ya usada en el proyecto)
+- Variables de entorno nuevas o renombradas sin actualizar `.env.example` (o
+  equivalente) ni la documentación de setup
+- Remapeo de puertos o de networking local que rompe el flujo de desarrollo
+  existente sin avisar
+- Scripts nuevos que un desarrollador tiene que correr manualmente para que
+  algo siga funcionando (migración, seed, build step) sin que quede
+  documentado en el README o en `agteamos/docs/`
+- **Feature-gate leak**: el código nuevo ignora un flag/feature-gate existente
+  en algún branch de ejecución, exponiendo la feature antes de tiempo —
+  requiere trazar el flag end-to-end, no asumir que "seguro está bien"
+
+Estos hallazgos rara vez son Bloqueantes de seguridad, pero sí rompen el
+flujo de trabajo de otros desarrolladores o exponen features a medio
+terminar — reportar como Importante como mínimo; Bloqueante si hay leak de
+una feature que no debía ser visible aún.
 
 ---
 
@@ -229,8 +324,12 @@ isolated fixes.
 ### Step 4 — Submit the review decision
 
 **Criteria**:
-- `REQUEST_CHANGES`: any Bloqueante is present — do not approve
-- `APPROVE`: zero blockers, Importantes have been acknowledged (fix or ticket created)
+- `REQUEST_CHANGES`: any Bloqueante marcado `(introducido en este cambio)` está
+  presente — do not approve. Un Bloqueante marcado `(preexistente → follow-up)`
+  **no** dispara `REQUEST_CHANGES` por sí solo (ratchet rule) — se reporta
+  igual, pero no bloquea este PR.
+- `APPROVE`: zero blockers *introducidos por este cambio*, Importantes have been
+  acknowledged (fix or ticket created)
 - `COMMENT`: review of a draft PR or informational only — no approval decision
 
 ```bash
@@ -260,7 +359,7 @@ Input: "review src/services/payment_service.py"
 → Read the full file
 → Grep for callers to understand the call graph
 → Read related test file: tests/test_payment_service.py
-→ Analyze 6 dimensions
+→ Analyze 8 dimensions
 → Output report (no GitHub action since no PR number)
 ```
 
@@ -270,7 +369,7 @@ Input: "review PR #42"
 → [operación: get-pr] (read description and metadata)
 → [operación: get-pr] (read the diff — needs adapter extension, see Step 1 note)
 → Read each changed file in full
-→ Analyze 6 dimensions
+→ Analyze 8 dimensions
 → Output report
 → [operación: comment-pr] (request changes — approve/request-changes gap, see Step 4 note)
 ```

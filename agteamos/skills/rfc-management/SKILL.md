@@ -3,8 +3,9 @@ name: agteamos-rfc
 description: >
   Request for Comments process for changes that are architecturally significant
   or affect multiple teams. Covers the RFC template, lifecycle, review process,
-  and clear criteria for when an RFC is required vs. when a PR description is
-  enough.
+  clear criteria for when an RFC is required vs. when a PR description is
+  enough, and an optional agteamos-premortem pass on the proposed option
+  before it moves to Accepted.
 used_by:
   - architect
   - project-manager
@@ -82,6 +83,16 @@ resolution summary at the top rather than editing body sections.
 3. Reviewers leave comments directly on the PR.
 4. Author updates the RFC to address feedback (edits are allowed during
    `Under Review`).
+4.5. **Premortem opcional (nunca automático, nunca bloqueante)**: antes de
+   que el architect decida, cualquiera puede ofrecer correr
+   `agteamos-premortem` sobre la opción propuesta (no sobre las descartadas
+   en "Alternatives Considered" — esa tabla ya es comparativa; el premortem
+   ataca la opción ganadora, algo que hoy nadie hace de forma sistemática).
+   Es distinto de "Alternatives Considered": esa sección explica por qué NO
+   se eligieron otras opciones; el premortem argumenta por qué la elegida
+   podría fallar igual. Si se corre, el veredicto se anexa en la sección
+   `## Premortem` del RFC (ver template) antes de pasar a Accepted — no
+   bloquea la decisión, es información para tomarla con los ojos abiertos.
 5. Architect (or tech lead) posts the final decision as a PR comment:
    `Decision: Accepted` or `Decision: Rejected — reason`.
 6. PR is merged with status updated to `Accepted` or `Rejected`.
@@ -150,6 +161,17 @@ suggests the proposal was not thoroughly evaluated.
 |-------------|-------------------|
 | Option A    | ...               |
 | Option B    | ...               |
+
+## Premortem (optional — fill in only if `agteamos-premortem` was run)
+
+Veredicto de `agteamos-premortem` sobre la opción propuesta (no sobre las
+descartadas arriba). Omitir esta sección por completo si no se corrió — no
+inventar un premortem falso para "completar" el template.
+
+**Veredicto:** {una a tres frases, sin anestesia}
+**Grieta más letal:** {la que mataría esta propuesta si se materializa}
+**Mitigación aceptada:** {qué se decidió hacer al respecto, o "se acepta el
+riesgo tal cual" si el equipo decidió seguir de todos modos}
 
 ## Impact
 
@@ -294,6 +316,7 @@ The phased rollout plan is approved.
 - [ ] All mandatory sections are present: Summary, Motivation, Proposal,
       Alternatives Considered, Impact, Acceptance Criteria
 - [ ] At least two alternatives are documented
+- [ ] Para RFCs cross-team o de alto riesgo, se ofreció (no necesariamente se corrió) `agteamos-premortem` antes de la decisión — si se corrió, la sección `## Premortem` está llena; si no se ofreció y el RFC es de alto riesgo, es una omisión a señalar en review
 - [ ] Breaking changes are explicitly stated (or explicitly absent)
 - [ ] Review deadline is set (minimum 5 business days for cross-team)
 - [ ] At least two reviewers outside the author's team are named
@@ -335,3 +358,8 @@ rewrite it.
 An RFC that nobody merges or rejects is noise. The architect or tech lead
 is responsible for driving to a decision within one week of the review
 deadline. If the RFC needs more work, move it back to Draft explicitly.
+
+**Tratar `agteamos-premortem` como un gate obligatorio del RFC.**
+Es opcional siempre — forzarlo en cada RFC (incluso los chicos) convierte
+una herramienta de alto valor para decisiones grandes en burocracia
+adicional. Ofrecerlo quiere decir preguntarlo, no imponerlo.

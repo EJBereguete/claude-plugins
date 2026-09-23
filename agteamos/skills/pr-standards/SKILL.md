@@ -186,6 +186,37 @@ mismo criterio para cada `agteamos/changes/<id>-<slug>/`:
 
 ---
 
+### Step 10 — Disciplina de redacción (aplica a PR body, comentarios de review, y a cualquier reporte que use este skill como referencia de tono — `agteamos-review`, `agteamos-audit`, `agteamos-premortem`)
+
+**Regla 1 — la conclusión primero.** La primera línea de un "Summary", un
+comentario de review, o el resumen de un reporte debe ser algo accionable o
+la conclusión misma — nunca un anuncio ("voy a explicar...") ni un halago
+("buena pregunta"). Si alguien lee solo la primera línea y la última, tiene
+que saber (a) qué hacer ahora y (b) qué pasó — si no, reescribir.
+
+**Lista negra literal** (no traducir el concepto, prohibir las frases
+exactas en español — un filtro conceptual no detiene "Buena pregunta"
+aunque sí detenga "Great question"):
+
+Aperturas prohibidas: "Buena pregunta", "Claro,", "Voy a...", "Déjame...",
+repetir la pregunta del usuario antes de responder.
+Cierres prohibidos: "Espero que te sirva", "¿Necesitas algo más?", "Por
+cierto, también valdría la pena...".
+
+**Checklist pre-envío** (correrlo antes de publicar un PR body, un comentario
+de review, o el resumen de cualquier reporte largo):
+1. ¿La primera oración anuncia lo que vas a hacer en vez de decirlo? Si sí, borrarla.
+2. ¿La última oración resume o pregunta "¿algo más?" sin agregar información nueva? Si sí, borrarla.
+3. ¿Hay un "por cierto" con una idea suelta sin acción asociada? Sacarlo o convertirlo en un ítem accionable.
+4. ¿Hay una duda vaga sin información concreta? Reemplazarla por la pregunta específica o quitarla.
+
+**Excepciones** (cuando estas reglas ceden): el usuario pidió explícitamente
+una explicación completa; la acción es destructiva y necesita contexto antes
+de ejecutarse; hay ambigüedad real que se resuelve mejor con 2-4 opciones
+con trade-offs en vez de una sola respuesta seca.
+
+---
+
 ## EXAMPLE
 
 ### Bad PR

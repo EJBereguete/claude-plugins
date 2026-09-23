@@ -235,6 +235,34 @@ Composite metric combining cyclomatic complexity, Halstead volume, and lines of 
 
 ---
 
+## 2.5. Scanner determinista de patrones de seguridad (`security-scanner.mjs`)
+
+Complementa a `bandit`/`eslint-plugin-security`/Roslyn analyzers: es un script
+Node zero-dependency empaquetado en el plugin
+(`agteamos/scripts/security-scanner.mjs`) que corre regex contra SQLi, XSS,
+secrets hardcodeados, `eval()`, path traversal y command injection. No
+reemplaza el linter de cada lenguaje — corre antes, gratis (sin gastar tokens
+de LLM ni depender de que el analyzer del lenguaje esté instalado), como
+primer gate barato tanto en `agteamos-review` (Dimensión 1) como en CI.
+
+```bash
+node agteamos/scripts/security-scanner.mjs scan --format json --fail-on high <archivo(s)>
+```
+
+Exit codes: `0` limpio o debajo del umbral, `1` hallazgos al umbral o por
+encima, `2` error de uso. Líneas marcadas con `// agteamos-scanner-allow:
+<razón>` se excluyen (falso positivo conocido, documentado inline).
+
+**CI integration:**
+```yaml
+- name: Security scanner (deterministic)
+  run: |
+    git diff --name-only --diff-filter=d origin/main... | \
+      xargs -r node agteamos/scripts/security-scanner.mjs scan --fail-on high
+```
+
+---
+
 ## 3. Dependency Vulnerability Scanning
 
 ### Python — pip-audit

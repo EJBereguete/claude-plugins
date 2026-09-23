@@ -309,6 +309,14 @@ crea la carpeta, con `schema: lite` solo lleva `task.yml` y `progress.md`
 ## Objetivo de negocio
 [Por que existe esta feature — el valor real, no la tarea tecnica]
 
+<!-- Si agteamos/architecture/SRS.md existe (ver agteamos-new-project Step 3.5),
+     citar aqui el/los RF-XXX del catalogo global que esta feature implementa,
+     en vez de redactar el requisito de nuevo. Si la feature no tiene un
+     RF-XXX previo, agregarlo primero al SRS -- no crear una segunda fuente
+     de verdad para el mismo requisito. -->
+## Requisito SRS relacionado (solo si existe agteamos/architecture/SRS.md)
+- RF-XXX: [copiar el enunciado exacto del SRS, no reformular]
+
 ## User Stories
 - Como [rol], quiero [accion], para [beneficio]
 - Como [rol], quiero [accion], para [beneficio]
@@ -341,6 +349,12 @@ crea la carpeta, con `schema: lite` solo lleva `task.yml` y `progress.md`
 - [ ] Ticket cerrado
 ```
 
+**Regla de `## Requisito SRS relacionado`**: esta sección solo existe si
+`agteamos/architecture/SRS.md` existe en el proyecto (skill
+`agteamos-new-project`, Step 3.5 — opt-in, no todos los proyectos lo tienen).
+Si no existe ese archivo, omitir la sección por completo — no inventar
+`RF-XXX` que no vienen de ningún catálogo real.
+
 **Reglas de `## Requirements (RFC 2119)`** — esta sección es la **fuente de
 datos del gate `verify`** de `agteamos-close-task`; sin ella el gate no tiene
 nada que clasificar y las severidades se inventan:
@@ -359,6 +373,16 @@ nada que clasificar y las severidades se inventan:
   identifican por id (`R1`) porque el alcance es la tarea; en el delta y en la
   spec maestra se identifican por **nombre**, porque el alcance es el dominio y
   el nombre es la ancla de merge. Mantener la correspondencia 1:1.
+
+**Regla de `## Acceptance Criteria` — evitar el test tautológico**: un AC no
+está bien escrito si el "resultado esperado" se calcula con la misma lógica
+que la implementación (ej. AC dice "Then el total es la suma de line items"
+y el test hace `assert total == sum(item.price for item in items)` —
+recalcula lo mismo que el código de producción, así que pasa "por
+construcción" incluso si la lógica real está mal). El resultado esperado en
+un AC verificable debe ser un **valor concreto conocido de antemano**
+(`Then el total es $45.50`), no una fórmula que se repite. Ver también
+`agteamos-review` Dimensión 5 (Tests).
 
 ### 2. design.md — COMO (produce @architect)
 
@@ -412,9 +436,28 @@ CREATE INDEX idx_notifications_type ON notifications(type);
 - [Consideraciones STRIDE relevantes]
 - [Headers, validaciones, auth requerida]
 
+## Seams de testing (confirmar ANTES de escribir tests)
+- [Punto exacto donde los tests van a interceptar — ej. "NotificationService.send() vía un fake de SendGrid", no "el código de notificaciones en general"]
+- [Que dependencias se mockean vs cuales corren reales (ver categorias abajo)]
+
 ## ADRs generados
 - ADR-NNN: [si hay decision arquitectonica nueva]
 ```
+
+**Regla de `## Seams de testing`**: antes de que cualquier engineer escriba
+el primer test, el seam (el punto exacto de interceptación) tiene que estar
+**acordado en el design.md**, no decidido ad-hoc por quien escribe el test.
+Esto evita que dos tests del mismo componente mockeen en capas distintas
+(uno mockea el HTTP client, otro mockea el servicio completo) sin que nadie
+lo haya decidido a propósito. Clasificar cada dependencia externa para saber
+si necesita seam o no:
+
+| Categoría | Ejemplo | ¿Necesita seam/mock? |
+|---|---|---|
+| In-process | Una función pura, un cálculo | No — llamar directo |
+| Local sustituible | DB local, cache local | Rara vez — usar una instancia real de test (ej. sqlite en memoria) |
+| Remota pero propia | Un microservicio propio del mismo equipo | Depende — si es lento/inestable en CI, sí |
+| Externa verdadera | SendGrid, Stripe, un proveedor de terceros | Sí, siempre — nunca pegarle de verdad en tests |
 
 ### 3. specs/deltas/<dominio>.md — QUE CAMBIA EN LA SPEC MAESTRA (produce @architect, junto con design.md)
 

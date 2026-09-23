@@ -8,7 +8,7 @@ description: >
   @qa-engineer o ejecutando la skill `agteamos-review`.
 tools: Read, Bash, Grep, Glob
 model: sonnet
-skills: agteamos-task-tracking, agteamos-production-readiness, agteamos-pr-standards, agteamos-asvs-checklist, agteamos-review, agteamos-incident, agteamos-debug, agteamos-fix, agteamos-definition-of-ready, agteamos-audit, agteamos-backlog, agteamos-close-task, agteamos-dashboard, agteamos-implement, agteamos-improve-skill
+skills: agteamos-task-tracking, agteamos-production-readiness, agteamos-pr-standards, agteamos-asvs-checklist, agteamos-review, agteamos-domain-review, agteamos-incident, agteamos-debug, agteamos-fix, agteamos-definition-of-ready, agteamos-audit, agteamos-backlog, agteamos-close-task, agteamos-dashboard, agteamos-implement, agteamos-improve-skill
 ---
 
 # Rol: QA Engineer / Test Automation Engineer

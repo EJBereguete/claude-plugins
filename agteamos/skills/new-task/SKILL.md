@@ -70,6 +70,25 @@ MALA — vaga, tecnica, o preguntar lo que puedes inferir del codigo:
 
 No proceder al Step 2 hasta tener respuestas claras y sin ambiguedad.
 
+### Step 1.5 — Premortem opcional (nunca automatico)
+
+Si la feature descrita es grande, riesgosa, o toca una decision de negocio
+no trivial (no todo ticket lo amerita — una feature chica y clara no
+necesita esto), ofrecer: *"¿Queres que corra una critica dura de esta
+feature antes de crear el ticket? Puede ahorrar construir algo que no vale
+la pena."*
+
+- Si el usuario acepta: invocar la skill `agteamos-premortem` con la
+  descripcion de la feature y las respuestas de Step 1 como input, aplicada
+  a escala de feature (ver la nota de reinterpretacion de angulos en
+  `agteamos-premortem`, seccion "LOS OCHO ANGULOS DE ATAQUE").
+- Si el usuario declina, o la feature es claramente chica/de bajo riesgo, no
+  ofrecerlo — no interrumpir el flujo por defecto.
+- El veredicto **no bloquea** el avance a Step 2 — es informacion para
+  decidir, nunca un gate. Si el usuario sigue adelante pese a una grieta
+  senalada, anotarla en `brief.md`/`requirements.md` (segun el schema del
+  Step 2) para que quede trazada, no oculta.
+
 ### Step 2 — Determinar schema: `full` vs `lite`
 
 Antes de crear ningun artefacto, decidir el esquema segun el tamaño del cambio
@@ -167,6 +186,15 @@ clarification-protocol]
 [Seccion append-only. El cuerpo de arriba NUNCA se reescribe — toda
 aclaracion posterior se agrega aqui, con fecha, sin tocar lo anterior.]
 ```
+
+**Regla de durabilidad**: `brief.md` puede quedar sin tocarse días o semanas
+si la tarea se pausa (está en `agteamos/changes/` activo, no archivado). No
+referenciar rutas de archivo ni números de línea ahí — el código se mueve,
+esas referencias quedan rotas y nadie las corrige porque el archivo es
+inmutable. Describir interfaces, comportamientos y contratos ("el endpoint
+que crea invoices", "el servicio que envía notificaciones") en vez de
+`src/services/invoice_service.py:42` — eso vale para `progress.md` (que sí
+se actualiza en cada checkpoint), no para `brief.md`.
 
 Con `schema: lite` no se crea `brief.md` — el resumen de 1 párrafo que exige
 `agteamos-sdd-protocol` para `lite` alcanza y vive directo en `progress.md`.
@@ -338,6 +366,40 @@ este workflow lo escribe.
 
 **8.2 — Crear el ticket**: el project manager crea el ticket con:
 
+**Si `tracker: azure_devops` y `process_template: agile`**: usar
+`create-story` (User Story nativa, no `create-ticket` genérico) para que
+Acceptance Criteria, Story Points y Priority queden en sus **campos propios**
+de Azure Boards, no solo como texto en la descripción — eso es lo que
+habilita reportes, queries y el sprint board nativos:
+```
+[operación: create-story] (
+  título "<titulo de la feature>",
+  description = "<una oracion del vision del requirements.md>" + Technical
+    Notes + Out of Scope (lo que no tiene campo propio va en el body),
+  Microsoft.VSTS.Common.AcceptanceCriteria = los ACs del requirements.md,
+    uno por línea, en su propio campo — NO repetidos en el body,
+  campo de estimación = <estimado del Technical Notes> — el nombre exacto
+    del campo (`Microsoft.VSTS.Scheduling.StoryPoints` en Agile,
+    `Microsoft.VSTS.Scheduling.Effort` en Scrum) lo resuelve la fila
+    `create-story` de `agteamos/tracker/azure_devops.md` según
+    `tracker_azure_devops.process_template` — no hardcodear uno u otro acá,
+  area_path / iteration_path = default de platform.yml salvo que la tarea
+    especifique otro;
+  se resuelve contra agteamos/tracker/azure_devops.md)
+```
+Si la tarea es hija de un Epic/Feature ya existente en Azure Boards, agregar:
+```
+[operación: link-parent-child] (id del Story recién creado, target-id =
+  id del Epic/Feature padre)
+```
+Si el pedido original vino de un sistema externo (Odoo, un helpdesk, un CRM)
+y el usuario compartió ese link, agregarlo como relación nativa, no solo
+como texto:
+```
+[operación: link-external-url] (id del Story, url = link del sistema externo)
+```
+
+**Cualquier otro tracker (GitHub, Planner, o Azure sin proceso Agile)**:
 ```
 [operación: create-ticket] (título "[Feature] <titulo de la feature>", body con
   Description / Acceptance Criteria / Technical Notes / Out of Scope según
@@ -607,6 +669,61 @@ depends_on: []
 ```
 → Continuando automaticamente con agteamos-implement usando issue #42...
 ```
+
+---
+
+## EXAMPLE: Ticket grande retrospectivo (refactor/migracion ya completada)
+
+No toda tarea entra por `clarification-protocol` antes de empezar — a veces
+el trabajo ya se hizo en una rama y hace falta documentarlo como ticket al
+cerrar (ej. un refactor grande de arquitectura). Para ese caso, el `body`
+del `create-story`/`create-ticket` sigue un formato narrativo distinto al
+template estándar de arriba, pero las mismas reglas de campos aplican
+(Acceptance Criteria en su propio campo si es Azure, no repetido en el body):
+
+```markdown
+Título: [Refactor] Separacion Web/API y eliminacion de UI legacy en Portal
+
+## Descripcion
+Como equipo de desarrollo, necesitamos que el Portal opere sobre una unica
+arquitectura de UI, con el API completamente separado, para eliminar la
+duplicacion de stacks de presentacion conviviendo en el mismo proyecto y
+reducir la deuda tecnica que esto genera.
+
+[1-2 parrafos de contexto: que problema tenia la arquitectura anterior,
+por que se resolvio ahora, en que rama se hizo el trabajo]
+
+Repos afectados: <lista>
+
+## Alcance
+- [Cambio 1 realizado, con numeros concretos si aplica — ej. "N archivos removidos"]
+- [Cambio 2 — nueva estructura/proyecto creado]
+- [Cambio 3 — proyectos/archivos eliminados]
+- [Cambio 4 — tests agregados, con cobertura si se midio]
+- [Infraestructura/CI si cambio]
+
+## Pendientes a fase posterior
+- [Lo que queda fuera de este ticket a proposito — ej. "Merge a main y deploy a produccion"]
+
+## Related Links (sistemas externos, si aplica)
+- <link a Odoo/Jira/helpdesk/CRM externo relacionado, agregado vía link-external-url si tracker: azure_devops>
+```
+
+**Acceptance Criteria** (campo separado, no en el body):
+```
+- El modulo X funciona completamente en [stack nuevo] sin depender de [lo eliminado]
+- El proyecto [legacy] fue eliminado completamente de la solucion y no existen referencias activas
+- [Componente nuevo] es el unico [rol] y consume [dependencia] correctamente
+- Los proyectos no utilizados [lista] fueron eliminados
+- Existe [suite de tests] con cobertura de [alcance]
+- La solucion compila y la suite de tests corre en verde sobre la rama <nombre>
+```
+
+Notar que cada AC es una condición binaria verificable (compila / no
+compila, existe / no existe, corre en verde / falla) — no una descripción
+de proceso. Si `tracker: azure_devops`, estos van en
+`Microsoft.VSTS.Common.AcceptanceCriteria`, uno por línea; el body de arriba
+(Descripción/Alcance/Pendientes) va en `System.Description`.
 
 ---
 
