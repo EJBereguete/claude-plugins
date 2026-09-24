@@ -63,7 +63,7 @@ function jitStandardsCheck(cwd, filePath, sessionId) {
   } else {
     message = `[agteamos] Tema "${matchedTopic.topic}" (${matchedTopic.description}) ` +
       `aun no generado para este proyecto. Antes de seguir, considera ` +
-      `ensure-artifact(standards.${matchedTopic.topic}) -- ver agteamos-project-docs --topic.`;
+      `ensure-artifact(standards.${matchedTopic.topic}) -- ver agteamos-knowledge --topic.`;
   }
 
   fs.mkdirSync(path.dirname(key), { recursive: true });

@@ -41,3 +41,22 @@ sobrecargado y difícil de navegar — múltiples skills necesitaban una frase
 de "distinto de X" en su propia descripción para no confundirse con otra, el
 flujo más común atravesaba ~11 archivos, y el propio `README.md` tenía un
 conteo de skills desactualizado en 3 lugares distintos.
+
+---
+
+## 2026-09-24 — Nombres de skill de una sola palabra
+
+**Qué cambió**: las 8 skills que todavía tenían un nombre compuesto con
+guión pasaron a una sola palabra: `agteamos-new-project` →
+`agteamos-bootstrap`, `agteamos-new-task` → `agteamos-task`,
+`agteamos-deploy-readiness` → `agteamos-deploy`, `agteamos-project-docs` →
+`agteamos-knowledge`, `agteamos-plugin-improvement` → `agteamos-meta`,
+`agteamos-context-engineering` → `agteamos-context`, `agteamos-sdd-protocol`
+→ `agteamos-spec`, `agteamos-pr-standards` → `agteamos-pr`. Además, 2
+carpetas se renombraron por consistencia sin cambiar su `name:`
+(`debug-workflow` → `debug/`, `fix-workflow` → `fix/`).
+
+**Por qué**: criterio explícito del dueño — nombres cortos, una palabra
+después de `agteamos-`, sin importar si el compuesto anterior "comunicaba
+bien" o no. De paso, `agteamos-deploy` deja de sonar solo a "checklist de
+preparación" cuando en realidad cubre todo el lifecycle de despliegue.

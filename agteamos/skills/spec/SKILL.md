@@ -1,5 +1,5 @@
 ---
-name: agteamos-sdd-protocol
+name: agteamos-spec
 description: >
   Spec-Driven Development. Define el formato canonico de spec
   (### Requirement: + #### Scenario: + modales RFC 2119), la spec maestra
@@ -30,7 +30,7 @@ used_by:
 
 | Capa | Archivo | Vida | Quién la escribe |
 |---|---|---|---|
-| **Spec maestra** (fuente de verdad) | `agteamos/specs/<dominio>.md` | **Persistente y acumulativa** — vive mientras exista el dominio | Nadie a mano durante la tarea: la actualiza `agteamos-implement` en su paso `sync`, o la siembra `agteamos-project-docs` |
+| **Spec maestra** (fuente de verdad) | `agteamos/specs/<dominio>.md` | **Persistente y acumulativa** — vive mientras exista el dominio | Nadie a mano durante la tarea: la actualiza `agteamos-implement` en su paso `sync`, o la siembra `agteamos-knowledge` |
 | **Delta** (diff propuesto) | `agteamos/changes/<id>-<slug>/specs/deltas/<dominio>.md` | **Efímero** — nace y muere con la tarea, queda en el archive como historia | `@architect`, junto con `design.md` |
 
 El delta **no** es la capa de specs maestras: es el diff contra ella. Las dos
@@ -120,7 +120,7 @@ Un archivo por dominio, con el nombre del dominio declarado en `domains:` de
 comportamiento **vigente completo** del dominio, no el cambio de una tarea.
 
 Solo la modifican `agteamos-implement` (paso `sync`, aplicando deltas) y
-`agteamos-project-docs` (siembra inicial por ingeniería inversa del código). Durante
+`agteamos-knowledge` (siembra inicial por ingeniería inversa del código). Durante
 la implementación se **lee**, no se edita a mano.
 
 ### Plantilla
@@ -166,7 +166,7 @@ El sistema SHOULD <comportamiento observable>.
 ### El header `## Coverage` es obligatorio
 
 En proyectos existentes las specs maestras se **siembran parcialmente**:
-`agteamos-project-docs` documenta lo que puede inferir del código y el resto se
+`agteamos-knowledge` documenta lo que puede inferir del código y el resto se
 completa tarea a tarea. Sin este header nadie puede distinguir "este
 comportamiento no existe" de "este comportamiento nunca se documentó".
 
@@ -272,7 +272,7 @@ explícitamente specs "lite" (bug fixes, cambio de 1 archivo) de "full"
 
 | Schema | Cuándo se usa | Artefactos |
 |---|---|---|
-| **`full`** | Features nuevas, cambios que tocan 2+ capas, o con impacto en el contrato de un dominio. Skills: `agteamos-new-task`, `agteamos-implement`. | `requirements.md` + `design.md` + `specs/deltas/<dominio>.md` (uno por dominio afectado) + `tasks.md` |
+| **`full`** | Features nuevas, cambios que tocan 2+ capas, o con impacto en el contrato de un dominio. Skills: `agteamos-task`, `agteamos-implement`. | `requirements.md` + `design.md` + `specs/deltas/<dominio>.md` (uno por dominio afectado) + `tasks.md` |
 | **`lite`** | Cambios triviales sin impacto de contrato: bug fix acotado, hotfix, typo, ajuste de 1 archivo. Skills: `agteamos-fix`, `agteamos-debug`. | Un resumen de 1 párrafo (en `progress.md` o directamente en el PR) + un test de regresión. No se crean los 4 artefactos de `specs/`. |
 
 **`lite` no lleva delta ni toca la spec maestra — explícito**: con
@@ -308,7 +308,7 @@ crea la carpeta, con `schema: lite` solo lleva `task.yml` y `progress.md`
 ## Objetivo de negocio
 [Por que existe esta feature — el valor real, no la tarea tecnica]
 
-<!-- Si agteamos/architecture/SRS.md existe (ver agteamos-new-project Step 3.5),
+<!-- Si agteamos/architecture/SRS.md existe (ver agteamos-bootstrap Step 3.5),
      citar aqui el/los RF-XXX del catalogo global que esta feature implementa,
      en vez de redactar el requisito de nuevo. Si la feature no tiene un
      RF-XXX previo, agregarlo primero al SRS -- no crear una segunda fuente
@@ -350,7 +350,7 @@ crea la carpeta, con `schema: lite` solo lleva `task.yml` y `progress.md`
 
 **Regla de `## Requisito SRS relacionado`**: esta sección solo existe si
 `agteamos/architecture/SRS.md` existe en el proyecto (skill
-`agteamos-new-project`, Step 3.5 — opt-in, no todos los proyectos lo tienen).
+`agteamos-bootstrap`, Step 3.5 — opt-in, no todos los proyectos lo tienen).
 Si no existe ese archivo, omitir la sección por completo — no inventar
 `RF-XXX` que no vienen de ningún catálogo real.
 
@@ -760,7 +760,7 @@ siendo obligatorio antes de cerrar.
   las specs se siembran parcialmente por diseño.
 - **Editar `agteamos/specs/<dominio>.md` a mano durante la implementación** —
   se actualiza solo vía el paso `sync` de `agteamos-implement` (o la siembra
-  de `agteamos-project-docs`). Editarla directo saltea el gate de `verify` y deja el
+  de `agteamos-knowledge`). Editarla directo saltea el gate de `verify` y deja el
   delta y la spec maestra contando historias distintas.
 - **Asumir que lo ausente de una spec `seeded`/`partial` no existe** — hay que
   verificar contra el código antes de escribir el delta.
@@ -778,3 +778,11 @@ siendo obligatorio antes de cerrar.
   delta, no "documentarlo después".
 - **Escribir un delta en una tarea `lite`** — `lite` no lleva delta ni toca la
   spec maestra por definición. Si hace falta un delta, la tarea es `full`.
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: depende de quién invoque este formato (no tiene
+un "después" propio) — vuelve a la skill consumidora (ver
+`agteamos-context` §Próximo paso).

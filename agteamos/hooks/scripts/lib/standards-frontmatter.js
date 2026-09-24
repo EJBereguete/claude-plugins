@@ -6,7 +6,7 @@ const path = require('path');
 /**
  * Parseo minimo (sin dependencias) del frontmatter YAML de
  * standards/<tema>/README.md (el del PLUGIN, no el generado por proyecto) --
- * ver agteamos-project-docs SKILL.md #FRONTMATTER. Soporta:
+ * ver agteamos-knowledge SKILL.md #FRONTMATTER. Soporta:
  *   topic: valor
  *   description: valor
  *   keywords: [a, b, c]

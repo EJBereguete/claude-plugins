@@ -767,3 +767,11 @@ Playbooks answer "how do we think about this class of problem."
 Runbooks answer "do exactly this right now."
 Mixing them produces documents that are neither useful for learning nor safe
 to execute under pressure.
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: `agteamos-decisions` (post-mortem como ADR) o
+`agteamos-fix` (si el incidente requiere un fix táctico) — ver
+`agteamos-context` §Próximo paso.

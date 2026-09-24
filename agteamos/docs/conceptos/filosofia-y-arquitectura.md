@@ -18,7 +18,7 @@ En proyectos reales las sesiones se interrumpen. Si Claude pierde el hilo, el us
 
 ### 3. No hay estándares consistentes entre sesiones
 
-Sin un marco de trabajo, el código generado varía en estructura, naming y calidad. AgTeamOS incluye estándares por stack (Python/FastAPI, TypeScript/React, C#/.NET) empaquetados en el plugin, y una skill (`agteamos-project-docs`) que los adapta al código real de tu proyecto. Ver [Capa de standards](#capa-de-standards) más abajo.
+Sin un marco de trabajo, el código generado varía en estructura, naming y calidad. AgTeamOS incluye estándares por stack (Python/FastAPI, TypeScript/React, C#/.NET) empaquetados en el plugin, y una skill (`agteamos-knowledge`) que los adapta al código real de tu proyecto. Ver [Capa de standards](#capa-de-standards) más abajo.
 
 ### 4. No hay un único lugar donde ver "qué se instala en mi proyecto"
 
@@ -82,8 +82,8 @@ graph TB
         end
 
         subgraph "Flujos principales"
-            W1[agteamos-new-project]
-            W2[agteamos-new-task]
+            W1[agteamos-bootstrap]
+            W2[agteamos-task]
             W3[agteamos-implement]
         end
 
@@ -140,7 +140,7 @@ Esta distinción no es accidental: mezclar reglas de código con workflows en el
 AgTeamOS distingue dos cosas relacionadas pero distintas, y ambas se llaman "standards" en contextos distintos — vale la pena separarlas con claridad:
 
 1. **`standards/` del propio plugin** — los 7 temas base con código de referencia, empaquetados dentro de AgTeamOS. Genéricos, no atados a ningún proyecto concreto.
-2. **`agteamos/standards/` de tu proyecto** — el resultado de la skill `agteamos-project-docs` leyendo tu código real y adaptando (o desviándose de) esos 7 temas base. Específico de tu proyecto.
+2. **`agteamos/standards/` de tu proyecto** — el resultado de la skill `agteamos-knowledge` leyendo tu código real y adaptando (o desviándose de) esos 7 temas base. Específico de tu proyecto.
 
 ### 1. Standards base del plugin
 
@@ -227,7 +227,7 @@ function useInvoices() {
 
 ### 2. `agteamos/standards/` — la proyección sobre tu proyecto
 
-La skill `agteamos-project-docs` (ver [guía operativa](../guias/mantener-standards-al-dia.md)) lee estos 7 temas base y los compara contra tu código real, produciendo una carpeta por tema **dentro de tu proyecto**:
+La skill `agteamos-knowledge` (ver [guía operativa](../guias/mantener-standards-al-dia.md)) lee estos 7 temas base y los compara contra tu código real, produciendo una carpeta por tema **dentro de tu proyecto**:
 
 ```
 agteamos/standards/
@@ -257,7 +257,7 @@ El acceso a `agteamos/standards/` combina dos mecanismos distintos — uno pasiv
 
 #### Inyección pasiva — hook `SessionStart`
 
-Un hook corre automáticamente al iniciar cualquier sesión. Si `agteamos/standards/index.yml` ya existe en el proyecto (es decir, `agteamos-project-docs` corrió al menos una vez), inyecta al contexto un resumen compacto del índice — carpeta por tema con sus keywords, tope de 15 temas para no volcar el índice completo:
+Un hook corre automáticamente al iniciar cualquier sesión. Si `agteamos/standards/index.yml` ya existe en el proyecto (es decir, `agteamos-knowledge` corrió al menos una vez), inyecta al contexto un resumen compacto del índice — carpeta por tema con sus keywords, tope de 15 temas para no volcar el índice completo:
 
 ```
 [agteamos] Standards del proyecto disponibles en agteamos/standards/.
@@ -270,7 +270,7 @@ Antes de escribir o revisar codigo, resuelve el tema relevante contra este
 indice y lee agteamos/standards/<carpeta>/README.md (y deviations.md si existe).
 ```
 
-Si `index.yml` todavía no existe (el proyecto nunca corrió `agteamos-project-docs`), el hook no hace nada — no bloquea ni advierte, simplemente no hay nada que inyectar todavía.
+Si `index.yml` todavía no existe (el proyecto nunca corrió `agteamos-knowledge`), el hook no hace nada — no bloquea ni advierte, simplemente no hay nada que inyectar todavía.
 
 #### Resolución activa — las skills que escriben o revisan código
 

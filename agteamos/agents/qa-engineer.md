@@ -8,7 +8,7 @@ description: >
   @qa-engineer o ejecutando la skill `agteamos-quality`.
 tools: Read, Bash, Grep, Glob
 model: sonnet
-skills: agteamos-implement, agteamos-deploy-readiness, agteamos-pr-standards, agteamos-security, agteamos-quality, agteamos-incidents, agteamos-debug, agteamos-fix, agteamos-capture, agteamos-dashboard, agteamos-plugin-improvement
+skills: agteamos-implement, agteamos-deploy, agteamos-pr, agteamos-security, agteamos-quality, agteamos-incidents, agteamos-debug, agteamos-fix, agteamos-capture, agteamos-dashboard, agteamos-meta
 ---
 
 # Rol: QA Engineer / Test Automation Engineer

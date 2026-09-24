@@ -156,7 +156,7 @@ Ningun match      → Step 5 (proyecto nuevo)
      `reviewed: false`, `last_active: hoy` — el resto de los campos
      (`repo_host`, `tracker`) los completa `agteamos-setup` mas adelante
    - Continuar a la **Fase B**: va a detectar el repo vacio → **Fase C** →
-     Flujo 1 (`agteamos-new-project`), que dispara `agteamos-setup` y
+     Flujo 1 (`agteamos-bootstrap`), que dispara `agteamos-setup` y
      termina de completar la entrada del registro
 3. Si el usuario dice que no (se equivoco de nombre, no quiere crearlo
    todavia): no crear nada, preguntar si quiso decir otro proyecto conocido.
@@ -264,7 +264,7 @@ Cuando el proyecto tiene codigo pero no tiene `agteamos/`, los agentes deben:
    - Lee estructura de carpetas para detectar patron arquitectonico
    - Lee archivos principales para entender el dominio
 
-2. Crea la estructura base (ver arbol completo y detalle de cada carpeta en la skill `agteamos-project-docs`):
+2. Crea la estructura base (ver arbol completo y detalle de cada carpeta en la skill `agteamos-knowledge`):
    ```
    agteamos/
    ├── platform.yml               ← branch_strategy y config de plataforma
@@ -295,13 +295,13 @@ Cuando el proyecto tiene codigo pero no tiene `agteamos/`, los agentes deben:
    Si `platform.yml` se crea aca con valores asumidos (branch_strategy, repo_host)
    en vez de confirmados por el usuario via `agteamos-setup`, marcarlo con
    `reviewed: false` explicito en el archivo — detalle del campo en
-   `agteamos-project-docs` Step 2. Ese campo es lo que le permite a la Fase C de
+   `agteamos-knowledge` Step 2. Ese campo es lo que le permite a la Fase C de
    esta skill distinguir "el archivo existe" de "el archivo fue confirmado
    por el usuario".
 
 3. Este paso **no bloquea** — genera la doc mínima y continua con la tarea. Para la
    ingenieria inversa completa (todas las secciones, todos los agentes), delega en
-   la skill `agteamos-project-docs`.
+   la skill `agteamos-knowledge`.
 
 ### Step 4: Verificar changes activos
 
@@ -409,7 +409,7 @@ Step 0: ¿Existe agteamos/platform.yml Y estan confirmados los 3 campos
     NO EXISTE → ejecutar skill `agteamos-setup` primero (repo host, tracker,
        branching, CI/CD, deploy target, convencion de PR) — no continuar sin esto
     EXISTE con `reviewed: false` → tratarlo igual que "no existe": el archivo
-       fue generado con valores asumidos por `agteamos-project-docs` o por la
+       fue generado con valores asumidos por `agteamos-knowledge` o por la
        Fase B de esta skill (branch_strategy/repo_host sin confirmar por el
        usuario) — ejecutar `agteamos-setup` para que el usuario los revise y
        confirme antes de continuar
@@ -454,7 +454,7 @@ en vez de una feature o cambio concreto?
     "Esto suena a un problema sin solucion definida todavia. ¿Queres
      explorar opciones primero con agteamos-explore (@architect lee el
      codigo real y compara trade-offs concretos) antes de comprometerte a
-     una tarea con agteamos-new-task? Si ya sabes lo que queres hacer,
+     una tarea con agteamos-task? Si ya sabes lo que queres hacer,
      seguimos directo."
        usuario elige explorar  → agteamos-explore
        usuario elige ir directo → FLUJO 2
@@ -463,7 +463,7 @@ en vez de una feature o cambio concreto?
 ```
 
 **Regla**: el Step 2.5 es una sugerencia, nunca un gate bloqueante — el
-usuario puede ir directo a `agteamos-new-task` (FLUJO 2) aunque el input
+usuario puede ir directo a `agteamos-task` (FLUJO 2) aunque el input
 suene a síntoma, si explícitamente dice que ya sabe lo que quiere hacer.
 
 ## FLUJO 1 — Proyecto desde cero
@@ -471,7 +471,7 @@ suene a síntoma, si explícitamente dice que ya sabe lo que quiere hacer.
 **Condicion**: El repo no tiene codigo real (vacio o solo README/.gitignore)
 
 **Agentes activados**: Todos
-**Workflow skill**: `agteamos-new-project`
+**Workflow skill**: `agteamos-bootstrap`
 
 ```
 @architect       → captura vision, define stack, arquitectura
@@ -483,7 +483,7 @@ suene a síntoma, si explícitamente dice que ya sabe lo que quiere hacer.
 
 ## MODO EXPLORACION — `agteamos-explore` (previo a comprometerse)
 
-Todo el aparato SDD (`agteamos-sdd-protocol`, `agteamos-new-task`,
+Todo el aparato SDD (`agteamos-spec`, `agteamos-task`,
 `agteamos-implement`) protege contra "implementaron mal lo que pedí" pero no
 contra "pedí lo incorrecto", que en general es más caro de deshacer.
 `agteamos-explore` es el espacio para pensar antes de comprometerse: lee el
@@ -496,20 +496,20 @@ Se llega a `agteamos-explore` de dos formas:
 2. Invocado directamente por el usuario ("quiero explorar opciones para X", "ayudame a pensar Y").
 
 `agteamos-explore` termina en una de dos conclusiones: pasar a
-`agteamos-new-task` con una idea ya formada, o seguir explorando.
+`agteamos-task` con una idea ya formada, o seguir explorando.
 
 ## FLUJO 2 — Tarea nueva sin ticket
 
 **Condicion**: Repo tiene codigo + input es descripcion en lenguaje natural
 
 **Agentes activados**: Segun impacto (FE/BE/Fullstack)
-**Workflow skill**: `agteamos-new-task`
+**Workflow skill**: `agteamos-task`
 
 ```
-agteamos-new-task → preguntas hasta tener contexto claro
+agteamos-task → preguntas hasta tener contexto claro
 @product-manager         → define ACs y ROI
 @architect             → analiza impacto tecnico (FE/BE/Full)
-agteamos-new-task        → INVEST check, split si necesario
+agteamos-task        → INVEST check, split si necesario
 @product-manager       → crea ticket(s) en GitHub/Azure
                        → CONTINUA automaticamente con FLUJO 3
 ```
@@ -524,9 +524,9 @@ agteamos-new-task        → INVEST check, split si necesario
 ```
 Lee ticket via MCP (github o azure-devops)
 agteamos-implement check → ¿tiene lo minimo?
-  NO → agteamos-new-task → preguntas al usuario
+  NO → agteamos-task → preguntas al usuario
   SI → continua
-agteamos-new-task → ¿es user story grande? → split en subtareas
+agteamos-task → ¿es user story grande? → split en subtareas
 agteamos-implement INIT → crea agteamos/changes/<id>-<slug>/
 branch creation → feature/<id>-<slug> | bugfix/<id>-<slug>
 implementacion con unit tests obligatorios
@@ -577,3 +577,11 @@ Usuario dice: "Se que el auth esta mal pero no se si migrar a otro proveedor
 o arreglar lo que hay, quiero pensarlo antes de armar el ticket"
   → Sintoma + pedido explicito de pensar antes → agteamos-explore
 ```
+
+---
+
+## Próximo paso sugerido
+
+**No aplica** — `agteamos-router` ES quien decide el próximo paso (Fase C
+de este mismo archivo), no algo que sugiere al terminar (ver
+`agteamos-context` §Próximo paso).

@@ -29,7 +29,7 @@ used_by:
 - **Input**: URL o ID de ticket (GitHub issue/PR o Azure DevOps work item) + PROJECT_CONTEXT.md
 - **Output**: PR mergeado + ticket cerrado + documentacion de tarea archivada en `agteamos/changes/archive/<fecha>-<id>-<slug>/`
 - **Trigger**: `agteamos-router` detecta referencia a ticket existente en el input del usuario,
-  o hand-off automatico desde el workflow `agteamos-new-task`
+  o hand-off automatico desde el workflow `agteamos-task`
 - **Fases inline de este flujo** (antes skills separadas, ahora Steps de esta
   misma skill): **definition-of-ready** (Step 2 — READY / NOT READY antes de
   seguir), **task-tracking** (Step 4 — creacion y mantenimiento de
@@ -83,7 +83,7 @@ El tier aplicado **se escribe en `task.yml` → `context_tier: 1|2|3`** (ver
 Step 4 para el detalle del campo). No es una decisión efímera del agente de
 turno:
 
-- `agteamos-new-task` lo fija al crear la tarea, según `schema` y luego según
+- `agteamos-task` lo fija al crear la tarea, según `schema` y luego según
   la complejidad/dominios detectados en su Step 5 (valor por defecto: `lite`
   → `1`, `full` → `2`; sube a `3` si complejidad L/XL o 2+ dominios).
 - `agteamos-implement` puede **elevarlo** (nunca bajarlo) en este mismo Step
@@ -194,7 +194,7 @@ mismo flujo.
 
 **Contrato de esta fase**: Input = ticket de GitHub o Azure DevOps ya leido
 en Step 1. Output = READY (proceder a Step 3) o NOT READY (activar
-`agteamos-new-task`).
+`agteamos-task`).
 
 #### Checklist de readiness
 
@@ -245,7 +245,7 @@ READY → Proceder con Step 3 (story-breakdown)
 
 **Si pasa DoR** (todos los campos requeridos en ✅): continuar con Step 3.
 
-**Si NO pasa DoR**: activar `agteamos-new-task` inmediatamente.
+**Si NO pasa DoR**: activar `agteamos-task` inmediatamente.
 No proceder a Step 3 hasta que el ticket pase DoR.
 
 #### Ejemplo: ticket que PASA DoR
@@ -300,7 +300,7 @@ Description: Login is broken
   - Sin ACs verificables
   - Sin tipo (¿es bug? ¿es mejora?)
 
-→ Activar agteamos-new-task:
+→ Activar agteamos-task:
   "El ticket #42 dice 'Fix login'. Necesito mas contexto:
   1. ¿Que error exacto ves? (screenshot o stack trace si es posible)
   2. ¿Esto funcionaba antes? ¿Desde cuando falla?
@@ -323,7 +323,7 @@ Cuando el ticket no pasa DoR, el agente puede proponer ACs:
 
 ### Step 3 — story-breakdown
 
-Aplicar criterio INVEST sobre el ticket ya validado (skill `agteamos-new-task`):
+Aplicar criterio INVEST sobre el ticket ya validado (skill `agteamos-task`):
 
 ```
 ¿Toca 3+ capas arquitectonicas?
@@ -344,14 +344,14 @@ Si se divide, cada sub-issue recibe:
 - Sus propios ACs (subset del ticket original)
 - Su propia entrada en `task.yml` bajo `depends_on`
 
-Ver `agteamos-new-task` skill para los patrones de split disponibles.
+Ver `agteamos-task` skill para los patrones de split disponibles.
 
 ### Step 4 — Task Tracking INIT
 
 Crear y mantener la documentacion local de la tarea en `agteamos/changes/`.
 Esta fase corresponde a lo que antes era la skill separada
 `agteamos-implement` — ahora vive aca, inline, como Step 4 del mismo
-flujo (mismo árbol que usa `agteamos-new-task`; si vino de `agteamos-new-task`
+flujo (mismo árbol que usa `agteamos-task`; si vino de `agteamos-task`
 la carpeta ya existe con id definitivo desde su Step 8, y este paso solo la
 completa).
 
@@ -362,7 +362,7 @@ inmediatamente — no al final.
 
 #### Estructura de carpeta por tarea
 
-Árbol canónico — el mismo que usan `agteamos-new-task` y este workflow para
+Árbol canónico — el mismo que usan `agteamos-task` y este workflow para
 crear y referenciar esta carpeta. Si alguna otra skill muestra un árbol
 distinto, es una divergencia a corregir, no una variante válida.
 
@@ -373,9 +373,9 @@ agteamos/changes/<id>-<slug>/
 │                                propuesta y out-of-scope ORIGINAL. Inmutable salvo
 │                                su seccion "## Resolution notes" (append-only).
 │                                Solo si schema: full y la tarea vino de
-│                                agteamos-new-task (lo crea esa skill en su Step 3).
+│                                agteamos-task (lo crea esa skill en su Step 3).
 │                                Con schema: lite no se crea (el resumen de 1
-│                                parrafo vive en progress.md — ver agteamos-sdd-protocol)
+│                                parrafo vive en progress.md — ver agteamos-spec)
 ├── progress.md               ← tracking principal (ex TASK-<id>.md)
 ├── report.html               ← reporte visual, generado/regenerado por agteamos-dashboard
 ├── verify-report.md          ← aparece recien en el cierre (Step 9, paso "verify")
@@ -436,9 +436,9 @@ en este mismo paso, sin preguntarle nada al usuario):
 id: "42"
 title: "Add email notifications"
 type: feature               # feature | bug | hotfix | refactor | spike
-schema: full                 # full | lite — ver skill agteamos-sdd-protocol
+schema: full                 # full | lite — ver skill agteamos-spec
 context_tier: 2              # 1 | 2 | 3 — ver "CONTEXT TIERS" arriba. Si la tarea vino de
-                              # agteamos-new-task ya trae este valor; si el ticket es externo
+                              # agteamos-task ya trae este valor; si el ticket es externo
                               # (sin new-task previo), fijarlo aca segun la misma regla
                               # (schema lite→1, full→2, sube a 3 si L/XL o 2+ dominios)
 layer: fullstack             # frontend | backend | fullstack | infra
@@ -629,7 +629,7 @@ git checkout develop && git pull
 git checkout -b feature/<id>-<slug>
 ```
 
-**Naming rules (del skill agteamos-new-task):**
+**Naming rules (del skill agteamos-task):**
 ```
 Feature:    feature/<id>-<description>
 Bug fix:    bugfix/<id>-<description>
@@ -654,12 +654,12 @@ arriba) y cargar solo lo necesario para este análisis — no releer todo
 `PROJECT_CONTEXT.md`/ADRs si Tier 2 alcanza.
 
 Completar los artefactos SDD requeridos por el `schema` de la tarea. Seguir
-el skill `agteamos-sdd-protocol` para el formato y contenido de cada documento.
+el skill `agteamos-spec` para el formato y contenido de cada documento.
 
 **Si `schema: full`, los 4 artefactos son obligatorios antes de iniciar la implementacion:**
 
 1. `specs/requirements.md` — escrito o validado por @product-manager.
-   Si vino del workflow `agteamos-new-task`, ya existe. Si vino de un ticket
+   Si vino del workflow `agteamos-task`, ya existe. Si vino de un ticket
    externo, @product-manager lo crea desde los ACs del ticket. No proceder sin
    este archivo.
 
@@ -676,7 +676,7 @@ el skill `agteamos-sdd-protocol` para el formato y contenido de cada documento.
 
 **Si `schema: lite`**: solo un resumen de 1 párrafo en `progress.md` y un test
 de regresión — no se crean los 4 artefactos de `specs/`. Ver skill
-`agteamos-sdd-protocol`.
+`agteamos-spec`.
 
 **SDD Checklist de aprobacion (schema full):**
 - [ ] requirements.md revisado y aprobado por el usuario
@@ -903,7 +903,7 @@ opcional, ambos lo leen como input.
 #### Disciplina PR/git (de OpenSpec: "OpenSpec never touches git")
 
 Principio explícito que gobierna todo este cierre, ver también skill
-`agteamos-pr-standards`:
+`agteamos-pr`:
 
 - **1 change = 1 branch = 1 PR.** No dividir el delta de spec y el código en
   PRs separados.
@@ -927,7 +927,7 @@ Principio explícito que gobierna todo este cierre, ver también skill
 ##### 0. Leer `schema` en `task.yml` y bifurcar
 
 Primer paso, antes de tocar nada más. Lee `schema: full | lite` (ver skill
-`agteamos-sdd-protocol`) y determina qué puntos de este checklist aplican tal
+`agteamos-spec`) y determina qué puntos de este checklist aplican tal
 cual y cuáles cambian de alcance:
 
 | Punto | Schema `full` | Schema `lite` |
@@ -960,7 +960,7 @@ después".
 
 **Schema `lite`:**
 ```
-- [ ] El test de regresion (agteamos-sdd-protocol) falla antes del fix y pasa despues
+- [ ] El test de regresion (agteamos-spec) falla antes del fix y pasa despues
 - [ ] Codigo sigue los standards del proyecto (lint, format)
 - [ ] Sin secrets hardcodeados
 - [ ] Sin console.log / print() de debug
@@ -986,7 +986,7 @@ sobre una copia vieja. Esto es lo que evita que dos cierres sobre `billing`
 se pisen sin conflicto de git.
 
 ```
-1. Leer cada specs/deltas/<dominio>.md de la tarea (ver skill agteamos-sdd-protocol).
+1. Leer cada specs/deltas/<dominio>.md de la tarea (ver skill agteamos-spec).
 2. Releer agteamos/specs/<dominio>.md TAL COMO ESTA AHORA en el filesystem
    (obligatorio incluso si ya se habia leido antes en la sesion).
 3. ¿agteamos/specs/<dominio>.md existe?
@@ -1042,11 +1042,11 @@ Commitear `agteamos/specs/<dominio>.md` (y `agteamos/specs/knowledge-base.md`
 si se actualizó) junto con el código y el delta, **en el mismo commit set**
 — no en un commit separado.
 
-**Subpaso — convenciones aprendidas (Disparador 3 de `agteamos-project-docs`)**:
+**Subpaso — convenciones aprendidas (Disparador 3 de `agteamos-knowledge`)**:
 distinto de una decisión puntual (arriba), si el diff de esta tarea introdujo
 un **patrón nuevo y consistente** (un helper nuevo reutilizado 3+ veces, un
 naming nuevo aplicado parejo en todos los archivos tocados), ofrecer
-`agteamos-project-docs` para registrarlo como convención del proyecto — nunca
+`agteamos-knowledge` para registrarlo como convención del proyecto — nunca
 automático, misma confirmación explícita que el resto de este punto.
 
 ##### 3. Crear Pull Request
@@ -1134,10 +1134,10 @@ genera `agteamos/changes/<id>-<slug>/verify-report.md` verificando:
 3. **Clasificación de severidad RFC 2119 — fuente de datos concreta, no
    introspección del LLM**: la fuente es la sección
    `## Requirements (RFC 2119)` de `requirements.md` (ver skill
-   `agteamos-sdd-protocol`). Cada requirement ahí tiene un id (`R1`, `R2`…),
+   `agteamos-spec`). Cada requirement ahí tiene un id (`R1`, `R2`…),
    un modal y sus ACs asociados por id; verify recorre esa lista, no infiere
    modales leyendo el código. La severidad heredada está definida en
-   `agteamos-sdd-protocol` y no se redefine acá:
+   `agteamos-spec` y no se redefine acá:
    - `MUST` / `SHALL` no cumplido → **FAIL** (bloquea el cierre).
    - `SHOULD` no cumplido → **WARNING** (no bloquea, se documenta).
    - `MAY` → no se chequea.
@@ -1208,7 +1208,7 @@ Este archivo alimenta directamente el `report.html` de la tarea (skill
 mismo reporte.
 
 **Si `agteamos/architecture/SRS.md` existe** (proyecto con SRS formal opt-in,
-ver `agteamos-new-project` Step 3.5) **y** `requirements.md` tiene la sección
+ver `agteamos-bootstrap` Step 3.5) **y** `requirements.md` tiene la sección
 `## Requisito SRS relacionado` citando uno o más `RF-XXX`: cuando este
 `verify-report.md` da `PASS` (sin `FAIL` sin resolver), actualizar en
 `SRS.md` la fila correspondiente de la sección 10.2 (Matriz de trazabilidad)
@@ -1349,7 +1349,7 @@ Al mismo tiempo que se sugiere el próximo paso, agregar una pregunta opcional:
 - Si el usuario responde con Enter (o no responde nada relevante): continuar
   sin más acción, no se escribe nada.
 - Si el usuario responde con una idea: proponerla como fila nueva en el
-  `BACKLOG.md` del repo del propio plugin (vía skill `agteamos-plugin-improvement`,
+  `BACKLOG.md` del repo del propio plugin (vía skill `agteamos-meta`,
   que es la dueña de ese mecanismo) — **nunca se escribe sin confirmación
   explícita del usuario** sobre el texto final de la fila propuesta.
 
@@ -1383,9 +1383,9 @@ bajísima fricción.
 12. ➡️  Pregunta de fricción: usuario responde Enter (sin comentarios)
 ```
 
-**Próximo paso sugerido**: continuar con `agteamos-new-task` para la siguiente
+**Próximo paso sugerido**: continuar con `agteamos-task` para la siguiente
 iteración del backlog, o — si corresponde una revisión periódica — ejecutar
-`agteamos-quality`, `agteamos-project-docs`.
+`agteamos-quality`, `agteamos-knowledge`.
 
 #### Anti-patterns de task-closure
 
@@ -1676,3 +1676,11 @@ mv agteamos/changes/15-user-profile-page/ \
 Ver también los anti-patterns especificos de cada fase inline: "Anti-patterns
 de task-tracking" (dentro de Step 4) y "Anti-patterns de task-closure"
 (dentro de Step 9).
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: `agteamos-task` (siguiente iteración) o,
+periódicamente, `agteamos-quality --mode auditoria-integral` /
+`agteamos-knowledge --maintain` (ver `agteamos-context` §Próximo paso).

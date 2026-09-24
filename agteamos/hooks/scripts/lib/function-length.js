@@ -2,7 +2,7 @@
 
 /**
  * Heuristica de longitud de funcion/metodo, por lenguaje -- NO es un parser
- * real, es deliberadamente simple (ver agteamos-project-docs/code-analysis para
+ * real, es deliberadamente simple (ver agteamos-knowledge/code-analysis para
  * el analisis estatico de verdad). Devuelve el span de lineas mas largo entre
  * las lineas indicadas en `touchedLineNumbers` (1-indexed) que pertenece a
  * una funcion nueva o crecida.

@@ -9,8 +9,8 @@
 >
 > **Fuente de verdad de los IDs `RF-XXX`**: este documento es el catálogo
 > global de requisitos funcionales del proyecto. Cuando después se arranque
-> una feature concreta con `agteamos-new-task`, el `requirements.md` de esa
-> tarea (ver `agteamos-sdd-protocol`) debe **citar** el `RF-XXX` que le
+> una feature concreta con `agteamos-task`, el `requirements.md` de esa
+> tarea (ver `agteamos-spec`) debe **citar** el `RF-XXX` que le
 > corresponda en vez de reescribirlo — un mismo requisito no debe tener dos
 > redacciones distintas viviendo en dos archivos.
 
@@ -197,7 +197,7 @@ Formato base (siempre presente):
 
 **Columna 5 — solo si `agteamos/platform.yml` tiene `tracker: planner`**:
 agregar `| Planner Task ID |` al final de cada fila. La llena
-`agteamos-new-project` (Step 3.5) al crear una tarea de Planner por cada
+`agteamos-bootstrap` (Step 3.5) al crear una tarea de Planner por cada
 `RF-XXX`, y la usa `agteamos-implement` (Step 5) para saber qué tarea de
 Planner actualizar cuando el requisito se verifica:
 | Requisito | Caso de uso | Método de verificación | Estado | Planner Task ID |

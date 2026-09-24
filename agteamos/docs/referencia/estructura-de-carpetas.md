@@ -2,16 +2,16 @@
 
 AgTeamOS gestiona **una sola carpeta visible `agteamos/`** en la raíz de tu proyecto. Reemplaza por completo cualquier esquema anterior basado en `docs/00-08` + `docs/specs` + `docs/tasks` — todo lo que el sistema toca vive en su propia carpeta con nombre de marca, sin mezclarse con documentación humana genérica. No hay prefijos numéricos: insertar una categoría nueva en el medio no requiere renumerar nada.
 
-> **Esta página es el árbol canónico único.** `README.md` no mantiene su propia copia — cita o replica este árbol tal cual. Si alguna skill (`agteamos-new-project`, `agteamos-project-docs`, `agteamos-router`, `agteamos-implement`) muestra un árbol distinto de este, es una divergencia a corregir ahí, no una variante válida.
+> **Esta página es el árbol canónico único.** `README.md` no mantiene su propia copia — cita o replica este árbol tal cual. Si alguna skill (`agteamos-bootstrap`, `agteamos-knowledge`, `agteamos-router`, `agteamos-implement`) muestra un árbol distinto de este, es una divergencia a corregir ahí, no una variante válida.
 
 > **Qué se commitea**: ver [Control de versiones](#control-de-versiones-qué-se-commitea-y-qué-no) más abajo — casi todo `agteamos/` se commitea como código fuente, con dos excepciones marcadas explícitamente en el árbol.
 
-> **Este árbol no se genera todo de una vez.** Por default (`agteamos-project-docs`
-> sin `--full`, y la Fase 0 de `agteamos-new-project`), solo se genera lo
+> **Este árbol no se genera todo de una vez.** Por default (`agteamos-knowledge`
+> sin `--full`, y la Fase 0 de `agteamos-bootstrap`), solo se genera lo
 > mínimo (`platform.yml`, `PROJECT_CONTEXT.md` lean, `onboarding.yml`) y el
 > resto queda declarado `pending`/`candidate` en `onboarding.yml`, generándose
 > recién cuando una tarea real lo necesita (protocolo `ensure-artifact`, ver
-> `agteamos-context-engineering` §Lazy Artifacts). El árbol de abajo muestra
+> `agteamos-context` §Lazy Artifacts). El árbol de abajo muestra
 > el estado **final** una vez que todo se generó — no el día 1. Detalle
 > completo del porqué y el diseño en
 > `DECISIONS.md`.
@@ -22,14 +22,14 @@ AgTeamOS gestiona **una sola carpeta visible `agteamos/`** en la raíz de tu pro
 tu-proyecto/
 ├── agteamos/
 │   ├── platform.yml                     ← agteamos-setup
-│   ├── onboarding.yml                    ← manifest lazy: que existe, que esta pending/candidate y que lo dispara (ver agteamos-context-engineering §Lazy Artifacts)
+│   ├── onboarding.yml                    ← manifest lazy: que existe, que esta pending/candidate y que lo dispara (ver agteamos-context §Lazy Artifacts)
 │   ├── dashboard.html                    ← agteamos-dashboard (generado, NO se commitea)
 │   │
 │   ├── product/
 │   │   ├── mission.md
 │   │   ├── roadmap.md
 │   │   ├── kpis.md
-│   │   └── backlog.md                    ← agteamos-new-project Step 6 (mirror de los tickets creados)
+│   │   └── backlog.md                    ← agteamos-bootstrap Step 6 (mirror de los tickets creados)
 │   │
 │   ├── architecture/
 │   │   ├── PROJECT_CONTEXT.md
@@ -67,7 +67,7 @@ tu-proyecto/
 │   │   └── rfcs/
 │   │       └── RFC-001-unified-auth-service.md
 │   │
-│   ├── standards/                       ← agteamos-project-docs
+│   ├── standards/                       ← agteamos-knowledge
 │   │   ├── standards.yml                 ← manifest: qué aplica, qué se adapta, qué se desvía
 │   │   ├── index.yml                     ← keyword → carpeta, para no escanear las ~11 carpetas
 │   │   ├── api/
@@ -158,7 +158,7 @@ Si venías de un proyecto documentado con el esquema anterior (`docs/00-08`), es
 
 ## Qué genera cada skill/agente
 
-### `agteamos-router` / `agteamos-project-docs` generan (proyecto sin `agteamos/` todavía):
+### `agteamos-router` / `agteamos-knowledge` generan (proyecto sin `agteamos/` todavía):
 
 - `agteamos/architecture/PROJECT_CONTEXT.md` — stack detectado desde `package.json`, `pyproject.toml`, `*.csproj`
 - `agteamos/api/openapi.yml` — escaneando routers/controllers
@@ -167,11 +167,11 @@ Si venías de un proyecto documentado con el esquema anterior (`docs/00-08`), es
 - `agteamos/specs/<dominio>.md` con `Coverage: seeded` — siembra parcial, por ingeniería inversa, del comportamiento que puede confirmar contra el código real (ver [Adoptar un proyecto existente](../primeros-pasos/04-adoptar-proyecto-existente.md))
 - `agteamos/changes/` — estructura vacía lista para usar
 
-### `agteamos-new-project` genera además:
+### `agteamos-bootstrap` genera además:
 
 - `agteamos/product/backlog.md` — mirror de los tickets creados en GitHub/Azure para el MVP (Step 6)
 
-### `agteamos-sdd-protocol` genera (por tarea), en `agteamos/changes/<id>-<slug>/`:
+### `agteamos-spec` genera (por tarea), en `agteamos/changes/<id>-<slug>/`:
 
 - `brief.md` — input original del usuario, inmutable (solo `schema: full`)
 - `specs/requirements.md` — Product Owner
@@ -187,7 +187,7 @@ Si venías de un proyecto documentado con el esquema anterior (`docs/00-08`), es
 ### `agteamos-implement` genera al cerrar:
 
 - `verify-report.md` — gate RFC 2119 antes del merge
-- `knowledge-base.md` — aprendizajes y decisiones reutilizables de la tarea, para que el próximo agente (o `agteamos-project-docs`) no repita la misma investigación
+- `knowledge-base.md` — aprendizajes y decisiones reutilizables de la tarea, para que el próximo agente (o `agteamos-knowledge`) no repita la misma investigación
 
 ### `agteamos-dashboard` genera:
 
@@ -214,7 +214,7 @@ Mueve `agteamos/changes/{id}-{slug}/` → `agteamos/changes/archive/{fecha}-{id}
 
 ## Reglas de la carpeta `agteamos/`
 
-1. **Siempre existe** — si no existe, `agteamos-router` dispara `agteamos-project-docs` para crearla por ingeniería inversa antes de cualquier tarea.
+1. **Siempre existe** — si no existe, `agteamos-router` dispara `agteamos-knowledge` para crearla por ingeniería inversa antes de cualquier tarea.
 2. **Es la fuente de verdad** — los agentes la leen antes de cualquier acción; nunca asumen el estado del proyecto.
 3. **Se actualiza con cada tarea** — salvo que `task.yml` declare `doc_impact: false`.
 4. **Se commitea como código fuente** — con las 2 excepciones generadas (`dashboard.html`, `changes/**/report.html`) listadas arriba en `.gitignore`.

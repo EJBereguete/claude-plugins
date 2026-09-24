@@ -65,8 +65,8 @@ created_at: "2026-08-09"
 |---|---|---|
 | `agteamos-router` | existencia del archivo | Step 0 — decide si disparar `agteamos-setup` primero |
 | Backend/Frontend Engineer | `branch_strategy` | Rama destino del PR |
-| `agteamos-deploy-readiness` | `deploy_target`, `ci_target` | Comandos de deploy y verificación de CI |
-| `agteamos-pr-standards` | `pr_convention` | Reviewers requeridos, merge strategy |
+| `agteamos-deploy` | `deploy_target`, `ci_target` | Comandos de deploy y verificación de CI |
+| `agteamos-pr` | `pr_convention` | Reviewers requeridos, merge strategy |
 | MCP `github`/`azure-devops` | `repo_host`, `repo.*`, `env_var_names` | Qué servidor MCP usar y con qué variable de auth |
 | Todos los agentes | `handoff_mode` | Si piden confirmación en cada handoff o continúan solos |
 
@@ -79,4 +79,4 @@ created_at: "2026-08-09"
 
 ## Siguiente paso sugerido
 
-Si `agteamos-router` determinó que el repo está vacío, sigue con `agteamos-new-project`. Si el repo ya tiene código, sigue con `agteamos-project-docs` para documentar lo existente contra esta configuración.
+Si `agteamos-router` determinó que el repo está vacío, sigue con `agteamos-bootstrap`. Si el repo ya tiene código, sigue con `agteamos-knowledge` para documentar lo existente contra esta configuración.

@@ -743,7 +743,7 @@ anotarla; si no hay ninguna, decir "ninguna identificada por ahora">
 
 #### Step 2 — Consulta futura (por similitud conceptual, no keyword)
 
-Cuando `agteamos-new-task` o la sección "Premortem" (más abajo) estén por
+Cuando `agteamos-task` o la sección "Premortem" (más abajo) estén por
 proponer o preguntar sobre algo nuevo, revisar los archivos de
 `agteamos/decisions/out-of-scope/` buscando **el mismo concepto expresado
 distinto**, no una coincidencia literal de palabras — "agregar pagos con
@@ -783,7 +783,7 @@ un veredicto anterior.
 - **Input**: una idea, plan, feature, RFC, o proyecto entero (path o descripción).
 - **Output**: veredicto + grietas priorizadas por severidad + lista de arreglos, en el formato fijo de la sección "FORMATO DE SALIDA". Es de **solo lectura y opinión** — nunca modifica código, nunca crea tickets, nunca escribe en `agteamos/`.
 - **Quién ejecuta**: quien esté liderando el paso donde se invoca — `@product-manager` para los ángulos de negocio/mercado/números, `@architect` para premisas/viabilidad/ejecución técnica. También se invoca standalone, sin depender de ningún flujo ni agente fijo.
-- **Trigger**: invocación directa del usuario, o como gate **opcional** (nunca automático, nunca bloqueante) ofrecido por `agteamos-new-project` (Step 1.5), `agteamos-new-task` (Step 1.5), y por las secciones "RFC" y "ADR" de esta misma skill antes de que una propuesta pase a `Accepted`. El usuario decide si lo corre y si sigue adelante pese al veredicto — esta sección nunca detiene un flujo por sí sola.
+- **Trigger**: invocación directa del usuario, o como gate **opcional** (nunca automático, nunca bloqueante) ofrecido por `agteamos-bootstrap` (Step 1.5), `agteamos-task` (Step 1.5), y por las secciones "RFC" y "ADR" de esta misma skill antes de que una propuesta pase a `Accepted`. El usuario decide si lo corre y si sigue adelante pese al veredicto — esta sección nunca detiene un flujo por sí sola.
 
 ### POR QUÉ EXISTE ESTA SECCIÓN
 
@@ -833,8 +833,8 @@ Invocar esta sección cuando el usuario:
   plan", "abogado del diablo", "segunda opinión brutal".
 
 También se ofrece como gate **opcional** — nunca automático — en:
-- `agteamos-new-project` Step 1.5, antes de que `@architect` defina el stack (Step 2).
-- `agteamos-new-task` Step 1.5, antes de determinar el schema de la tarea (Step 2).
+- `agteamos-bootstrap` Step 1.5, antes de que `@architect` defina el stack (Step 2).
+- `agteamos-task` Step 1.5, antes de determinar el schema de la tarea (Step 2).
 - La sección "RFC" de esta skill, antes de que la opción propuesta (no las
   descartadas) pase de `Under Review` a `Accepted` — ver sección
   `## Premortem` del template de RFC.
@@ -912,7 +912,7 @@ por similitud conceptual con la idea a criticar — si ya se descartó algo
 parecido antes, decirlo (ver sección "Out-of-scope" arriba) no invalida la
 crítica nueva, pero le da contexto histórico al veredicto.
 
-**Al aplicarse a una feature puntual (gate de `agteamos-new-task`) en vez de
+**Al aplicarse a una feature puntual (gate de `agteamos-task`) en vez de
 a un proyecto/negocio entero**, los ángulos 2/3/5 (mercado, competencia,
 números) se reinterpretan a escala de feature: "¿este problema le duele lo
 suficiente a los usuarios actuales como para priorizar esto sobre lo demás
@@ -966,7 +966,7 @@ hilo.
 
 ### FORMATO DE SALIDA (siempre en este orden)
 
-Antes de enviar, correr el checklist pre-envío de `agteamos-pr-standards`
+Antes de enviar, correr el checklist pre-envío de `agteamos-pr`
 Step 10 (lista negra léxica de aperturas/cierres de relleno) — el VEREDICTO
 ya va primero por diseño de esta sección, pero la lista negra sigue
 aplicando a cómo se redacta cada grieta individual.
@@ -1019,8 +1019,8 @@ aplauso.
 - Declarar que "aguanta" sin haber recorrido los ocho ángulos a fondo.
 - Inventar un defecto para rellenar la cuota cuando una parte es
   genuinamente fuerte — calibrado no es sinónimo de contrarian de fábrica.
-- Usarla como gate bloqueante dentro de `agteamos-new-project` o
-  `agteamos-new-task` — es siempre opcional; el usuario decide si sigue
+- Usarla como gate bloqueante dentro de `agteamos-bootstrap` o
+  `agteamos-task` — es siempre opcional; el usuario decide si sigue
   adelante pese al veredicto, esta sección nunca detiene un flujo por sí
   sola.
 - Confundirla con `agteamos-quality` o `agteamos-security` — esas
@@ -1028,3 +1028,10 @@ aplauso.
   o de producto antes (o en paralelo a) que se construya nada.
 - Reportar hallazgos genéricos ("valida el mercado") en vez de específicos
   de esta idea concreta con nombres, números y condiciones falsables.
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: continuar la tarea que disparó esta skill
+(`agteamos-task`/`agteamos-implement`) — ver `agteamos-context` §Próximo paso.

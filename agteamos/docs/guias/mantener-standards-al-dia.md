@@ -1,11 +1,11 @@
-# Mantener los standards al día (`agteamos-project-docs`)
+# Mantener los standards al día (`agteamos-knowledge`)
 
 `agteamos/standards/` es donde AgTeamOS deja constancia de qué convenciones de código realmente aplica tu proyecto — no un genérico copiado del plugin, sino el resultado de leer tu código real y compararlo contra los 7 temas base. Ver el diseño completo en [Capa de standards](../conceptos/filosofia-y-arquitectura.md#capa-de-standards); esta guía es la referencia operativa de cuándo y cómo correr la skill.
 
 ## Cuándo correrla
 
-- Automáticamente, como parte de `agteamos-project-docs` la primera vez que se documenta un proyecto con código existente.
-- A demanda, cuando quieras: `/agteamos-project-docs`.
+- Automáticamente, como parte de `agteamos-knowledge` la primera vez que se documenta un proyecto con código existente.
+- A demanda, cuando quieras: `/agteamos-knowledge`.
 - **Cuándo re-ejecutarla**: después de un cambio de stack relevante (nuevo framework, migración de ORM), después de resolver una desviación documentada (`status: deviates` → ya corregida), o periódicamente como parte de una auditoría (`agteamos-quality` la puede disparar si los estándares no se revisaron en mucho tiempo).
 
 ## Qué hace
@@ -84,7 +84,7 @@ react: frontend/
 component: frontend/
 ```
 
-Se regenera junto con `standards.yml`, en el mismo paso, siempre que corre `agteamos-project-docs`.
+Se regenera junto con `standards.yml`, en el mismo paso, siempre que corre `agteamos-knowledge`.
 
 ## Errores comunes a evitar
 
@@ -92,4 +92,4 @@ Se regenera junto con `standards.yml`, en el mismo paso, siempre que corre `agte
 - Marcar `status: deviates` sin haber preguntado al usuario si es intencional.
 - Marcar `status: applies` con `Confidence` menor a 4/5.
 - Escribir `standards.yml` fuera de `agteamos/standards/` (en la raíz de `agteamos/`, por ejemplo).
-- Correr esta skill en un repo vacío — para eso está `agteamos-new-project`/`agteamos-setup`, no `agteamos-project-docs`.
+- Correr esta skill en un repo vacío — para eso está `agteamos-bootstrap`/`agteamos-setup`, no `agteamos-knowledge`.

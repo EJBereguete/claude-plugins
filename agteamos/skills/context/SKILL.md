@@ -1,5 +1,5 @@
 ---
-name: agteamos-context-engineering
+name: agteamos-context
 description: >
   Gestiona el estado compartido entre agentes, define el protocolo de
   handoff y controla el presupuesto de tokens. Aplica las mejores
@@ -53,8 +53,8 @@ una vez cargado un nivel de contexto, se mantiene para el resto de la tarea.
 Los CONTEXT TIERS de arriba resuelven la lectura perezosa (qué contexto cargar
 para una tarea). Esta sección resuelve la **escritura** perezosa: qué
 documentación/estándar generar, y cuándo. Antes de este contrato,
-`agteamos-project-docs` generaba las ~17 carpetas de `agteamos/` y los 11 temas de
-`agteamos-project-docs` el día 1, sin importar si la tarea en curso los tocaba —
+`agteamos-knowledge` generaba las ~17 carpetas de `agteamos/` y los 11 temas de
+`agteamos-knowledge` el día 1, sin importar si la tarea en curso los tocaba —
 el mismo costo que Tier 3 pagaría si se cargara siempre. `agteamos-capture` ya aplican el contrato correcto para capturas
 puntuales (capturar primero, refinar después); esta sección lleva el mismo
 principio a la generación de contexto de proyecto.
@@ -62,20 +62,20 @@ principio a la generación de contexto de proyecto.
 ### El manifest — `agteamos/onboarding.yml`
 
 Registro de qué artefacto existe, cuál está pendiente y qué lo dispara. Lo
-crea el onboarding L0 (`agteamos-project-docs`) o la Fase 0 de `agteamos-new-project`,
+crea el onboarding L0 (`agteamos-knowledge`) o la Fase 0 de `agteamos-bootstrap`,
 y lo actualiza cada skill generadora al escribir su artefacto.
 
 ```yaml
 # agteamos/onboarding.yml
 mode: lazy                 # lazy | full — full = comportamiento pre-lazy, todo ya generado
 created_at: 2026-09-23
-custom_standards_asked: false   # ver agteamos-project-docs Step 3 — se pregunta una sola vez por proyecto
+custom_standards_asked: false   # ver agteamos-knowledge Step 3 — se pregunta una sola vez por proyecto
 artifacts:
   project_context:   { path: architecture/PROJECT_CONTEXT.md, status: done,    generated_at: 2026-09-23 }
   platform:          { path: platform.yml,                    status: partial }
   standards.api:     { path: standards/api/,                  status: pending, trigger: "build-api | review sobre routers | edit en globs de api" }
   standards.testing: { path: standards/testing/,              status: pending, trigger: "edit/creacion de archivo de test | qa-engineer" }
-  # ... una entrada por cada uno de los 11 temas de agteamos-project-docs
+  # ... una entrada por cada uno de los 11 temas de agteamos-knowledge
   spec.billing:      { path: specs/billing.md,                status: candidate, evidence: "src/billing/ (14 archivos)" }
   api_map:           { path: api/endpoints.md,                status: pending, trigger: "build-api | tarea que toca routers" }
   design_system:     { path: design/DESIGN_SYSTEM.md,         status: pending, trigger: "build-ui" }
@@ -85,7 +85,7 @@ artifacts:
 ```
 
 Estados posibles: `done` | `partial` | `pending` | `candidate` (solo dominios
-de specs, ver `agteamos-project-docs` L1) | `stale` | `n/a`.
+de specs, ver `agteamos-knowledge` L1) | `stale` | `n/a`.
 
 ### Protocolo `ensure-artifact(<clave>)`
 
@@ -120,7 +120,7 @@ seguir sin más:
 *La skill que escribe un artefacto es la que crea su carpeta* (`mkdir -p` al
 momento de escribir, no antes). Ninguna skill pre-crea carpetas vacías "por
 las dudas" — eso es lo que hacía pesado el esqueleto completo de
-`agteamos-project-docs` y `agteamos-new-project`.
+`agteamos-knowledge` y `agteamos-bootstrap`.
 
 ### Compatibilidad hacia atrás
 
@@ -211,6 +211,61 @@ Cada agente tiene condiciones explicitas de parada:
 | @product-manager | Tickets creados + tasks.md escrito + handoff listo |
 | @ui-ux-designer | Mockup aprobado por usuario + design tokens documentados |
 
+## PRÓXIMO PASO — convención obligatoria
+
+Toda skill de AgTeamOS, al llegar a su último Step (o al final de cada
+modo, si la skill tiene varios modos como `agteamos-quality` o
+`agteamos-knowledge`), termina con una línea en este formato exacto:
+
+```
+**Próximo paso sugerido**: <skill o comando> — <razón en menos de 10 palabras>
+```
+
+Reglas:
+- Si el resultado admite más de un camino razonable (ej. un
+  `agteamos-quality` con Bloqueantes vs. sin Bloqueantes), listar las 2-3
+  opciones más probables, no solo una.
+- Si no hay un siguiente paso obvio (ej. un modo de solo lectura), la línea
+  dice explícitamente *"ninguno — este modo es de solo lectura"* en vez de
+  inventar uno forzado.
+- **Nunca ejecutar el siguiente paso automáticamente solo por sugerirlo** —
+  sigue siendo el usuario (o el agente orquestador, según `handoff_mode` en
+  `platform.yml`) quien decide si sigue.
+- Cada skill cita esta sección en vez de mantener su propia copia de la
+  tabla — si la tabla de abajo cambia, no hace falta tocar 22 archivos.
+
+### Tabla de referencia
+
+| Skill que termina | Próximo paso típico |
+|---|---|
+| `agteamos-bootstrap` | `agteamos-task` (primera feature del MVP) |
+| `agteamos-task` | `agteamos-implement` (ticket ya creado) |
+| `agteamos-implement` | `agteamos-task` (siguiente iteración) o, periódicamente, `agteamos-quality --mode auditoria-integral` / `agteamos-knowledge --maintain` |
+| `agteamos-quality` (PR-review, con Bloqueantes) | volver a `agteamos-implement`/`agteamos-build` para resolverlos |
+| `agteamos-quality` (PR-review, sin Bloqueantes) | `agteamos-implement` (merge) |
+| `agteamos-quality` (auditoría integral) | `agteamos-decisions` (ADR de hallazgos grandes) o `agteamos-task` (atacar P0 del radar) |
+| `agteamos-quality` (domain-review / static-analysis) | vuelve a la skill que lo disparó |
+| `agteamos-security` | mismo criterio que `agteamos-quality` |
+| `agteamos-decisions` | continuar la tarea que la disparó (`agteamos-task`/`agteamos-implement`) |
+| `agteamos-deploy` | `agteamos-metrics` (registrar DORA) — o `agteamos-incidents` si algo falló |
+| `agteamos-incidents` | `agteamos-decisions` (post-mortem como ADR) o `agteamos-fix` |
+| `agteamos-knowledge --init` | `agteamos-task`/`agteamos-implement` (primera feature real) |
+| `agteamos-knowledge --maintain` / `--topic` / `--learn` | ninguno — vuelve a la skill que lo disparó |
+| `agteamos-capture` | ninguno — sigue el flujo que estaba en curso |
+| `agteamos-meta` (auditoría) | `agteamos-meta` (ejecución de la mejora), si se decide actuar |
+| `agteamos-build` | `agteamos-quality` (review) |
+| `agteamos-dashboard` | ninguno — es informativo (`--pulse` incluido, es de solo lectura) |
+| `agteamos-setup` | `agteamos-bootstrap` o `agteamos-knowledge --init` según haya o no código |
+| `agteamos-spec` | depende de quién la invoque — no tiene un "después" propio |
+| `agteamos-pr` | vuelve al Step de cierre de `agteamos-implement` |
+| `agteamos-debug` | `agteamos-implement` (cierre, ya documentado en su Step 8) |
+| `agteamos-fix` | `agteamos-implement` (mismo criterio) |
+| `agteamos-explore` | `agteamos-task` (si ya se decidió qué hacer) o seguir explorando |
+| `agteamos-router` | no aplica — el router ES el que decide el próximo paso, no lo sugiere |
+| `agteamos-context` | no aplica — es la skill que define esta convención, no la consume |
+
+---
+
 ## ANTI-PATTERNS
 
 - **No pasar outputs completos entre agentes** — resumir en 1-2k tokens
@@ -218,3 +273,5 @@ Cada agente tiene condiciones explicitas de parada:
 - **No activar mas agentes de los necesarios** — solo los de las capas impactadas
 - **No hacer loops sin stopping condition** — max 3 iteraciones por paso
 - **No cargar Tier 3 completo para una tarea Tier 1/2** — ver CONTEXT TIERS abajo, cargar de mas gasta presupuesto de tokens sin necesidad
+- **Terminar una skill sin la línea "Próximo paso sugerido"** — ver §PRÓXIMO PASO arriba, aplica a las 22 skills sin excepción
+- **Ejecutar el próximo paso sugerido automáticamente** — sugerir no es decidir; el usuario/orquestador confirma

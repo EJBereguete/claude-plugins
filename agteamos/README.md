@@ -50,7 +50,7 @@ agteamos-router          → resuelve el proyecto (si lo nombraste), confirma
                             → dispara Flujo 2
   │
   ▼
-agteamos-new-task        → Step 1: clarifica lo ambiguo (rondas de preguntas,
+agteamos-task            → Step 1: clarifica lo ambiguo (rondas de preguntas,
                             nunca le pregunta al usuario lo que puede leer del
                             código) → Step 4: @product-manager (modo Estrategia)
                             escribe requirements.md con ACs Given/When/Then →
@@ -61,13 +61,13 @@ agteamos-new-task        → Step 1: clarifica lo ambiguo (rondas de preguntas,
 agteamos-implement       → Step 2: valida Definition of Ready → Step 4: inicializa
                             agteamos/changes/<id>-<slug>/ → Step 6-7: @architect +
                             engineers implementan por capas, leyendo los standards
-                            del proyecto bajo demanda (agteamos-project-docs --topic)
+                            del proyecto bajo demanda (agteamos-knowledge --topic)
                             → Step 8: QA E2E con evidencia → Step 8.5: oportunidad
                             de refactor acotada → Step 9: PR, verify-report, merge,
                             archivado
 ```
 
-Los otros 2 flujos (`agteamos-new-project` para un repo vacío,
+Los otros 2 flujos (`agteamos-bootstrap` para un repo vacío,
 `agteamos-implement` directo cuando ya hay un ticket) siguen el mismo patrón:
 `agteamos-router` decide, la skill del flujo ejecuta de punta a punta.
 
@@ -78,24 +78,24 @@ Los otros 2 flujos (`agteamos-new-project` para un repo vacío,
 | Skill | Qué hace |
 |---|---|
 | `agteamos-router` | Step 0/1 de todo flujo: resuelve el proyecto por nombre, confirma contexto del repo, detecta Flujo 1/2/3 |
-| `agteamos-new-project` | Flujo 1 — proyecto desde cero, por fases (mínimo primero) |
-| `agteamos-new-task` | Flujo 2 — tarea sin ticket: clarificación + requirements + story-breakdown + ticket |
+| `agteamos-bootstrap` | Flujo 1 — proyecto desde cero, por fases (mínimo primero) |
+| `agteamos-task` | Flujo 2 — tarea sin ticket: clarificación + requirements + story-breakdown + ticket |
 | `agteamos-implement` | Flujo 3 — tarea desde ticket: DoR + tracking + implementación + QA + cierre |
 | `agteamos-quality` | Review de PR / domain-review continuo / static-analysis / auditoría integral (4 modos) |
 | `agteamos-security` | ASVS checklist (L1/L2) + threat modeling (PASTA/STRIDE/LINDDUN) |
 | `agteamos-decisions` | RFC (discusión abierta) / ADR (decisión tomada) / out-of-scope / premortem |
-| `agteamos-deploy-readiness` | Production Readiness Review + despliegue monitoreado |
+| `agteamos-deploy` | Production Readiness Review + despliegue monitoreado |
 | `agteamos-incidents` | Incident response (P1-P4) + runbooks/playbooks |
 | `agteamos-metrics` | DORA metrics + SLO/error budgets |
-| `agteamos-project-docs` | Onboarding (`--init`) + mantenimiento (`--maintain`) + estándares por tema (`--topic`) + aprendizaje en uso (`--learn`) |
+| `agteamos-knowledge` | Onboarding (`--init`) + mantenimiento (`--maintain`) + estándares por tema (`--topic`) + aprendizaje en uso (`--learn`) |
 | `agteamos-capture` | Captura de baja fricción: backlog del plugin o backlog de un proyecto |
-| `agteamos-plugin-improvement` | Audita y mejora el propio AgTeamOS |
+| `agteamos-meta` | Audita y mejora el propio AgTeamOS |
 | `agteamos-build` | Implementación guiada backend (API) y frontend (UI) |
 | `agteamos-dashboard` | `report.html` por tarea + `dashboard.html` general + modo `--pulse` (solo lectura) |
 | `agteamos-setup` | Configura `platform.yml` (repo host, tracker, branching, CI/CD, handoff) |
-| `agteamos-context-engineering` | Protocolo de handoff, context tiers, y el contrato `ensure-artifact` de generación perezosa |
-| `agteamos-sdd-protocol` | Formato canónico de specs (requirements/design/tasks/deltas) |
-| `agteamos-pr-standards` | Convenciones de creación, revisión y merge de PRs |
+| `agteamos-context` | Protocolo de handoff, context tiers, y el contrato `ensure-artifact` de generación perezosa |
+| `agteamos-spec` | Formato canónico de specs (requirements/design/tasks/deltas) |
+| `agteamos-pr` | Convenciones de creación, revisión y merge de PRs |
 | `agteamos-explore` | Pensar opciones antes de comprometerse a una tarea — no genera artefactos |
 | `agteamos-debug` | Debugging con causa raíz (5 Whys) |
 | `agteamos-fix` | Hotfix táctico — fix mínimo + test de regresión |
@@ -125,7 +125,7 @@ Cada skill es invocable como `/agteamos-<nombre>` o `/agteamos:agteamos-<nombre>
                              (líneas/smells/función larga) al escribir o editar
 🟢 session-start.js       → recuerda el Step 0 (agteamos-router) + índice de standards +
                              radar de deuda técnica (throttle 7 días)
-🟢 detect-correction.js   → sugiere agteamos-project-docs --learn ante una corrección
+🟢 detect-correction.js   → sugiere agteamos-knowledge --learn ante una corrección
 🟡 nudge-review.js        → recuerda correr agteamos-quality si el turno movió ≥30 líneas
 ```
 
@@ -139,4 +139,4 @@ matriz agentes↔skills, estructura de carpetas).
 
 ---
 
-> Plugin version: 2.0.0 | 8 agentes · 22 skills · 7 standards base · 6 hooks
+> Plugin version: 2.1.0 | 8 agentes · 22 skills · 7 standards base · 6 hooks

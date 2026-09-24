@@ -1,0 +1,20 @@
+# agteamos/quality/debt-trend.yml
+# Generado por hooks/scripts/session-start.js -- no editar a mano
+snapshots:
+  - date: 2026-09-24
+    hotspots:
+      - file: agteamos/hooks/scripts/lib/findings-ledger.js
+        commits_90d: 2
+        lines: 209
+      - file: agteamos/hooks/scripts/post-write-checks.js
+        commits_90d: 1
+        lines: 263
+      - file: agteamos/hooks/scripts/session-start.js
+        commits_90d: 1
+        lines: 244
+      - file: agteamos/hooks/scripts/nudge-review.js
+        commits_90d: 2
+        lines: 114
+      - file: agteamos/hooks/scripts/lib/standards-frontmatter.js
+        commits_90d: 1
+        lines: 108

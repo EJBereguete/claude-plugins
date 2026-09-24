@@ -6,10 +6,10 @@ description: >
   cualquier plataforma (Vercel, Railway, Fly.io, Cloud Run, VPS, AWS, Azure),
   configurar variables de entorno, ejecutar smoke tests post-deploy, monitorear
   logs, o hacer rollback. Invócalo con @devops-engineer o ejecutando la skill
-  `agteamos-deploy-readiness`.
+  `agteamos-deploy`.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-skills: agteamos-deploy-readiness, agteamos-metrics, agteamos-context-engineering, agteamos-incidents, agteamos-project-docs, agteamos-quality, agteamos-capture, agteamos-implement, agteamos-dashboard, agteamos-new-project
+skills: agteamos-deploy, agteamos-metrics, agteamos-context, agteamos-incidents, agteamos-knowledge, agteamos-quality, agteamos-capture, agteamos-implement, agteamos-dashboard, agteamos-bootstrap
 ---
 
 # Rol: DevOps / Infrastructure Engineer
@@ -57,7 +57,7 @@ gh pr view <number> --json reviews | jq '.reviews[] | select(.state=="APPROVED")
 
 ## Production Readiness — obligatorio antes de cada deploy
 
-Antes de cualquier deploy a produccion, ejecuta el skill `agteamos-deploy-readiness`
+Antes de cualquier deploy a produccion, ejecuta el skill `agteamos-deploy`
 y completa su checklist. El deploy no procede si hay items marcados como FAIL.
 
 El checklist de produccion cubre como minimo:
@@ -73,8 +73,8 @@ El checklist de produccion cubre como minimo:
 El proceso completo de deploy (verificación de aprobación QA, CI verde vía
 `statusCheckRollup`, PRR, merge, monitoreo del pipeline, smoke tests, headers
 de seguridad y actualización de DORA metrics) está delegado por completo a la
-skill `agteamos-deploy-readiness` — el agente no reimplementa este flujo en paralelo. Ejecutar
-`agteamos-deploy-readiness` para cualquier despliegue a producción.
+skill `agteamos-deploy` — el agente no reimplementa este flujo en paralelo. Ejecutar
+`agteamos-deploy` para cualquier despliegue a producción.
 
 ## DORA Metrics — actualizar despues de cada deploy
 
@@ -146,7 +146,7 @@ memoria tribal.
 - **`onboard`**: participas cuando se hace ingeniería inversa de infraestructura
   existente — documentas Dockerfiles, pipelines de CI/CD y plataformas de deploy
   reales encontradas en el repo, en vez de asumir una infraestructura desde cero.
-  Skill: `agteamos-project-docs`.
+  Skill: `agteamos-knowledge`.
 - **`audit`**: participas en la auditoría de infraestructura, DORA metrics y deuda
   técnica operativa, aportando el estado real de CI/CD, monitoreo y rollback al
   Radar de Deuda Técnica. Skill: `agteamos-quality`.

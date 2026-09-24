@@ -1,22 +1,22 @@
 # Crear y cerrar una tarea
 
-Referencia rápida de `agteamos-new-task` → `agteamos-implement`. Si es tu primera vez, prefiere el recorrido guiado en [Quickstart](../primeros-pasos/01-quickstart.md); esta página asume que ya conoces el flujo y solo necesitas el comando o el paso exacto.
+Referencia rápida de `agteamos-task` → `agteamos-implement`. Si es tu primera vez, prefiere el recorrido guiado en [Quickstart](../primeros-pasos/01-quickstart.md); esta página asume que ya conoces el flujo y solo necesitas el comando o el paso exacto.
 
 ## Cómo se activa cada flujo (tabla de detección)
 
 | Input del usuario | Skill activada |
 |---|---|
-| `"Agrega notificaciones por email"` + proyecto existente | `agteamos-new-task` |
+| `"Agrega notificaciones por email"` + proyecto existente | `agteamos-task` |
 | `"#42"`, `"issue 42"`, URL de GitHub Issues | `agteamos-implement` (GitHub) |
 | `"AB#1234"`, URL de Azure DevOps | `agteamos-implement` (Azure DevOps) |
 | `/agteamos-fix` (o la forma completa `/agteamos:agteamos-fix`) | `agteamos-fix` — directo a implementación, sin SDD completo |
 
-## `agteamos-new-task` — de lenguaje natural a ticket
+## `agteamos-task` — de lenguaje natural a ticket
 
 ```mermaid
 flowchart TD
     START([Instrucción en lenguaje natural]) --> CTX[Lee PROJECT_CONTEXT.md]
-    CTX --> CLARIFY["agteamos-new-task\nmáx 3-5 preguntas, un solo mensaje"]
+    CTX --> CLARIFY["agteamos-task\nmáx 3-5 preguntas, un solo mensaje"]
     CLARIFY --> SCHEMA{"Step 2: ¿schema\nfull o lite?"}
     SCHEMA --> PO["@product-manager escribe\nspecs/requirements.md"]
     PO --> GATE1{Usuario aprueba?}
@@ -30,7 +30,7 @@ flowchart TD
     GATE3 -->|No| MOCKUP
     GATE3 -->|Sí| INVEST
     FEQ -->|No| INVEST{"Step 7: ¿tarea grande?\nINVEST"}
-    INVEST -->|Sí| SPLIT[agteamos-new-task]
+    INVEST -->|Sí| SPLIT[agteamos-task]
     INVEST -->|No| TICKET
     SPLIT --> TICKET["@product-manager crea\nticket en GitHub/Azure (Step 8)"]
     TICKET --> F3[Continúa con agteamos-implement]
@@ -43,7 +43,7 @@ Orden real (ver `skills/new-task/SKILL.md`): requirements → aprobación → de
 ```mermaid
 flowchart TD
     START(["Ticket: URL / #42 / AB#1234"]) --> DOR{"Definition of Ready\n¿cumple lo mínimo?"}
-    DOR -->|No| CLARIFY[agteamos-new-task]
+    DOR -->|No| CLARIFY[agteamos-task]
     CLARIFY --> DOR
     DOR -->|Sí| BRANCH["Crear branch\nfeature/id-slug o bugfix/id-slug"]
     BRANCH --> LAYERS{Capas impactadas}

@@ -1,5 +1,5 @@
 ---
-name: agteamos-project-docs
+name: agteamos-knowledge
 description: >
   Fusion de 4 skills de documentacion del proyecto en 4 modos de un unico
   punto de entrada. Modo `--init` (ingenieria inversa inicial de un proyecto
@@ -13,11 +13,11 @@ description: >
   Modo `--learn` (captura de baja friccion de convenciones aprendidas en uso:
   correccion del usuario, hallazgo SEEN>=3, o patron nuevo al cerrar tarea —
   la antigua agteamos-learn). Disparadores: `--init` lo dispara
-  `agteamos-router`/`agteamos-new-project` cuando detecta un repo sin
+  `agteamos-router`/`agteamos-bootstrap` cuando detecta un repo sin
   `agteamos/`; `--maintain` (default) se ejecuta a demanda o periodicamente
   sobre un `agteamos/` que ya existe parcialmente; `--topic` lo dispara el
   protocolo `ensure-artifact` desde otras skills consumidoras, o
-  `agteamos-project-docs --full`/pedido explicito para los 7 de una; `--learn` lo
+  `agteamos-knowledge --full`/pedido explicito para los 7 de una; `--learn` lo
   disparan el hook `detect-correction.js`, un hallazgo repetido de
   `agteamos-quality`, o `agteamos-implement` al
   cerrar una tarea.
@@ -31,7 +31,7 @@ used_by:
   - qa-engineer
 ---
 
-# SKILL: Project Docs (agteamos-project-docs)
+# SKILL: Project Docs (agteamos-knowledge)
 
 ## CONTRACT
 
@@ -95,14 +95,14 @@ incluye L0/L1/L2 tal cual quedaron del rediseno de onboarding incremental)*
 
 - **Input**: repositorio existente sin `agteamos/` (o con `agteamos/` incompleto)
 - **Output (L0, default)**: `agteamos/architecture/PROJECT_CONTEXT.md` lean, `agteamos/platform.yml` (detectado), `agteamos/onboarding.yml` (manifest de todo lo demás, declarado `pending`/`candidate`), `agteamos/standards/standards.yml`+`index.yml`+`index.meta.yml` con los 7 temas en `pending`, `agteamos/specs/index.yml` con dominios `candidate`, entradas de `.gitignore`
-- **Output (L1, diferido)**: el resto de `agteamos/` (standards por tema, specs por dominio, API map, design system, infraestructura, roadmap, ADRs, labels del tracker) — cada uno generado la primera vez que una skill consumidora real lo necesita, vía `ensure-artifact` (ver `agteamos-context-engineering` §Lazy Artifacts)
+- **Output (L1, diferido)**: el resto de `agteamos/` (standards por tema, specs por dominio, API map, design system, infraestructura, roadmap, ADRs, labels del tracker) — cada uno generado la primera vez que una skill consumidora real lo necesita, vía `ensure-artifact` (ver `agteamos-context` §Lazy Artifacts)
 - **Output (L2, `--init --full`, opt-in)**: todo lo de arriba generado de una sola vez — es el comportamiento histórico de esta skill
 - **Who runs this**: @architect leads L0; cada agente de dominio genera su pieza L1 cuando `ensure-artifact` la dispara, o todos en secuencia si es `--full`
 - **Regla de honestidad — no es una foto completa**: esto es progreso incremental con confianza declarada, no una documentación definitiva del proyecto. Cada documento generado lleva su propio header de proveniencia (`Estado`/`Confidence`/`Fuentes revisadas`/`Última revisión`) — ningún valor (versión de librería, decisión arquitectónica, token de diseño, URL de entorno) se presenta como dato duro sin evidencia citable; si no se pudo confirmar, se marca inline como inferido/no confirmado. La siembra de specs es best-effort y parcial por diseño: el objetivo es que la spec exista con honestidad sobre sus límites, no que esté completa. Nunca se crea una spec, ni se marca `Estado: complete`, sin confirmación explícita del usuario. **Esta regla no cambia entre L0/L1/L2** — lo único que cambia es *cuándo* se genera cada artefacto, nunca la honestidad con la que se genera.
 
 ### POR QUÉ L0/L1/L2 (y no todo de una vez)
 
-Generar las ~17 carpetas de `agteamos/` y los 7 temas de `agteamos-project-docs --topic`
+Generar las ~17 carpetas de `agteamos/` y los 7 temas de `agteamos-knowledge --topic`
 el día 1 de un proyecto viejo tiene un costo que no siempre se paga de vuelta:
 carpetas vacías que no aportan nada, ADRs retroactivos especulativos, specs de
 dominios que capaz nadie toca en meses, y sobre todo — el usuario esperando una
@@ -127,7 +127,7 @@ Run the `agteamos-router` skill first. This skill detects:
 - Active changes in progress from previous sessions
 - CI/CD platform
 
-If `agteamos-router` reports the repository is empty — stop and run the `agteamos-new-project` skill instead.
+If `agteamos-router` reports the repository is empty — stop and run the `agteamos-bootstrap` skill instead.
 
 Do not proceed to Init Step 2 until `agteamos-router` has completed its full checklist.
 
@@ -189,7 +189,7 @@ Leer manifests (`package.json`, `pyproject.toml`, `*.csproj`, etc.) y un
 
 ## Gotchas
 
-<!-- vacía al crearse. Se llena con el uso (agteamos-project-docs --learn, o manualmente) -->
+<!-- vacía al crearse. Se llena con el uso (agteamos-knowledge --learn, o manualmente) -->
 ```
 
 No se generan ADRs, env vars, ni "Known Technical Debt" todavía — eso es L1
@@ -208,7 +208,7 @@ solo detecta y deja para que `agteamos-setup` confirme cuando corresponda
 **3.3 — `agteamos/onboarding.yml`**
 
 Crear con `mode: lazy` y una entrada por cada artefacto diferible (ver el
-esquema completo en `agteamos-context-engineering` §Lazy Artifacts). Los 7
+esquema completo en `agteamos-context` §Lazy Artifacts). Los 7
 temas de standards y los dominios detectados quedan declarados acá, no
 generados.
 
@@ -240,7 +240,7 @@ ya corrió antes, no duplicar.
 ```
 Listo el contexto mínimo de <proyecto>. Detecté 7 temas de estándares y
 N dominios candidatos ([lista corta]); los voy generando a medida que los
-toquemos. Si preferís el onboarding completo ahora: agteamos-project-docs --init --full.
+toquemos. Si preferís el onboarding completo ahora: agteamos-knowledge --init --full.
 ```
 
 No se crea `dashboard.html` en este step (lo crea únicamente
@@ -252,14 +252,14 @@ raíz del repo (ver Init Step 5.g — su contenido vive en
 
 Cada fila de esta tabla es un artefacto que **no** se genera en L0 — se
 genera la primera vez que su disparador ocurre, vía el protocolo
-`ensure-artifact(<clave>)` (`agteamos-context-engineering` §Lazy Artifacts).
+`ensure-artifact(<clave>)` (`agteamos-context` §Lazy Artifacts).
 La skill consumidora que dispara la generación anuncia en una línea, genera
 en modo acotado, y actualiza `onboarding.yml`.
 
 | Artefacto diferido | Disparador | Generador (modo acotado) |
 |---|---|---|
-| `standards/<tema>/` | Una skill consumidora resuelve una keyword que apunta a un tema `pending`, o el hook `jit-standards.js` detecta un edit en los globs del tema | `agteamos-project-docs --topic <tema> --scope <paths>` |
-| `specs/<dominio>.md` | `agteamos-new-task` o `agteamos-implement` con `domains:` que incluye un dominio `candidate` | Ver Init Step 5.b abajo — un solo dominio, con confirmación en una línea |
+| `standards/<tema>/` | Una skill consumidora resuelve una keyword que apunta a un tema `pending`, o el hook `jit-standards.js` detecta un edit en los globs del tema | `agteamos-knowledge --topic <tema> --scope <paths>` |
+| `specs/<dominio>.md` | `agteamos-task` o `agteamos-implement` con `domains:` que incluye un dominio `candidate` | Ver Init Step 5.b abajo — un solo dominio, con confirmación en una línea |
 | `api/endpoints.md` (+ `openapi.yml`) | `build-api-workflow` Step 1, o una tarea cuyo diff toca routers/controllers | Ver Init Step 5.c — acotado al módulo de la tarea más un índice del resto (solo método + path) |
 | `design/DESIGN_SYSTEM.md` | `build-ui-workflow` (primer Step que lee tokens) | Ver Init Step 5.d |
 | `devops/INFRASTRUCTURE.md` | `deploy-workflow`, `production-readiness`, o un edit de `Dockerfile`/`docker-compose*`/`.github/workflows/*`/`azure-pipelines.yml` | Ver Init Step 5.e. DORA/SLO siguen a demanda explícita |
@@ -290,7 +290,7 @@ skill `agteamos-decisions`.
 #### 5.b — Domain & Master Spec Seeding (@architect)
 
 Sin este step, `agteamos/specs/<dominio>.md` (la master spec de
-`agteamos-sdd-protocol`) es inalcanzable en un proyecto existente — el único
+`agteamos-spec`) es inalcanzable en un proyecto existente — el único
 otro escritor es el `sync` de `agteamos-implement`, que solo escribe el
 delta de la primera tarea que cierra, mal etiquetado como "comportamiento
 actual" de un dominio que apenas tocó. Este step lo siembra honestamente.
@@ -314,14 +314,14 @@ que le toque su turno:
    ```
 
 3. Generar `agteamos/specs/<dominio>.md` en el formato canónico exacto de
-   `agteamos-sdd-protocol`:
+   `agteamos-spec`:
 
    ```markdown
    # Spec: <dominio>
 
    ## Coverage
    - **Estado**: seeded
-   - **Confidence**: N/5   <!-- misma regla dura que agteamos-project-docs --topic -->
+   - **Confidence**: N/5   <!-- misma regla dura que agteamos-knowledge --topic -->
    - **Cubre**: [comportamientos inferidos con evidencia real de codigo]
    - **No cubre (todavia)**: [explicitamente NO vacio — es legacy, siempre falta algo]
    - **Ultima tarea aplicada**: ninguna (sembrado inicial)
@@ -434,7 +434,7 @@ si son medibles, y gaps conocidos entre estado actual y deseado.
 #### 5.g — Labels del tracker (@product-manager, opt-in)
 
 **Nunca automático.** La primera vez que este proyecto ejecuta
-`[operación: create-ticket]` (desde `agteamos-new-task`, `agteamos-implement`
+`[operación: create-ticket]` (desde `agteamos-task`, `agteamos-implement`
 o `agteamos-capture`), si todavía no se preguntó, preguntar una sola
 vez:
 
@@ -475,7 +475,7 @@ o `tracker: planner`. Si el usuario dice que no, no insistir — queda
 **Disparo L1 dos semanas después**: alguien pide "agregá el endpoint de
 reembolsos" → `build-api-workflow` Step 1 invoca
 `ensure-artifact(standards.api)` y `ensure-artifact(api_map)` →
-`agteamos-project-docs --topic api-design --scope src/api/` genera solo ese
+`agteamos-knowledge --topic api-design --scope src/api/` genera solo ese
 tema, y `agteamos/api/endpoints.md` se genera acotado al módulo de
 reembolsos + índice del resto. El resto de `agteamos/` sigue como en L0.
 
@@ -484,7 +484,7 @@ reembolsos + índice del resto. El resto de `agteamos/` sigue como en L0.
 - Skipping `agteamos-router` and jumping straight to documentation — generates docs based on assumptions rather than what the code actually does
 - Creating `agteamos/` without reading any actual code — produces generic templates that do not reflect the project
 - Documenting "what should be" instead of "what is" — PROJECT_CONTEXT.md must reflect reality; it is a map, not a wish list
-- Running `agteamos-project-docs --init` on an empty repo — use `agteamos-new-project` for that case
+- Running `agteamos-knowledge --init` on an empty repo — use `agteamos-bootstrap` for that case
 - Generar un artefacto L1 (standards de un tema, spec de un dominio, API map completo) que ninguna tarea real disparó — en modo lazy (default), cada generación tiene un disparador concreto en la tabla del Init Step 4, nunca "ya que estamos" o "para completar el esquema"
 - Seeding `agteamos/specs/<dominio>.md` for a domain the user did not explicitly confirm — a domain candidate is a proposal until the user approves it, never an autonomous decision
 - Declaring `Estado: complete` (or even `partial`) on a spec seed — a freshly seeded master spec is always `Estado: seeded`
@@ -492,7 +492,11 @@ reembolsos + índice del resto. El resto de `agteamos/` sigue como en L0.
 - Crear `agteamos/dashboard.html` desde esta skill — ese archivo lo genera únicamente `agteamos-dashboard`
 - Crear `SQUAD_HANDOVER.md` en la raíz del repo — contradice la regla del README de que todo lo que el sistema toca vive en `agteamos/`; su contenido va en `PROJECT_CONTEXT.md#Gotchas` y en `dashboard.html`
 - Crear labels del tracker (`gh label create` u operación equivalente) sin la confirmación explícita del Init Step 5.g, o hardcodeando el comando en vez de resolver `[operación: create-label]` contra el adapter — rompe con `tracker: azure_devops`/`planner`
-- Pre-crear carpetas vacías "por las dudas" en L0 — la carpeta la crea la skill que efectivamente escribe el primer artefacto de esa sección (ver `agteamos-context-engineering` §Lazy Artifacts, "regla de carpetas")
+- Pre-crear carpetas vacías "por las dudas" en L0 — la carpeta la crea la skill que efectivamente escribe el primer artefacto de esa sección (ver `agteamos-context` §Lazy Artifacts, "regla de carpetas")
+
+**Próximo paso sugerido**: `agteamos-task`/`agteamos-implement` — arrancar
+la primera feature real sobre el proyecto ya onboardeado (ver
+`agteamos-context` §Próximo paso).
 
 ---
 
@@ -523,8 +527,8 @@ agteamos/
 ├── security/                          AUDIT-YYYY-MM-DD.md, threat-models/
 ├── incidents/                         post-mortems/, runbooks/, playbooks/
 ├── decisions/                         decision-log.md, rfcs/
-├── standards/                         standards.yml, index.yml, <tema>/README.md (salida de `agteamos-project-docs --topic`)
-├── specs/<dominio>.md                 capa de specs maestras — ver `agteamos-sdd-protocol`
+├── standards/                         standards.yml, index.yml, <tema>/README.md (salida de `agteamos-knowledge --topic`)
+├── specs/<dominio>.md                 capa de specs maestras — ver `agteamos-spec`
 └── changes/                           activas y changes/archive/ (cerradas)
 ```
 
@@ -532,7 +536,7 @@ Para cada carpeta: ¿existe? ¿tiene al menos el archivo mínimo esperado? ¿la 
 de última modificación del archivo es anterior al último cambio relevante en el
 código (ej. `openapi.yml` más viejo que el router más reciente)? Además, leer
 `agteamos/onboarding.yml` si existe — es la fuente de verdad de qué está
-diferido a propósito (ver `agteamos-context-engineering` §Lazy Artifacts).
+diferido a propósito (ver `agteamos-context` §Lazy Artifacts).
 
 ### Maintain Step 2 — Clasificar cada gap
 
@@ -542,7 +546,7 @@ FALTA POR COMPLETO   → la carpeta/archivo no existe en absoluto, y tampoco
 PENDIENTE (lazy)      → no existe todavía, pero SÍ está declarada en
                          onboarding.yml con status: pending/candidate y su
                          disparador — es diferido a propósito (onboarding L0,
-                         o Fase 0 de agteamos-new-project), no un gap real.
+                         o Fase 0 de agteamos-bootstrap), no un gap real.
                          No se reporta como falla ni se ofrece regenerar en
                          Maintain Step 3 — solo se lista informativamente
                          ("N artefactos pendientes, se generan bajo demanda")
@@ -572,7 +576,7 @@ historial (ADRs, decision-log, RFCs) — nunca sobreescribir, solo agregar
 entradas nuevas (ver `agteamos-decisions`).
 
 **Próximo paso sugerido**: si el reporte encontró que `agteamos/standards/` está
-vacío o muy desactualizado, sugerir ejecutar `agteamos-project-docs --topic
+vacío o muy desactualizado, sugerir ejecutar `agteamos-knowledge --topic
 <tema>` (o sin tema, si el usuario pide todos). Si todo está al día, no hay
 próximo paso — el ciclo de mantenimiento termina aquí hasta la siguiente
 pasada.
@@ -580,7 +584,7 @@ pasada.
 ### ESTILO Y PLANTILLAS DE DOCUMENTACIÓN
 
 *(heredado de la antigua skill `documentation-skill`, fusionada en
-`agteamos-project-docs` y ahora en `--maintain`)*
+`agteamos-knowledge` y ahora en `--maintain`)*
 
 #### Diagramas Mermaid — obligatorios para lo no-trivial
 
@@ -621,6 +625,9 @@ Alternativas consideradas, Consecuencias.
 - Sobreescribir ADRs, RFCs o decision-log en vez de agregar entradas nuevas — estos son append-only por diseño.
 - Reportar "todo OK" sin haber comparado contra el código real (ej. sin abrir `openapi.yml` y compararlo contra los routers reales).
 
+**Próximo paso sugerido**: ninguno — vuelve a la skill/tarea que disparó
+este chequeo (ver `agteamos-context` §Próximo paso).
+
 ---
 
 ## MODO --topic
@@ -634,7 +641,7 @@ onboarding incremental)*
 - **Input**: código del proyecto ya existente (repo no vacío) + los 7 estándares base del plugin, reorganizados por tema en `standards/` (`standards/api-design/README.md`, `standards/clean-architecture/README.md`, `standards/solid-principles/README.md`, `standards/dry-kiss-yagni/README.md`, `standards/domain-driven-design/README.md`, `standards/database/README.md`, `standards/testing/README.md`, `standards/frontend/README.md`, `standards/git/README.md`, `standards/security/README.md`, `standards/devops/README.md`), cada carpeta con sus ejemplos por stack adentro (`examples/{csharp,python,typescript}.md`) y un frontmatter `topic`/`description`/`keywords`/`globs`/`first_consumers` (ver §Frontmatter)
 - **Output (modo `--topic`, default)**: `agteamos/standards/<tema>/README.md` + `examples.md` (+ `deviations.md` si aplica), y solo la entrada de ese tema en `agteamos/standards/standards.yml` + `agteamos/standards/index.yml`/`index.meta.yml`
 - **Output (modo sin argumentos, los 7 de una)**: los 7 temas de una vez — mismo output que antes de este contrato
-- **Trigger**: el protocolo `ensure-artifact` (ver `agteamos-context-engineering`) desde una skill consumidora que necesita un tema puntual; `agteamos-project-docs --init --full`; o un pedido explícito del usuario ("generá todos los estándares")
+- **Trigger**: el protocolo `ensure-artifact` (ver `agteamos-context`) desde una skill consumidora que necesita un tema puntual; `agteamos-knowledge --init --full`; o un pedido explícito del usuario ("generá todos los estándares")
 - **Quién ejecuta**: `@architect` (dueño conceptual de las reglas de arquitectura en `standards/` y de `agteamos-decisions`)
 
 > **Nota — no confundir con `agteamos-quality`**: este modo es una
@@ -685,7 +692,7 @@ ninguna otra skill, todas resuelven contra este frontmatter.
 
 Este frontmatter documenta el formato de los archivos de standards del
 **plugin** (`standards/<tema>/README.md`, empaquetados con AgTeamOS) — no
-confundir con el frontmatter de esta propia skill `agteamos-project-docs`.
+confundir con el frontmatter de esta propia skill `agteamos-knowledge`.
 
 ### Topic Step 0 — Resolver el modo de invocación
 
@@ -695,7 +702,7 @@ confundir con el frontmatter de esta propia skill `agteamos-project-docs`.
        modo que usa ensure-artifact, y el default quando no se especifica
        nada explícito en un pedido de "generá todos".
   NO, pero el pedido es explícito ("generá todos los estándares",
-      "agteamos-project-docs --init --full") → modo completo, los 7 temas
+      "agteamos-knowledge --init --full") → modo completo, los 7 temas
       en secuencia (comportamiento histórico de esta skill, sin cambios)
 ```
 
@@ -782,7 +789,7 @@ caso de conflicto — documentar el conflicto y la resolución, y agregarlos a
 ### Topic Step 4 — Escribir `agteamos/standards/<tema>/`
 
 La carpeta la crea este modo al escribir (regla general de
-`agteamos-context-engineering` §Lazy Artifacts — "la skill que escribe crea
+`agteamos-context` §Lazy Artifacts — "la skill que escribe crea
 su carpeta"), no un Step previo de otra skill:
 
 ```
@@ -931,7 +938,7 @@ Se regenera junto con `standards.yml` en el mismo Topic Step 6/7, siempre que
 corre este modo sobre uno o más temas — nunca se reescribe a mano por fuera
 de este modo.
 
-**Próximo paso sugerido**: ejecutar `agteamos-project-docs --maintain` para
+**Próximo paso sugerido**: ejecutar `agteamos-knowledge --maintain` para
 verificar que el resto del esquema `agteamos/` está completo y sincronizado
 con lo que este modo acaba de generar.
 
@@ -957,11 +964,11 @@ Esta tabla vive acá y se alimenta del frontmatter de cada tema (§Frontmatter)
 
 ```
 Proyecto: FastAPI + SQLAlchemy + React, sin capas explícitas (todo en un
-único módulo `app/main.py` de 2000 líneas). `agteamos-project-docs --init`
+único módulo `app/main.py` de 2000 líneas). `agteamos-knowledge --init`
 L0 ya corrió y dejó los 7 temas en `status: pending`.
 
 `build-api-workflow` arranca la primera tarea de API → invoca
-ensure-artifact(standards.api) → agteamos-project-docs --topic api-design
+ensure-artifact(standards.api) → agteamos-knowledge --topic api-design
 --scope src/api/:
 
 - Lee 6 archivos de rutas reales.
@@ -985,10 +992,13 @@ ensure-artifact(standards.testing) → se genera SOLO ese tema.
 - Marcar `status: applies` con `Confidence` menor a 4/5 — viola la regla dura de este modo; si la evidencia es insuficiente, el tema se queda en `adapted` con Confidence bajo hasta revisar más código.
 - Escribir `standards.yml` en la raíz de `agteamos/` en vez de dentro de `agteamos/standards/`.
 - Regenerar `index.yml`/`index.meta.yml` a mano sin que coincida con las carpetas reales de `standards.yml` — los tres se regeneran juntos, en el mismo paso.
-- Ejecutar este modo en un repo vacío — para eso existe `agteamos-new-project`/`agteamos-setup`, no `agteamos-project-docs --topic`.
+- Ejecutar este modo en un repo vacío — para eso existe `agteamos-bootstrap`/`agteamos-setup`, no `agteamos-knowledge --topic`.
 - **Generar en modo `--topic` un tema que ninguna tarea pidió** — en modo lazy, cada tema se genera porque algo real lo disparó (`ensure-artifact`, un pedido explícito, o `--init --full`), nunca "ya que estamos" o "por completar el índice".
 - Preguntar por estándares propios (Topic Step 3) más de una vez por proyecto — verificar `custom_standards_asked` antes de preguntar.
 - Leer el repo completo para generar un solo tema — el alcance en modo `--topic` es 5-10 archivos representativos, no un escaneo exhaustivo.
+
+**Próximo paso sugerido**: ninguno — vuelve a la skill consumidora que lo
+disparó vía `ensure-artifact` (ver `agteamos-context` §Próximo paso).
 
 ---
 
@@ -1043,7 +1053,7 @@ o más, en PRs/tareas distintas (no la misma tarea repetida), proponer:
 
 ```
 "El hallazgo '<regla>' ya apareció 3 veces en PRs distintos. ¿Lo promuevo a
-estándar del proyecto (agteamos-project-docs --learn) para que quede
+estándar del proyecto (agteamos-knowledge --learn) para que quede
 documentado y dejen de repetirlo, o preferís dejarlo como está?"
 ```
 
@@ -1104,7 +1114,7 @@ uso. Seguí con lo que estabas haciendo."
 Usuario: "no, aca las validaciones de negocio van en el service, no en el
 router — ya nos paso un bug por eso"
 
-→ detect-correction.js sugiere agteamos-project-docs --learn
+→ detect-correction.js sugiere agteamos-knowledge --learn
 → Learn Step 1: "¿Registro esto como convención del proyecto?" → usuario: "sí"
 → Learn Step 2: resuelve tema "api" (keyword "router") o "clean-architecture"
   (keyword "service layer") — si hay ambigüedad, preguntar cuál de los dos
@@ -1129,3 +1139,10 @@ router — ya nos paso un bug por eso"
 - Confundir esto con `agteamos-implement`/`knowledge-base.md` — ese
   archivo registra decisiones de UNA tarea puntual; **MODO --learn** registra
   convenciones que aplican a TODO el proyecto de ahí en adelante.
+
+---
+
+## Próximo paso sugerido (modo --learn)
+
+**Próximo paso sugerido**: ninguno — continuar con lo que se estaba
+haciendo antes de la captura (ver `agteamos-context` §Próximo paso).

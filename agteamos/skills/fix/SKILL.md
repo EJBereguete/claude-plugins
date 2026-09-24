@@ -30,8 +30,8 @@ used_by:
      `agteamos/changes/<id>-<slug>/` si el cambio es de una sola linea.
   2. El test de regresion obligatorio (Step 4 abajo).
   Si el fix termina tocando mas de un dominio o requiere coordinacion entre
-  agentes, escalar a schema `full` y usar `agteamos-new-task` /
-  `agteamos-sdd-protocol` en su lugar — `fix` es solo para el caso tactico.
+  agentes, escalar a schema `full` y usar `agteamos-task` /
+  `agteamos-spec` en su lugar — `fix` es solo para el caso tactico.
 
 ---
 
@@ -82,7 +82,7 @@ If the decision is NO CHANGE — document the reason and close the ticket with e
 
 El `<id>` es el número de ticket real si existe. Si el fix no tiene ticket
 (caso típico de un P0 en caliente), usar el id provisional `tmp-<slug>` —
-mismo criterio que `agteamos-new-task` usa para su carpeta provisional en
+mismo criterio que `agteamos-task` usa para su carpeta provisional en
 `agteamos/changes/<id-provisional>-<slug>/` (ver NOTA al final de esta skill
 si el id provisional termina siendo otro).
 
@@ -198,7 +198,7 @@ If the fix is P0 and there is no time for a full review — @qa-engineer approve
 No mergear ni cerrar el ticket a mano acá. Invocar `agteamos-implement` y
 dejar que esa skill haga el merge, el cierre del ticket, la limpieza de rama
 y (si corresponde) el archivado — usando su bifurcación para `schema: lite`
-(ver `agteamos-sdd-protocol`): el paso `verify` se reduce a comprobar que el
+(ver `agteamos-spec`): el paso `verify` se reduce a comprobar que el
 test de regresión del Step 4 pasa, sin generar `specs/deltas/<dominio>.md` ni
 tocar `agteamos/specs/<dominio>.md`, porque un cambio `lite` por definición
 no altera el contrato del dominio.
@@ -270,8 +270,8 @@ Code is correct. See .env.example for required SMTP_* variables."
 
 Esta skill usa `tmp-<slug>` como id provisional para hotfixes/bugfixes sin
 ticket todavía (ej. `hotfix/tmp-payment-webhook-500`). Es el mismo criterio
-que `agteamos-new-task` usa para su carpeta provisional
-`agteamos/changes/<id-provisional>-<slug>/`. Si `agteamos-new-task` terminó
+que `agteamos-task` usa para su carpeta provisional
+`agteamos/changes/<id-provisional>-<slug>/`. Si `agteamos-task` terminó
 adoptando un formato distinto para su id provisional, reconciliar ambas
 skills para que usen el mismo prefijo — la trazabilidad se rompe si cada
 skill inventa su propio esquema de id temporal.
@@ -288,3 +288,10 @@ skill inventa su propio esquema de id temporal.
 - Mergear el PR o cerrar el ticket a mano (`gh pr merge`, `gh issue close`) en vez de invocar `agteamos-implement` — duplica lógica de cierre en 3 skills distintas y las hace divergir con el tiempo
 - Crear la rama sin el id de la tarea (`hotfix/<slug>` en vez de `hotfix/<id>-<slug>`) — rompe la trazabilidad con el dashboard y con el resto de las ramas del proyecto
 - Hardcodear `main`/`develop`/`testing` en vez de leer `agteamos/platform.yml → branch_strategy` — la rama fantasma `testing` no existe en ningún `platform.yml` real
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: `agteamos-implement` — mismo criterio que
+`agteamos-debug`, invoca el cierre (ver `agteamos-context` §Próximo paso).

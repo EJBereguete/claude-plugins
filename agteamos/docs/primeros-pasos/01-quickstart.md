@@ -42,7 +42,7 @@ AgTeamOS no toca nada de tu proyecto hasta que le pides algo. La primera instruc
 | Estado del repo | Qué pasa |
 |---|---|
 | Repo vacío o solo `README`/`.gitignore` | Se activa el flujo de proyecto nuevo — sigue leyendo abajo |
-| Repo con código ya existente | Se activa `agteamos-project-docs` para documentar lo que ya existe — ver [Adoptar un proyecto existente](./04-adoptar-proyecto-existente.md) |
+| Repo con código ya existente | Se activa `agteamos-knowledge` para documentar lo que ya existe — ver [Adoptar un proyecto existente](./04-adoptar-proyecto-existente.md) |
 
 En ambos casos, el resultado vive en una única carpeta visible `agteamos/` en la raíz de tu repo — nunca mezclado con tu propia carpeta `docs/` si ya tenías una para otra cosa.
 
@@ -64,9 +64,9 @@ Cualquier instrucción que le des a `@architect` dispara primero este chequeo: �
 
 Antes de diseñar nada, el Architect dispara `agteamos-setup` porque `agteamos/platform.yml` todavía no existe. Te hace 8 preguntas en un único mensaje: dónde vive el código y los tickets (GitHub/Azure DevOps), estrategia de branching, CI/CD, deploy target, convención de PR, y el modo de *handoff* entre agentes (`explicit` por default, o `auto`). El resultado queda persistido en `agteamos/platform.yml` — ver el detalle completo en [Configurar la plataforma](../guias/configurar-la-plataforma.md).
 
-### Paso 2 — `agteamos-new-project`: la base del proyecto
+### Paso 2 — `agteamos-bootstrap`: la base del proyecto
 
-Con la plataforma configurada, el Architect activa `agteamos-new-project` automáticamente. Aquí es donde entra **todo el equipo**, no solo el Architect:
+Con la plataforma configurada, el Architect activa `agteamos-bootstrap` automáticamente. Aquí es donde entra **todo el equipo**, no solo el Architect:
 
 ```mermaid
 sequenceDiagram
@@ -97,12 +97,12 @@ sequenceDiagram
     PM->>PM: Lee mission.md, crea issues en GitHub/Azure
     PM-->>U: Issues iniciales creados, milestone MVP definido
 
-    Note over AR,PM: Hand-off automático a la primera tarea (agteamos-new-task)
+    Note over AR,PM: Hand-off automático a la primera tarea (agteamos-task)
 ```
 
 Al terminar este paso tienes: stack y arquitectura definidos con ADRs, un Design System base, `docker-compose up` funcionando, CI/CD configurado, y un backlog inicial de issues en tu tracker.
 
-### Paso 3 — `agteamos-new-task`: tu primera feature en lenguaje natural
+### Paso 3 — `agteamos-task`: tu primera feature en lenguaje natural
 
 Este es el flujo que vas a usar todos los días. No hace falta invocar la skill directamente — cualquier instrucción en lenguaje natural sobre un proyecto que ya tiene código la dispara:
 
@@ -110,7 +110,7 @@ Este es el flujo que vas a usar todos los días. No hace falta invocar la skill 
 @architect Agrega autenticación con JWT a la API
 ```
 
-1. **Clarificación** (`agteamos-new-task`) — 3 a 5 preguntas focalizadas, en un único mensaje, nunca una por una.
+1. **Clarificación** (`agteamos-task`) — 3 a 5 preguntas focalizadas, en un único mensaje, nunca una por una.
 2. **`requirements.md`** — lo escribe `@product-manager` con Acceptance Criteria en formato Given/When/Then. Tú apruebas antes de seguir.
 3. **`design.md`** — lo escribe `@architect`: arquitectura, endpoints, cambios de esquema. Tú apruebas antes de seguir.
 4. **`deltas/<dominio>.md`** — el delta contra la spec maestra del dominio (`agteamos/specs/<dominio>.md`), estilo OpenSpec — ver [SDD y specs maestras](../conceptos/sdd-y-specs-maestras.md).
@@ -146,7 +146,7 @@ Cuando QA aprueba, `agteamos-implement` corre en este orden:
 5. Archiva la tarea en `agteamos/changes/archive/<fecha>-<id>-<slug>/`.
 6. Regenera `agteamos/dashboard.html` con el estado actualizado de todas las tareas.
 
-Al final, `agteamos-implement` sugiere el siguiente paso y — de forma opcional, sin bloquear el cierre — pregunta si algo del flujo te resultó torpe (`agteamos-plugin-improvement`, ver el `BACKLOG.md` del propio plugin).
+Al final, `agteamos-implement` sugiere el siguiente paso y — de forma opcional, sin bloquear el cierre — pregunta si algo del flujo te resultó torpe (`agteamos-meta`, ver el `BACKLOG.md` del propio plugin).
 
 ### Resultado final
 

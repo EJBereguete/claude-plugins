@@ -5,7 +5,7 @@ description: >
   pensamiento que lee el codigo real del proyecto y compara opciones con
   trade-offs concretos contra ESE codigo — nunca genericos. No crea ningun
   artefacto, no crea rama, no toca agteamos/changes/, no escribe codigo.
-  Termina proponiendo si conviene pasar a agteamos-new-task (con una idea
+  Termina proponiendo si conviene pasar a agteamos-task (con una idea
   ya mas formada) o si hace falta seguir explorando. Sugerida por
   agteamos-router cuando el input describe un problema sin solucion
   propuesta.
@@ -26,7 +26,7 @@ used_by:
 
 ## POR QUE EXISTE ESTA SKILL
 
-Todo el aparato SDD (`agteamos-sdd-protocol`, `agteamos-new-task`,
+Todo el aparato SDD (`agteamos-spec`, `agteamos-task`,
 `agteamos-implement`) protege contra "implementaron mal lo que pedí" —
 requirements con ACs verificables, design.md aprobado antes de codear, specs
 que son la fuente de verdad. Pero nada de eso protege contra "pedí lo
@@ -35,7 +35,7 @@ implementación: una feature bien construida sobre el diagnóstico equivocado
 sigue siendo la solución equivocada.
 
 Cuando el usuario tiene un problema pero todavía no una solución, forzar de
-inmediato el Flujo 2 (`agteamos-new-task`) obliga a escribir requirements
+inmediato el Flujo 2 (`agteamos-task`) obliga a escribir requirements
 sobre una solución que nadie comparó contra alternativas. `agteamos-explore`
 es el espacio deliberado para pensar antes de comprometerse — y por eso es
 explícitamente efímero: no deja artefactos porque su valor es la conversación
@@ -93,9 +93,9 @@ distingue esta skill de una lista de buenas prácticas de libro.
 
 Terminar SIEMPRE con una de estas dos conclusiones explícitas:
 
-1. **"Esto ya está lo bastante claro para pasar a `agteamos-new-task`"** — si
+1. **"Esto ya está lo bastante claro para pasar a `agteamos-task`"** — si
    el usuario elige una opción, resumir en 2-3 líneas la idea ya formada
-   (qué opción, por qué) para que `agteamos-new-task` arranque su Step 1
+   (qué opción, por qué) para que `agteamos-task` arranque su Step 1
    (clarification-protocol) con contexto real en vez de desde cero.
 2. **"Hace falta seguir explorando"** — si ninguna opción es clara todavía,
    o el usuario quiere profundizar en una antes de decidir, proponer el
@@ -130,7 +130,7 @@ routers/users.py. Eso es lo que probablemente estás viendo como
 una tarea — ¿el objetivo es arreglar la inconsistencia (opción A) o evaluar
 si vale la pena depender de un proveedor externo (opción B)? Eso cambia todo
 el approach. ¿Seguimos explorando el approach B con un spike de 1 día, o
-vamos directo a `agteamos-new-task` con la opción A ya que es la de menor
+vamos directo a `agteamos-task` con la opción A ya que es la de menor
 riesgo?"
 ```
 
@@ -141,19 +141,27 @@ riesgo?"
 - Crear `agteamos/changes/<id>-<slug>/` "para no perder la conversación" —
   `agteamos-explore` es explícitamente efímero, no persiste artefactos. Si
   hace falta persistir algo, esa necesidad ya es la señal de pasar a
-  `agteamos-new-task`.
+  `agteamos-task`.
 - Proponer opciones genéricas de libro de texto sin citar el código real del
   proyecto — el valor de esta skill es el trade-off contra ESE código, no una
   lista de best practices.
 - Escribir código o abrir una rama "para probar rápido" — cualquier cambio de
   código, por chico que sea, saca la conversación de `agteamos-explore` y la
-  mueve a `agteamos-fix` / `agteamos-debug` / `agteamos-new-task`.
+  mueve a `agteamos-fix` / `agteamos-debug` / `agteamos-task`.
 - Forzar una conclusión cuando el usuario todavía no tiene claridad — terminar
   en "hace falta seguir explorando" es un resultado válido, no un fracaso de
   la skill.
 - Usar `agteamos-explore` como excusa para saltarse
-  `agteamos-new-task` cuando el usuario YA sabe lo que quiere —
+  `agteamos-task` cuando el usuario YA sabe lo que quiere —
   si el input ya es una feature o cambio concreto, no es este el flujo, es
-  Flujo 2 directo (`agteamos-new-task`).
+  Flujo 2 directo (`agteamos-task`).
 - Diagnosticar sin haber leído el código — "puede ser un problema de
   performance" sin señalar el archivo/función concreto no es exploración.
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: `agteamos-task`, si ya se decidió qué hacer — o
+seguir explorando, si todavía no hay claridad (ver `agteamos-context`
+§Próximo paso).

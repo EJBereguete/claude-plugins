@@ -1,7 +1,7 @@
 {
   "name": "agteamos",
   "displayName": "AgTeamOS",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "AgTeamOS — sistema operativo de equipo de ingenieria: 8 agentes especializados, 22 skills con prefijo agteamos-, y una carpeta agteamos/ portable e instalable en cualquier proyecto",
   "author": {
     "name": "EJBereguete"

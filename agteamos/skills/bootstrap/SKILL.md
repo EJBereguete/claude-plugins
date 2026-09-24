@@ -1,10 +1,10 @@
 ---
-name: agteamos-new-project
+name: agteamos-bootstrap
 description: >
   End-to-end workflow for bootstrapping a new project starting from an empty
   or near-empty repository. Covers stack definition, architecture, design system,
   CI/CD setup, backlog creation, and an optional formal SRS (IEEE 830 style,
-  opt-in, see srs-template.md) before handing off to the agteamos-new-task
+  opt-in, see srs-template.md) before handing off to the agteamos-task
   workflow for the first feature.
 used_by:
   - architect
@@ -21,7 +21,7 @@ This workflow is activated when `agteamos-router` determines the
 repository contains no meaningful code and the user has described what they
 want to build. Its responsibility is to produce a fully scaffolded, documented,
 and CI/CD-ready repository with an initial backlog, ready to receive the first
-feature task via the `agteamos-new-task` workflow.
+feature task via the `agteamos-task` workflow.
 
 ---
 
@@ -87,9 +87,9 @@ para aceptar con un "sí" — ver `DECISIONS.md`
 
 **Diferido — NO se pregunta en Fase 0, se resuelve cuando haga falta de
 verdad**: integraciones con sistemas externos (se preguntan en el
-`agteamos-new-task` de la feature que las necesite), escala
-esperada (se pregunta recién antes del primer `agteamos-deploy-readiness`),
-`deploy_target` (ask-and-continue en el primer `agteamos-deploy-readiness`, ver
+`agteamos-task` de la feature que las necesite), escala
+esperada (se pregunta recién antes del primer `agteamos-deploy`),
+`deploy_target` (ask-and-continue en el primer `agteamos-deploy`, ver
 `agteamos-setup` §Convención), `kpis.md` (a demanda o antes del primer deploy
 a producción).
 
@@ -105,7 +105,7 @@ default de branching contradice el principio rector de `agteamos-setup`
 ("nunca asumir, siempre preguntar").
 
 Do not proceed to Step 2 until answers are received and unambiguous. See skill
-`agteamos-new-task` for the full question protocol.
+`agteamos-task` for the full question protocol.
 
 ### Step 1.5 — Premortem opcional (nunca automático)
 
@@ -145,7 +145,7 @@ Using the answers from Step 1, the architect agent must:
      **antes** de cualquier AC/verify command en tareas futuras — todo
      `requirements.md`/`verify-report.md` que cite un comando de verificación
      debe usar únicamente comandos de esta tabla, nunca inventar uno nuevo
-     ad-hoc. Es lo que hace que los ACs verificables (`agteamos-sdd-protocol`)
+     ad-hoc. Es lo que hace que los ACs verificables (`agteamos-spec`)
      y el gate de `agteamos-implement` (exit-code discipline) sean
      consistentes entre tareas distintas del mismo proyecto en vez de que
      cada tarea reinvente su propio comando de verificación.
@@ -155,7 +155,7 @@ Using the answers from Step 1, the architect agent must:
    `ADR-003-auth-strategy.md` (si auth está en alcance) se **difieren**: se
    generan recién cuando la primera tarea que implementa el modelo de datos
    o la estrategia de auth corre (`ensure-artifact`, ver
-   `agteamos-context-engineering` §Lazy Artifacts) — declararlas en
+   `agteamos-context` §Lazy Artifacts) — declararlas en
    `agteamos/onboarding.yml` como `pending` con ese disparador, no generarlas
    especulativamente antes de que exista el código que las sustente.
 
@@ -187,7 +187,7 @@ The product owner agent must:
 
 `kpis.md` puede quedar con solo el título y una nota `pending` si el usuario
 no tiene KPIs claros todavía en Fase 0 — se completa a demanda o, a más
-tardar, antes del primer `agteamos-deploy-readiness`.
+tardar, antes del primer `agteamos-deploy`.
 
 Output: `agteamos/product/mission.md`, `kpis.md` (lean), y `roadmap.md` committed.
 Templates ya existen completas en esta skill — solo cambia la ruta de destino.
@@ -207,8 +207,8 @@ Si aplica, el product owner debe:
    diagrama de arquitectura → secciones 2.1 y 11).
 3. La sección 5 (Requisitos Funcionales) es el **catálogo global** del
    proyecto — cada requisito recibe un `RF-XXX` único. Estos IDs son la
-   fuente de verdad: cuando más adelante `agteamos-new-task` arranque una
-   feature concreta, su `requirements.md` (ver `agteamos-sdd-protocol`) debe
+   fuente de verdad: cuando más adelante `agteamos-task` arranque una
+   feature concreta, su `requirements.md` (ver `agteamos-spec`) debe
    **citar** el `RF-XXX` correspondiente en vez de redactar el requisito de
    nuevo. Si una feature no tiene un `RF-XXX` previo (surgió después del
    SRS inicial), agregarlo al SRS primero, no crearlo solo en `requirements.md`.
@@ -240,7 +240,7 @@ Output (solo si aplica): `agteamos/architecture/SRS.md` committed (y, si
 Si el proyecto tiene interfaz de usuario, **este step no corre en Fase 0** —
 queda declarado `pending` en `agteamos/onboarding.yml` con disparador
 `build-ui-workflow (primer Step que lee tokens)`, y se genera recién ahí en
-modo acotado (`ensure-artifact`, ver `agteamos-context-engineering` §Lazy
+modo acotado (`ensure-artifact`, ver `agteamos-context` §Lazy
 Artifacts). Generar un design system antes de que exista ni un componente
 real es exactamente el tipo de trabajo especulativo que este contrato evita.
 Para proyectos puramente API/backend, no aplica en ningún momento.
@@ -282,13 +282,13 @@ que el scaffold compile y tenga verificación automática):
 4. Create el pipeline de CI **mínimo** (`.github/workflows/ci.yml` o
    equivalente): lint + test con threshold de cobertura + build. El step de
    **deploy queda diferido** (ver abajo) — no se escribe hasta el primer
-   `agteamos-deploy-readiness` real, cuando `deploy_target` ya esté
+   `agteamos-deploy` real, cuando `deploy_target` ya esté
    confirmado (ask-and-continue, ver `agteamos-setup`).
 5. Initialize branches per the agreed branching strategy.
 6. Write `agteamos/devops/INFRASTRUCTURE.md` **lean**: solo las secciones
    `Local Development` y `CI/CD` (lo que ya existe después de este Step).
    Las secciones `Environments`/`Platform` completas quedan `pending` en
-   `agteamos/onboarding.yml`, disparadas por el primer `agteamos-deploy-readiness` real — recién ahí se sabe de verdad el
+   `agteamos/onboarding.yml`, disparadas por el primer `agteamos-deploy` real — recién ahí se sabe de verdad el
    entorno de producción, en vez de inventarlo en Fase 0.
 
 Output: Full repo scaffold committed, CI mínimo committed, branches created,
@@ -310,7 +310,7 @@ The project manager agent must:
    - Resto de las features: quedan como filas en `agteamos/product/roadmap.md#Backlog`,
      mismo formato que usa `agteamos-capture` (Origen: usuario,
      Prioridad: media, Estado: pendiente) — se convierten en tickets reales
-     cuando se toman, vía esa misma skill o al arrancar `agteamos-new-task`
+     cuando se toman, vía esa misma skill o al arrancar `agteamos-task`
      para esa feature.
    - Si el usuario prefiere crear todos los tickets ya, hacerlo (comportamiento histórico).
 3. El milestone `MVP` (o el hito equivalente del tracker) se crea recién
@@ -321,7 +321,7 @@ The project manager agent must:
    **`agteamos/product/backlog.md` es el backlog de producto de este proyecto**
    (features priorizadas con sus IDs de ticket) — no confundir con el
    `BACKLOG.md` del propio plugin AgTeamOS, que es un archivo distinto usado
-   por `agteamos-plugin-improvement` para mejoras del plugin en sí, no del proyecto
+   por `agteamos-meta` para mejoras del plugin en sí, no del proyecto
    del usuario.
 
 Output: Ticket de la feature #1 (y de las demás solo si el usuario lo pidió)
@@ -332,7 +332,7 @@ creado en el tracker, `agteamos/product/backlog.md` committed con el resto en
 
 Reemplaza el árbol completo con README-por-carpeta que este workflow
 generaba antes de este contrato. La regla ahora es la misma que aplica
-`agteamos-project-docs` L0 (ver `agteamos-context-engineering` §Lazy Artifacts,
+`agteamos-knowledge` L0 (ver `agteamos-context` §Lazy Artifacts,
 "regla de carpetas"): **la skill que escribe un artefacto es la que crea su
 carpeta**, no un Step separado que pre-crea 17 carpetas vacías.
 
@@ -341,25 +341,25 @@ Al cierre de Fase 0, lo que existe de verdad es: `platform.yml`,
 (lean)+`roadmap.md`+`backlog.md`, el scaffold que compila con CI mínimo, y el
 ticket de la feature #1 (Step 6). Todo lo demás se declara en
 `agteamos/onboarding.yml` como `pending`, con su disparador — misma tabla que
-usa `agteamos-project-docs` L1 (`agteamos-context-engineering` §Lazy Artifacts):
+usa `agteamos-knowledge` L1 (`agteamos-context` §Lazy Artifacts):
 `design_system` → primer `build-ui`; `ADR-002`/`ADR-003` → primera tarea que
 las implementa; `kpis.md` completo → antes del primer deploy a producción o
 a demanda; `INFRASTRUCTURE.md` completo → primer `deploy-workflow`; los 11
-temas de `standards/` → igual que en `agteamos-project-docs` L0 (pending, con
+temas de `standards/` → igual que en `agteamos-knowledge` L0 (pending, con
 índice de keywords ya completo); `specs/` → vacío hasta la primera tarea
 (no hay dominios "candidatos" que proponer todavía, a diferencia de
-`agteamos-project-docs` sobre código existente).
+`agteamos-knowledge` sobre código existente).
 
 **`dashboard.html` explícitamente NO se crea acá** (ni como placeholder ni
 vacío) — es un artefacto local regenerable a demanda por `agteamos-dashboard`
 que no se commitea (ver `agteamos-dashboard` skill, sección "ARTEFACTOS
 LOCALES"). Generarlo la primera vez que haya al menos una tarea es
-responsabilidad de esa skill, no de `agteamos-new-project`.
+responsabilidad de esa skill, no de `agteamos-bootstrap`.
 
-### Step 8 — Hand off to agteamos-new-task workflow
+### Step 8 — Hand off to agteamos-task workflow
 
 Notify the user that the project is scaffolded and ready. Automatically continue
-with the `agteamos-new-task` workflow for the first MVP feature unless the user
+with the `agteamos-task` workflow for the first MVP feature unless the user
 says otherwise. Si `platform.yml` tiene `handoff_mode: explicit`, pedir
 confirmación antes de continuar; si es `auto`, continuar directamente.
 
@@ -395,3 +395,10 @@ frontend in React, hosted on a VPS, PostgreSQL database, users log in with email
 - `docker-compose.yml` — services: `api`, `db`, `frontend`.
 - `.github/workflows/ci.yml` — lint + pytest + vitest + build.
 - GitHub issues #1–#4 for the four MVP features.
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: `agteamos-task` — arrancar la primera feature del
+MVP (ver `agteamos-context` §Próximo paso para la tabla completa).

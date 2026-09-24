@@ -6,17 +6,17 @@ Bienvenido a la documentación completa del plugin `agteamos` para Claude Code. 
 
 | Documento | Descripción |
 |-----------|-------------|
-| [01 — Quickstart](./primeros-pasos/01-quickstart.md) | Instalación (marketplace, `/plugin install`) + recorrido guiado de tu primer proyecto: `agteamos-setup` → `agteamos-new-project` → `agteamos-new-task` → `agteamos-implement` |
+| [01 — Quickstart](./primeros-pasos/01-quickstart.md) | Instalación (marketplace, `/plugin install`) + recorrido guiado de tu primer proyecto: `agteamos-setup` → `agteamos-bootstrap` → `agteamos-task` → `agteamos-implement` |
 | [03 — Compartir con tu equipo](./primeros-pasos/03-compartir-con-tu-equipo.md) | Instalación personal vs. forzada por proyecto |
-| [04 — Adoptar un proyecto existente](./primeros-pasos/04-adoptar-proyecto-existente.md) | `agteamos-project-docs --init` en un repo con código ya escrito |
+| [04 — Adoptar un proyecto existente](./primeros-pasos/04-adoptar-proyecto-existente.md) | `agteamos-knowledge --init` en un repo con código ya escrito |
 
 ## Guías — resolver una tarea puntual
 
 | Documento | Descripción |
 |-----------|-------------|
 | [Configurar la plataforma](./guias/configurar-la-plataforma.md) | `agteamos-setup` y `platform.yml`, incluyendo `handoff_mode` |
-| [Crear y cerrar una tarea](./guias/crear-y-cerrar-una-tarea.md) | `agteamos-new-task` → `agteamos-implement`, consulta rápida |
-| [Mantener los standards al día](./guias/mantener-standards-al-dia.md) | `agteamos-project-docs --topic`, confidence score, cuándo re-ejecutar |
+| [Crear y cerrar una tarea](./guias/crear-y-cerrar-una-tarea.md) | `agteamos-task` → `agteamos-implement`, consulta rápida |
+| [Mantener los standards al día](./guias/mantener-standards-al-dia.md) | `agteamos-knowledge --topic`, confidence score, cuándo re-ejecutar |
 | [Ejecutar una auditoría](./guias/ejecutar-una-auditoria.md) | `agteamos-quality` (modo auditoría integral), Radar de Deuda Técnica |
 
 ## Conceptos — por qué está diseñado así

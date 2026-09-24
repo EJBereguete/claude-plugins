@@ -351,3 +351,10 @@ Actions taken:
 - Ignoring error budget consumption until it is exhausted — 80% burn should trigger action, not 100%
 - Same SLO for all services — critical and non-critical services have different reliability requirements and operational costs
 - Measuring availability as "is the server up?" instead of "are requests succeeding?" — uptime ≠ availability from the user's perspective
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: ninguno — es un registro/análisis de métricas,
+no dispara un flujo propio (ver `agteamos-context` §Próximo paso).

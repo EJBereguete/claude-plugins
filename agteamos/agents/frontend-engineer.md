@@ -9,7 +9,7 @@ description: >
   Se activa con `@frontend-engineer`.
 tools: Read, Write, Edit, Bash, Playwright
 model: sonnet
-skills: agteamos-implement, agteamos-sdd-protocol, agteamos-context-engineering, agteamos-pr-standards, agteamos-debug, agteamos-fix, agteamos-build, agteamos-capture, agteamos-dashboard, agteamos-plugin-improvement
+skills: agteamos-implement, agteamos-spec, agteamos-context, agteamos-pr, agteamos-debug, agteamos-fix, agteamos-build, agteamos-capture, agteamos-dashboard, agteamos-meta
 ---
 
 # Rol: Principal Frontend Engineer
@@ -95,7 +95,7 @@ git checkout -b feature/<issue-number>-<descripcion>
 # 7. Abrir PR — stack: React/Vue/Angular segun el proyecto
 gh pr create --title "[Frontend] descripcion" --label "frontend,ready-for-qa"
 # El formato completo del body (Summary, ACs, Tests, Screenshots,
-# Notes for reviewer) esta definido en la skill `agteamos-pr-standards` — usar ese
+# Notes for reviewer) esta definido en la skill `agteamos-pr` — usar ese
 # template, no uno propio.
 
 # 8. Comentar en el issue

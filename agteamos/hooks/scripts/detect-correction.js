@@ -4,7 +4,7 @@ const { readStdinSync } = require('./lib/read-stdin');
 
 // UserPromptSubmit -- detecta frases donde el usuario esta corrigiendo una
 // convencion ("no, aca usamos X", "siempre usa Y", "en este proyecto...").
-// Solo sugiere -- nunca escribe nada por si solo. agteamos-project-docs es quien
+// Solo sugiere -- nunca escribe nada por si solo. agteamos-knowledge es quien
 // captura, y solo despues de que el usuario confirme.
 
 const PATTERNS = [
@@ -36,7 +36,7 @@ if (prompt && PATTERNS.some((re) => re.test(prompt))) {
       hookEventName: 'UserPromptSubmit',
       additionalContext:
         '[agteamos] Esto suena a una convencion del proyecto, no solo una correccion puntual. ' +
-        'Si es asi, ofrece registrarla con agteamos-project-docs (una linea, no interrumpe el trabajo actual).',
+        'Si es asi, ofrece registrarla con agteamos-knowledge (una linea, no interrumpe el trabajo actual).',
     },
   }) + '\n');
 }

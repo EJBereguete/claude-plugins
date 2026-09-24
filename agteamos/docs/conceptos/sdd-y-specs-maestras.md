@@ -8,7 +8,7 @@ Hay dos capas de spec, con vidas distintas, y es la distinción más importante 
 
 | Capa | Archivo | Vida | Quién la escribe |
 |---|---|---|---|
-| **Spec maestra** (fuente de verdad) | `agteamos/specs/<dominio>.md` | **Persistente y acumulativa** — vive mientras exista el dominio | Nadie a mano durante la tarea: la actualiza `agteamos-implement` en su paso `sync`, o la siembra `agteamos-project-docs` |
+| **Spec maestra** (fuente de verdad) | `agteamos/specs/<dominio>.md` | **Persistente y acumulativa** — vive mientras exista el dominio | Nadie a mano durante la tarea: la actualiza `agteamos-implement` en su paso `sync`, o la siembra `agteamos-knowledge` |
 | **Delta** (diff propuesto) | `agteamos/changes/<id>-<slug>/specs/deltas/<dominio>.md` | **Efímero** — nace y muere con la tarea, queda en el archive como historia | `@architect`, junto con `design.md` |
 
 El delta no es "la capa de specs" — es el diff contra ella. Las dos usan el **mismo formato canónico**, y eso es justamente lo que hace posible que el merge del paso `sync` sea determinista en vez de interpretativo.
@@ -55,7 +55,7 @@ posteriores a un registro exitoso.
 
 ## La spec maestra y su header `## Coverage`
 
-`agteamos/specs/<dominio>.md` no nace completa — en un proyecto existente se **siembra parcialmente** (`agteamos-project-docs` documenta lo que puede inferir del código real) y crece tarea a tarea. El header `## Coverage` es lo que hace esa parcialidad honesta en vez de silenciosa:
+`agteamos/specs/<dominio>.md` no nace completa — en un proyecto existente se **siembra parcialmente** (`agteamos-knowledge` documenta lo que puede inferir del código real) y crece tarea a tarea. El header `## Coverage` es lo que hace esa parcialidad honesta en vez de silenciosa:
 
 ```markdown
 # Spec: notifications
@@ -98,7 +98,7 @@ para un mismo usuario.
 | `partial` | Varios requirements documentados, pero `No cubre (todavia)` no está vacío. |
 | `complete` | Todo el comportamiento observable del dominio está especificado. |
 
-**Por qué existe esto**: en un proyecto brownfield real, pretender que la spec maestra está "completa" desde el día uno sería mentir — el código lleva años acumulando comportamiento que nadie escribió como spec. `agteamos-project-docs` (ver [Adoptar un proyecto existente](../primeros-pasos/04-adoptar-proyecto-existente.md)) documenta lo que puede confirmar contra el código real, deja explícito qué queda afuera todavía, y el resto se llena tarea a tarea a medida que `agteamos-implement` aplica deltas. Quien lee una spec `seeded` o `partial` **no asume que lo ausente no existe** — lo verifica contra el código antes de escribir un delta nuevo.
+**Por qué existe esto**: en un proyecto brownfield real, pretender que la spec maestra está "completa" desde el día uno sería mentir — el código lleva años acumulando comportamiento que nadie escribió como spec. `agteamos-knowledge` (ver [Adoptar un proyecto existente](../primeros-pasos/04-adoptar-proyecto-existente.md)) documenta lo que puede confirmar contra el código real, deja explícito qué queda afuera todavía, y el resto se llena tarea a tarea a medida que `agteamos-implement` aplica deltas. Quien lee una spec `seeded` o `partial` **no asume que lo ausente no existe** — lo verifica contra el código antes de escribir un delta nuevo.
 
 ## El delta: `specs/deltas/<dominio>.md`
 
@@ -173,7 +173,7 @@ No toda tarea necesita los cuatro artefactos completos. AgTeamOS distingue dos n
 
 | Schema | Cuándo se usa | Qué produce |
 |---|---|---|
-| **`full`** | Features nuevas, cambios cross-team, o con impacto en el contrato de un dominio — `agteamos-new-task` / `agteamos-implement` | Los 4 artefactos completos: `requirements.md` + `design.md` + `specs/deltas/<dominio>.md` + `tasks.md` |
+| **`full`** | Features nuevas, cambios cross-team, o con impacto en el contrato de un dominio — `agteamos-task` / `agteamos-implement` | Los 4 artefactos completos: `requirements.md` + `design.md` + `specs/deltas/<dominio>.md` + `tasks.md` |
 | **`lite`** | Cambios triviales sin impacto de contrato: bug fix acotado, hotfix, typo — `agteamos-fix` / `agteamos-debug` | Un resumen de 1 párrafo (en `progress.md` o directo en el PR) + un test de regresión obligatorio. No se crean los 4 artefactos ni se toca la spec maestra |
 
 `lite` no lleva delta ni modifica `agteamos/specs/<dominio>.md` — por definición, un cambio `lite` no altera el contrato observable del dominio, así que no hay nada que mergear. Si al implementar aparece que sí cambia comportamiento, la tarea está mal clasificada: se promueve a `full` y se escribe el delta, nunca "se documenta después".
@@ -320,7 +320,7 @@ Este archivo alimenta directamente el `report.html` de la tarea — no es un art
 
 | Situación | ¿SDD obligatorio? |
 |---|---|
-| Feature nueva (`agteamos-new-task`) | Sí, schema `full` |
+| Feature nueva (`agteamos-task`) | Sí, schema `full` |
 | Ticket existente con descripción incompleta | Sí, se completan los artefactos faltantes |
 | Ticket existente con descripción completa | Puede omitir `requirements.md` |
 | Bug fix simple (`agteamos-fix`) | Schema `lite` — resumen + test de regresión |
@@ -336,4 +336,4 @@ Este archivo alimenta directamente el `report.html` de la tarea — no es un art
 
 **tasks.md**: cada step es un commit atómico · el orden respeta dependencias (DB → API → UI) · queda claro qué agente hace qué.
 
-Ver el detalle operativo completo (anti-patterns, plantillas exactas) en la skill `agteamos-sdd-protocol`.
+Ver el detalle operativo completo (anti-patterns, plantillas exactas) en la skill `agteamos-spec`.

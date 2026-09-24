@@ -112,11 +112,11 @@ la primera vez que la skill que realmente los necesita los usa (convención
 | Campo | Se pregunta cuando... | Quién pregunta |
 |---|---|---|
 | `repo.<host>.org`/`name` (si Step 0.5 no lo detectó) | primera vez que se usa el MCP `github`/`azure-devops` | ese consumidor |
-| `tracker_azure_devops.*` (area path, iteration path) | primer `create-ticket` contra Azure | `agteamos-new-task`, `agteamos-capture`, `agteamos-new-project` |
+| `tracker_azure_devops.*` (area path, iteration path) | primer `create-ticket` contra Azure | `agteamos-task`, `agteamos-capture`, `agteamos-bootstrap` |
 | `tracker_planner.*` (plan_id, bucket, permisos de Graph) | primer `create-ticket` contra Planner | ídem, más el wizard script existente |
 | `env_var_names.*` | primer uso del MCP `github`/`azure-devops` | ídem |
-| `ci_target` (si Step 0.5 no lo detectó, o para confirmar lo detectado) | primer edit de CI o `agteamos-implement` con checks | `agteamos-deploy-readiness` / `agteamos-implement` |
-| `deploy_target` | primer `agteamos-deploy-readiness` | ídem |
+| `ci_target` (si Step 0.5 no lo detectó, o para confirmar lo detectado) | primer edit de CI o `agteamos-implement` con checks | `agteamos-deploy` / `agteamos-implement` |
+| `deploy_target` | primer `agteamos-deploy` | ídem |
 | `pr_convention.*` | primer `[operación: create-pr]` | `agteamos-implement` |
 
 Cada una de estas es **una sola pregunta puntual**, nunca "corré
@@ -129,7 +129,7 @@ bloqueantes (ej. "todavía no elegimos deploy target"), registrar el valor
 como `null` en `platform.yml`, NUNCA inventar un valor — y no insistir, se
 resuelve en Ronda 1+. Los 3 bloqueantes (`repo_host`, `tracker`,
 `branch_strategy`) sí son obligatorios en Ronda 0 porque otras skills
-(`agteamos-deploy-readiness`, `agteamos-new-project`, `agteamos-new-task`,
+(`agteamos-deploy`, `agteamos-bootstrap`, `agteamos-task`,
 `agteamos-implement`, PRs de todos los engineers) dependen de ellos desde
 el primer commit. `handoff_mode` tiene default (`explicit`) si el usuario no
 responde nada.
@@ -258,7 +258,7 @@ desarrolladores.
 Si el archivo ya tiene esas líneas (proyecto que corrió `setup` antes), no
 duplicar. Si `.gitignore` no existe, crearlo con solo esas 3 líneas — no
 inventar un `.gitignore` genérico de stack (eso es responsabilidad de
-`agteamos-new-project`/`agteamos-project-docs`, no de `setup`).
+`agteamos-bootstrap`/`agteamos-knowledge`, no de `setup`).
 
 ### Step 3.6 — Generar el tracker adapter (`agteamos/tracker/<tipo>.md`)
 
@@ -424,7 +424,7 @@ generado, no en silencio.
 
 **Por qué `create-story` es el mismo nombre de operación en ambas tablas
 aunque el tipo real (`User Story` vs `Product Backlog Item`) sea distinto**:
-las skills consumidoras (`agteamos-new-task`)
+las skills consumidoras (`agteamos-task`)
 invocan la operación abstracta sin saber qué proceso está activo — el
 mapeo al tipo/campo real vive únicamente acá, en el adapter generado. Esto
 es la misma disciplina que ya aplica `create-ticket` entre GitHub y Azure
@@ -512,9 +512,10 @@ Mostrar el `platform.yml` resultante al usuario para confirmación antes de
 escribirlo. Una vez escrito:
 
 **Próximo paso sugerido**: si `agteamos-router` determinó que el
-repo está vacío, continuar con la skill `agteamos-new-project`. Si el repo ya
-tiene código, continuar con la skill `agteamos-project-docs` (para documentar lo que
-ya existe contra esta configuración recién definida).
+repo está vacío, continuar con la skill `agteamos-bootstrap`. Si el repo ya
+tiene código, continuar con la skill `agteamos-knowledge --init` (para documentar lo que
+ya existe contra esta configuración recién definida) — ver también
+`agteamos-context` §Próximo paso.
 
 ---
 
@@ -563,8 +564,8 @@ instrucciones de texto que hay que releer.
 |---|---|---|
 | `agteamos-router` | (existencia del archivo) | Step 0 — decide si disparar `agteamos-setup` primero |
 | `agents/frontend-engineer.md`, `agents/backend-engineer.md` | `branch_strategy` | rama destino del PR |
-| `agteamos-deploy-readiness` | `deploy_target`, `ci_target` | comandos de deploy y verificación de CI |
-| `agteamos-pr-standards` | `pr_convention` | reviewers requeridos, merge strategy |
+| `agteamos-deploy` | `deploy_target`, `ci_target` | comandos de deploy y verificación de CI |
+| `agteamos-pr` | `pr_convention` | reviewers requeridos, merge strategy |
 | MCP `github`/`azure-devops` | `repo_host`, `repo.*`, `env_var_names` | qué servidor MCP usar y con qué variable de entorno de auth |
 | `agteamos/tracker/<tracker>.md` (generado en Step 3.6) | `tracker`, `repo_host`, `tracker_planner.*` | qué adapter generar y si hay que fusionar filas de PR heredadas de `repo_host` |
 | Todos los agentes (transiciones) | `handoff_mode` | si piden confirmación en cada handoff (`explicit`) o continúan solos (`auto`) |
@@ -577,5 +578,5 @@ instrucciones de texto que hay que releer.
 - Escribir el valor real de un token en `platform.yml` — solo el *nombre* de la variable de entorno.
 - Re-generar `platform.yml` desde cero cuando ya existe — esta skill actualiza campos puntuales, no reemplaza el archivo completo salvo pedido explícito del usuario.
 - Asumir `handoff_mode: auto` sin preguntarlo — el default es `explicit`, y pasar a `auto` es una decisión consciente del usuario, no un atajo silencioso.
-- Asumir que `tracker: planner` ya funciona sin confirmar los permisos de Microsoft Graph — si `graph_permissions_consented` quedó `false`, decirlo explícitamente, no dejar que el usuario lo descubra con un 401 en medio de `agteamos-new-task`.
+- Asumir que `tracker: planner` ya funciona sin confirmar los permisos de Microsoft Graph — si `graph_permissions_consented` quedó `false`, decirlo explícitamente, no dejar que el usuario lo descubra con un 401 en medio de `agteamos-task`.
 - Inventar un `plan_id` o `default_bucket_id` de Planner "para que no quede en null" — si el usuario no lo tiene a mano todavía, `null` es la respuesta correcta (ver Step 2).

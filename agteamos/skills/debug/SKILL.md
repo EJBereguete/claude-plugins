@@ -23,8 +23,8 @@ used_by:
   (Step 7) cumplen el rol de `requirements.md`/`design.md`, y el resumen de 1
   parrafo + el test de regresion (Step 6) son el unico output escrito ademas
   del propio fix. Si el 5 Whys revela un problema arquitectonico que cruza
-  dominios, escalar a schema `full` (`agteamos-new-task` /
-  `agteamos-sdd-protocol`) en vez de seguir en `debug`.
+  dominios, escalar a schema `full` (`agteamos-task` /
+  `agteamos-spec`) en vez de seguir en `debug`.
 - **Cierre**: esta skill NUNCA mergea ni cierra el ticket a mano — el Step 8
   invoca `agteamos-implement`, que maneja la bifurcación `schema: lite`
   (verify reducido al test de regresión, sin delta ni sync de spec maestra).
@@ -89,7 +89,7 @@ git checkout <rama-base-segun-platform.yml> && git pull
 git checkout -b bugfix/<id>-<slug>
 # Example: bugfix/78-invoice-total-null-crash
 # Sin ticket todavia: bugfix/tmp-invoice-total-null-crash (id provisional
-# "tmp", mismo criterio que agteamos-fix y agteamos-new-task)
+# "tmp", mismo criterio que agteamos-fix y agteamos-task)
 ```
 
 ---
@@ -267,7 +267,7 @@ test de regresión pasando (Step 6) y el bug categorizado (Step 7), abrir el
 PR hacia la rama base identificada en el Step 2 y luego invocar
 `agteamos-implement` para que haga el merge, el cierre del ticket, la
 limpieza de la rama y el archivado — usando su bifurcación para
-`schema: lite` (ver `agteamos-sdd-protocol`): `verify` se reduce a comprobar
+`schema: lite` (ver `agteamos-spec`): `verify` se reduce a comprobar
 que el test de regresión del Step 6 pasa, sin `specs/deltas/<dominio>.md` ni
 sync contra `agteamos/specs/<dominio>.md`.
 
@@ -322,3 +322,10 @@ Fix: Replace two-query pattern with `SELECT ... FOR UPDATE` + single transaction
 - Mergear el PR o cerrar el ticket a mano en vez de invocar `agteamos-implement` — duplica lógica de cierre que ya vive en esa skill (misma regla que `agteamos-fix`)
 - Crear la rama sin el id de la tarea (`bugfix/<slug>` en vez de `bugfix/<id>-<slug>`) — rompe la trazabilidad con el dashboard
 - Hardcodear `main`/`develop`/`testing` en vez de leer `agteamos/platform.yml → branch_strategy`
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: `agteamos-implement` — el Step 8 de esta skill
+ya lo invoca para el cierre (ver `agteamos-context` §Próximo paso).

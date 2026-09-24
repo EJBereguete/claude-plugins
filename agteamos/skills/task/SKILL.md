@@ -1,5 +1,5 @@
 ---
-name: agteamos-new-task
+name: agteamos-task
 description: >
   Workflow para tareas nuevas sin ticket existente. El usuario describe lo que
   quiere en lenguaje natural. El equipo clarifica, diseña, crea el ticket en
@@ -120,7 +120,7 @@ preguntas de la ronda se hacen igual.
 
 **Formato de cada ronda**: preguntas numeradas, cada una con **una
 recomendación propia del agente ya incluida** (ver el ejemplo de
-`agteamos-new-project` Step 1: "¿Cuál es el entorno de despliegue objetivo?
+`agteamos-bootstrap` Step 1: "¿Cuál es el entorno de despliegue objetivo?
 Si no tenés preferencia, recomiendo VPS por [razón]") — así el usuario puede
 aprobar en bloque en vez de responder todo desde cero.
 
@@ -252,7 +252,7 @@ la pena."*
 ### Step 2 — Determinar schema: `full` vs `lite`
 
 Antes de crear ningun artefacto, decidir el esquema segun el tamaño del cambio
-(ver skill `agteamos-sdd-protocol` para la definicion formal):
+(ver skill `agteamos-spec` para la definicion formal):
 
 ```
 ¿Es una feature nueva, un cambio que toca 2+ capas, o algo con impacto en
@@ -268,7 +268,7 @@ la spec maestra de algun dominio?
        `progress.md` con el resumen — no los 4 artefactos de specs/.
 ```
 
-Esta decisión debe ser **coherente con `agteamos-sdd-protocol`** (que define
+Esta decisión debe ser **coherente con `agteamos-spec`** (que define
 `full` vs `lite` formalmente): con `schema: lite` **no** se crea `brief.md`
 completo (ver Step 3) ni la estructura full de `specs/` — el resumen de 1
 párrafo en `progress.md` alcanza, y no hay delta ni cambio a la spec maestra.
@@ -356,7 +356,7 @@ que crea invoices", "el servicio que envía notificaciones") en vez de
 se actualiza en cada checkpoint), no para `brief.md`.
 
 Con `schema: lite` no se crea `brief.md` — el resumen de 1 párrafo que exige
-`agteamos-sdd-protocol` para `lite` alcanza y vive directo en `progress.md`.
+`agteamos-spec` para `lite` alcanza y vive directo en `progress.md`.
 
 ### Step 4 — @product-manager: Escribir requirements.md
 
@@ -428,7 +428,7 @@ identificadas (no activar agentes innecesarios para ahorrar tokens).
 `specs/deltas/<dominio>.md` se van a escribir.
 
 **Validar contra `agteamos/specs/index.yml`** (si existe — lo crea
-`agteamos-project-docs` al sembrar specs, o `agteamos-implement` la primera vez
+`agteamos-knowledge` al sembrar specs, o `agteamos-implement` la primera vez
 que un dominio recibe un delta): cada entrada de `domains:` debe coincidir
 EXACTO con un nombre ya registrado ahi. Si no existe el archivo todavia
 (primer dominio del proyecto), no hay nada contra que validar — se crea en el
@@ -457,7 +457,7 @@ en la tabla "Decisions Made" de `progress.md` con el motivo (ej. "context_tier
 > `specs/deltas/<dominio>.md` por cada dominio afectado (ADDED/MODIFIED/REMOVED
 > contra `agteamos/specs/<dominio>.md`, o "Sin cambios en la spec maestra" si
 > no aplica). Si la tarea toca 2+ dominios, se escribe un delta por dominio.
-> Ver skill `agteamos-sdd-protocol`.
+> Ver skill `agteamos-spec`.
 
 ### Step 6 — @ui-ux-designer: Mockup (condicional — solo si FE esta impactado)
 
@@ -740,7 +740,7 @@ Decision: DIVIDIR.
 sub-paso): el project manager escribe
 `agteamos/changes/tmp-<slug>/specs/tasks.md` con el checklist de
 implementación desglosado por capa y agente responsable — ver el formato
-completo ("4. tasks.md — CUANDO") en la skill `agteamos-sdd-protocol`. Este
+completo ("4. tasks.md — CUANDO") en la skill `agteamos-spec`. Este
 archivo tiene que existir **antes** del Checkpoint 3 de abajo; nada más en
 este workflow lo escribe.
 
@@ -1011,7 +1011,7 @@ Cada subtarea tendra su propio branch y sub-issue.
 
 8.1 — `agteamos/changes/tmp-google-oauth-registration/specs/tasks.md` escrito
 por @product-manager con el checklist por capa (ver formato en
-`agteamos-sdd-protocol`).
+`agteamos-spec`).
 
 8.2:
 ```
@@ -1134,4 +1134,11 @@ de proceso. Si `tracker: azure_devops`, estos van en
 
 - **No usar schema `full` para un cambio de una linea** — crea carpetas
   vacías de specs/ sin contenido real. Evaluar `lite` primero.
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: `agteamos-implement` — el ticket ya está creado,
+sigue el Flujo 3 (ver `agteamos-context` §Próximo paso).
 </content>

@@ -2,12 +2,12 @@
 
 Auditoría integral de ingeniería: arquitectura, seguridad, calidad de código, testing, DevOps/observabilidad y valor de negocio. El resultado es un **Radar de Deuda Técnica** con plan de mitigación priorizado.
 
-> **No confundir con `agteamos-plugin-improvement`**: esta skill (`agteamos-quality`) audita el código/arquitectura del **proyecto donde está instalado AgTeamOS**. `agteamos-plugin-improvement` es una skill distinta que audita al **propio sistema AgTeamOS** (detecta fricción en su propio workflow). No son intercambiables.
+> **No confundir con `agteamos-meta`**: esta skill (`agteamos-quality`) audita el código/arquitectura del **proyecto donde está instalado AgTeamOS**. `agteamos-meta` es una skill distinta que audita al **propio sistema AgTeamOS** (detecta fricción en su propio workflow). No son intercambiables.
 
 ## Cuándo correrla
 
 - A demanda: `/agteamos-quality`.
-- Recomendado justo después de un `agteamos-project-docs` en un proyecto con deuda técnica desconocida.
+- Recomendado justo después de un `agteamos-knowledge` en un proyecto con deuda técnica desconocida.
 - Periódicamente (ej. cada trimestre) para trackear si el Score Global mejora entre auditorías.
 
 ## Quién participa
@@ -16,7 +16,7 @@ Todo el equipo aporta su dimensión — no es una skill de un solo agente:
 
 | Paso | Agente | Analiza |
 |---|---|---|
-| 0 | — | `agteamos-router`, luego `agteamos-project-docs` si no hay contexto |
+| 0 | — | `agteamos-router`, luego `agteamos-knowledge` si no hay contexto |
 | 1 | `@architect` | Estructura, acoplamiento, ADRs, SOLID en el dominio |
 | 2 | `@security-engineer` | Secret scanning, dependency audit, checklist OWASP Top 10 |
 | 3 | `@qa-engineer` | Cobertura de tests, E2E, calidad de las aserciones |

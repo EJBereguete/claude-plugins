@@ -162,7 +162,7 @@ Estos casos no son errores del reporte, son estados válidos y esperados:
 
 | Caso | Regla |
 |---|---|
-| `task.yml → schema: lite` | Omitir por completo las cards "Checklist" y "Spec deltas aplicados" (no existen `specs/tasks.md` ni `specs/deltas/` en una tarea `lite`, ver `agteamos-sdd-protocol`). En su lugar, una única card **"Resumen (lite)"** con el párrafo de `progress.md` (sección `## Resumen (schema: lite)`) y el resultado del test de regresión (`## Test de regresión` en `progress.md`, o el ítem correspondiente de `verify-report.md` si ya existe) |
+| `task.yml → schema: lite` | Omitir por completo las cards "Checklist" y "Spec deltas aplicados" (no existen `specs/tasks.md` ni `specs/deltas/` en una tarea `lite`, ver `agteamos-spec`). En su lugar, una única card **"Resumen (lite)"** con el párrafo de `progress.md` (sección `## Resumen (schema: lite)`) y el resultado del test de regresión (`## Test de regresión` en `progress.md`, o el ítem correspondiente de `verify-report.md` si ya existe) |
 | `specs/deltas/` ausente o vacía (incluso en `schema: full`) | Omitir la card "Spec deltas aplicados" — no dejarla vacía ni con un link roto |
 | `specs/` inexistente (carpeta completa ausente, típico de `lite`) | Mismo tratamiento que la fila `schema: lite` de arriba — no asumir `schema: full` solo porque `task.yml` no lo aclaró; si `schema` falta en `task.yml`, tratarlo como `full` únicamente si `specs/` sí existe, si no, tratarlo como `lite` |
 | `verify-report.md` ausente | Omitir la card "Verify report" — no es un error, simplemente el paso `verify` de `agteamos-implement` todavía no corrió |
@@ -278,11 +278,11 @@ más allá de poblar el `<tbody>` correctamente.
 
 ### Step 3 — Actualizar el contador de standards (opcional, si `agteamos/standards/standards.yml` existe)
 
-Si la skill `agteamos-project-docs` ya corrió al menos una vez, agregar un
+Si la skill `agteamos-knowledge` ya corrió al menos una vez, agregar un
 `<div class="stat">` adicional en la misma fila de `.stats` (mismo patrón
 visual, sin CSS nuevo) con el conteo `X/Y estándares aplicando` leyendo
 `agteamos/standards/standards.yml` — opcional porque no todo proyecto habrá
-corrido `agteamos-project-docs` todavía.
+corrido `agteamos-knowledge` todavía.
 
 ---
 
@@ -307,7 +307,7 @@ error:
 #### 1 — Artefactos pendientes/obsoletos (`agteamos/onboarding.yml`)
 
 Contar por estado: cuántos `pending`, cuántos `candidate` (dominios sin
-confirmar), cuántos `stale` (ver `agteamos-project-docs` §Step 6). Listar los
+confirmar), cuántos `stale` (ver `agteamos-knowledge` §Step 6). Listar los
 `stale` explícitamente (son los que más vale la pena revisar) — el resto
 solo como conteo agregado.
 
@@ -393,6 +393,14 @@ database — no se revisan desde hace 40 commits)
 - Commitear `dashboard.html` o `report.html` al repositorio, o preocuparse por que no estén versionados — son artefactos locales regenerables por diseño, ver "ARTEFACTOS LOCALES" al inicio de esta skill.
 - (Modo `--pulse`) Escribir o modificar cualquier archivo — este modo es 100% read-only.
 - (Modo `--pulse`) Inventar una distribución de severidad para los follow-ups cuando el cache no la tiene — decir "conteo total, sin severidad" en vez de adivinar.
-- (Modo `--pulse`) Convertir el "próximo paso sugerido" en una tarea creada automáticamente — es una sugerencia en texto, el usuario decide si la convierte en `agteamos-new-task`/`agteamos-capture`.
+- (Modo `--pulse`) Convertir el "próximo paso sugerido" en una tarea creada automáticamente — es una sugerencia en texto, el usuario decide si la convierte en `agteamos-task`/`agteamos-capture`.
 - (Modo `--pulse`) Bloquear o fallar por completo porque una de las 6 fuentes no existe — cada sección se omite independientemente.
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: ninguno — es informativo (`report.html`/
+`dashboard.html`/`--pulse` son todos de solo lectura). Ver
+`agteamos-context` §Próximo paso.
 </content>

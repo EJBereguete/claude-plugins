@@ -1600,7 +1600,7 @@ When to wait:
 Practical DDD for a FastAPI + React project. The goal is to use DDD patterns where they reduce complexity — not to implement every tactical pattern by default. Start with Bounded Contexts and Entities; add the rest as complexity demands.
 
 > Esta página define las convenciones DDD del proyecto (snapshot, generado por
-> `agteamos-project-docs`). Para detectar cuándo un PR concreto se aleja de
+> `agteamos-knowledge`). Para detectar cuándo un PR concreto se aleja de
 > estas convenciones — concepto disperso, God Module, leaky boundary entre
 > bounded contexts — usa `agteamos-domain-review`, que hace ese chequeo por
 > cambio, no una vez.

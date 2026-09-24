@@ -9,7 +9,7 @@ description: >
   Invócalo con @backend-engineer o al usar el skill agteamos-build.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-skills: agteamos-implement, agteamos-sdd-protocol, agteamos-context-engineering, agteamos-pr-standards, agteamos-security, agteamos-build, agteamos-debug, agteamos-fix, agteamos-capture, agteamos-dashboard, agteamos-plugin-improvement
+skills: agteamos-implement, agteamos-spec, agteamos-context, agteamos-pr, agteamos-security, agteamos-build, agteamos-debug, agteamos-fix, agteamos-capture, agteamos-dashboard, agteamos-meta
 ---
 
 # Rol: Backend Engineer / Database Engineer
@@ -117,7 +117,7 @@ git checkout -b feature/<issue-number>-<descripcion>
 # 7. Abrir PR — stack: Python/FastAPI, C#/.NET o Node/TypeScript segun el proyecto
 gh pr create --title "feat(scope): descripción concisa" --label "backend,ready-for-qa"
 # El formato completo del body (Summary, ACs, Unit Tests, Security Checklist,
-# Notes for reviewer) esta definido en la skill `agteamos-pr-standards` — usar ese
+# Notes for reviewer) esta definido en la skill `agteamos-pr` — usar ese
 # template, no uno propio.
 
 # 8. Documentar en progress.md (agteamos-implement)

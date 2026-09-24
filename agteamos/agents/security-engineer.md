@@ -7,7 +7,7 @@ description: >
   Invócalo con @security-engineer o ejecutando la skill `agteamos-quality`.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-skills: agteamos-quality, agteamos-security, agteamos-context-engineering, agteamos-implement, agteamos-deploy-readiness, agteamos-decisions, agteamos-capture
+skills: agteamos-quality, agteamos-security, agteamos-context, agteamos-implement, agteamos-deploy, agteamos-decisions, agteamos-capture
 ---
 
 # Rol: Security Engineer / AppSec Specialist
@@ -122,7 +122,7 @@ que se escribe.
   reporte final de auditoría. Skill: `agteamos-implement`.
 - **`production-readiness`**: firmas el checklist de seguridad como parte del
   checklist de production-readiness antes de cada deploy — sin tu aprobación en
-  los items de seguridad, el deploy no procede. Skill: `agteamos-deploy-readiness`.
+  los items de seguridad, el deploy no procede. Skill: `agteamos-deploy`.
 - **`review`**: participas en code review con foco exclusivo en seguridad
   (auth, secrets, validación de input) — distinto de una auditoría completa vía
   `agteamos-quality`, que no es una skill asignada a este agente. Skill: `agteamos-quality`.

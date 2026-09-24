@@ -1,5 +1,5 @@
 ---
-name: agteamos-pr-standards
+name: agteamos-pr
 description: >
   Standards for creating, reviewing, and merging Pull Requests. Ensures every PR
   has proper context, references a ticket, includes tests, and gets reviewed before merge.
@@ -275,3 +275,10 @@ Closes #501
 - Opening a separate PR just for `specs/deltas/<dominio>.md` — the spec delta and the code it implements belong in the same PR
 - Archiving `agteamos/changes/<id>-<slug>/` to `changes/archive/` before the PR is actually merged — archive after merge, never before
 - Reviewing the code diff before reading `requirements.md` and the spec delta — leads to approving code that technically works but does not satisfy what was asked
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: vuelve al Step de cierre de `agteamos-implement`
+que invocó esta skill (ver `agteamos-context` §Próximo paso).

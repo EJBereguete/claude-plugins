@@ -57,7 +57,7 @@ function standardsIndexSummary(cwd) {
   try {
     content = fs.readFileSync(indexPath, 'utf-8');
   } catch (err) {
-    return null; // agteamos-project-docs (--topic) no corrio todavia en este proyecto
+    return null; // agteamos-knowledge (--topic) no corrio todavia en este proyecto
   }
 
   const byFolder = new Map();
@@ -107,7 +107,7 @@ function standardsIndexSummary(cwd) {
 
   const pendingLine = pendingCount > 0
     ? `\n${pendingCount} tema(s) mas detectados pero aun no generados — se generan bajo demanda ` +
-      'la primera vez que una tarea real los necesita (ver agteamos-project-docs --topic).'
+      'la primera vez que una tarea real los necesita (ver agteamos-knowledge --topic).'
     : '';
 
   return '[agteamos] Standards del proyecto disponibles en agteamos/standards/. ' +

@@ -19,8 +19,8 @@ Cada `name:` del frontmatter lleva el prefijo `agteamos-` — se invocan tanto e
 
 | Skill | Descripción | Usado por |
 |---|---|---|
-| `agteamos-new-project` | Bootstrap de un proyecto nuevo desde un repo vacío: stack, arquitectura, design system, CI/CD y backlog inicial, con SRS formal opcional. | Architect, Product Manager, DevOps, UI/UX |
-| `agteamos-new-task` | Tareas nuevas sin ticket existente. Incluye inline `clarification-protocol` (Step 1) y `story-breakdown`/INVEST (Step 7). Clarifica, diseña, crea el ticket y continúa con `agteamos-implement`. | Architect, Product Manager, UI/UX |
+| `agteamos-bootstrap` | Bootstrap de un proyecto nuevo desde un repo vacío: stack, arquitectura, design system, CI/CD y backlog inicial, con SRS formal opcional. | Architect, Product Manager, DevOps, UI/UX |
+| `agteamos-task` | Tareas nuevas sin ticket existente. Incluye inline `clarification-protocol` (Step 1) y `story-breakdown`/INVEST (Step 7). Clarifica, diseña, crea el ticket y continúa con `agteamos-implement`. | Architect, Product Manager, UI/UX |
 | `agteamos-implement` | Tareas con ticket existente. Incluye inline `definition-of-ready` (Step 2), `task-tracking` (Step 4) y `task-closure` (Step 9: PR, verify-report, merge, sync de specs, archivado, dashboard). Carga por tiers (1/2/3). | Architect, Backend, Frontend, QA, DevOps, Product Manager, Security |
 
 ### Architecture and Governance (1)
@@ -33,8 +33,8 @@ Cada `name:` del frontmatter lleva el prefijo `agteamos-` — se invocan tanto e
 
 | Skill | Descripción | Usado por |
 |---|---|---|
-| `agteamos-sdd-protocol` | Spec-Driven Development: formato canónico de spec, spec maestra persistente `agteamos/specs/<dominio>.md`, esquema `full` (4 artefactos) y `lite` (resumen + test de regresión). | Architect, Backend, Frontend, Product Manager, UI/UX |
-| `agteamos-context-engineering` | Gestiona el estado compartido entre agentes, el protocolo de handoff y el presupuesto de tokens (context tiers). | Architect, Backend, Frontend, DevOps, Product Manager, Security, UI/UX |
+| `agteamos-spec` | Spec-Driven Development: formato canónico de spec, spec maestra persistente `agteamos/specs/<dominio>.md`, esquema `full` (4 artefactos) y `lite` (resumen + test de regresión). | Architect, Backend, Frontend, Product Manager, UI/UX |
+| `agteamos-context` | Gestiona el estado compartido entre agentes, el protocolo de handoff y el presupuesto de tokens (context tiers). | Architect, Backend, Frontend, DevOps, Product Manager, Security, UI/UX |
 
 ### Quality (1)
 
@@ -46,13 +46,13 @@ Cada `name:` del frontmatter lleva el prefijo `agteamos-` — se invocan tanto e
 
 | Skill | Descripción | Usado por |
 |---|---|---|
-| `agteamos-project-docs` | Documentación del proyecto en 4 modos: `--init` (ingeniería inversa L0/L1/L2), `--maintain` (default: mantenimiento continuo, distingue pendiente-por-diseño de falta real), `--topic <tema>` (convention-detection vía `ensure-artifact`) y `--learn` (captura de convenciones aprendidas en uso). | Architect, DevOps, Product Manager, UI/UX |
+| `agteamos-knowledge` | Documentación del proyecto en 4 modos: `--init` (ingeniería inversa L0/L1/L2), `--maintain` (default: mantenimiento continuo, distingue pendiente-por-diseño de falta real), `--topic <tema>` (convention-detection vía `ensure-artifact`) y `--learn` (captura de convenciones aprendidas en uso). | Architect, DevOps, Product Manager, UI/UX |
 
 ### DevOps (2)
 
 | Skill | Descripción | Usado por |
 |---|---|---|
-| `agteamos-deploy-readiness` | Checklist de preparación para producción (infra, seguridad, observabilidad, BD, rollback) como Step 0 interno, seguido del deploy monitoreado con PRR, smoke tests y DORA metrics. Nunca despliega sin QA approval. | Architect, QA, Security, DevOps |
+| `agteamos-deploy` | Checklist de preparación para producción (infra, seguridad, observabilidad, BD, rollback) como Step 0 interno, seguido del deploy monitoreado con PRR, smoke tests y DORA metrics. Nunca despliega sin QA approval. | Architect, QA, Security, DevOps |
 | `agteamos-metrics` | Las 4 métricas DORA (deployment frequency, lead time, change failure rate, MTTR) y la definición/medición de SLOs, SLIs y error budgets. | Architect, DevOps, Product Manager |
 
 ### Operations (5)
@@ -75,7 +75,7 @@ Cada `name:` del frontmatter lleva el prefijo `agteamos-` — se invocan tanto e
 
 | Skill | Descripción | Usado por |
 |---|---|---|
-| `agteamos-explore` | Modo de exploración previa a comprometerse con una tarea: lee el código real y compara opciones con trade-offs concretos. No crea artefactos ni código. Propone pasar a `agteamos-new-task` o seguir explorando. | Architect |
+| `agteamos-explore` | Modo de exploración previa a comprometerse con una tarea: lee el código real y compara opciones con trade-offs concretos. No crea artefactos ni código. Propone pasar a `agteamos-task` o seguir explorando. | Architect |
 
 ### Meta AgTeamOS (2)
 
@@ -84,13 +84,13 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 | Skill | Descripción | Usado por |
 |---|---|---|
 | `agteamos-capture` | Captura de baja fricción en dos modos: "Modo plugin" (ideas de mejora del propio AgTeamOS en `BACKLOG.md`) y "Modo proyecto" (pedidos de producto en `agteamos/product/roadmap.md` + ticket opcional). El usuario dice "idea: X" sin interrumpir el trabajo en curso. | Todos los agentes |
-| `agteamos-plugin-improvement` | Ciclo completo de mejora del propio sistema: auditoría (detecta fricción en `verify-report.md`/`dashboard.html`/`task.yml`, propone filas en `BACKLOG.md`) y ejecución (aplica el cambio quirúrgico y reporta el diff). | Architect, Backend, Frontend, QA, Product Manager |
+| `agteamos-meta` | Ciclo completo de mejora del propio sistema: auditoría (detecta fricción en `verify-report.md`/`dashboard.html`/`task.yml`, propone filas en `BACKLOG.md`) y ejecución (aplica el cambio quirúrgico y reporta el diff). | Architect, Backend, Frontend, QA, Product Manager |
 
 ### PR Standards (1)
 
 | Skill | Descripción | Usado por |
 |---|---|---|
-| `agteamos-pr-standards` | Estándares para crear, revisar y mergear Pull Requests. Toda PR referencia un ticket, incluye tests y pasa por review antes de merge. | Architect, Backend, Frontend, QA, Product Manager |
+| `agteamos-pr` | Estándares para crear, revisar y mergear Pull Requests. Toda PR referencia un ticket, incluye tests y pasa por review antes de merge. | Architect, Backend, Frontend, QA, Product Manager |
 
 ## Por agente
 
@@ -101,7 +101,7 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 
 **Responsabilidades**: ejecutar `agteamos-router` en cada sesión · interpretar el objetivo de negocio real detrás del request · diseñar arquitectura de sistemas · crear y gestionar ADRs · revisar y aprobar entregables del equipo.
 
-**Skills asignadas** (19): `agteamos-router`, `agteamos-new-project`, `agteamos-new-task`, `agteamos-implement`, `agteamos-decisions`, `agteamos-sdd-protocol`, `agteamos-context-engineering`, `agteamos-quality`, `agteamos-project-docs`, `agteamos-deploy-readiness`, `agteamos-setup`, `agteamos-capture`, `agteamos-build`, `agteamos-dashboard`, `agteamos-metrics`, `agteamos-plugin-improvement`, `agteamos-pr-standards`, `agteamos-security`, `agteamos-explore`
+**Skills asignadas** (19): `agteamos-router`, `agteamos-bootstrap`, `agteamos-task`, `agteamos-implement`, `agteamos-decisions`, `agteamos-spec`, `agteamos-context`, `agteamos-quality`, `agteamos-knowledge`, `agteamos-deploy`, `agteamos-setup`, `agteamos-capture`, `agteamos-build`, `agteamos-dashboard`, `agteamos-metrics`, `agteamos-meta`, `agteamos-pr`, `agteamos-security`, `agteamos-explore`
 
 **Herramientas**: Read, Write, Edit, Grep, Glob, WebFetch
 
@@ -114,7 +114,7 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 
 **Responsabilidades**: escribir `requirements.md` con ACs verificables (Given/When/Then) · definir scope in/out · escribir `tasks.md` · crear tickets en GitHub Issues/Azure DevOps · gestionar `agteamos/changes/` · eliminar bloqueos entre agentes · regenerar `dashboard.html`.
 
-**Skills asignadas** (14): `agteamos-sdd-protocol`, `agteamos-new-task`, `agteamos-context-engineering`, `agteamos-implement`, `agteamos-quality`, `agteamos-project-docs`, `agteamos-capture`, `agteamos-new-project`, `agteamos-decisions`, `agteamos-metrics`, `agteamos-pr-standards`, `agteamos-plugin-improvement`, `agteamos-dashboard`, `agteamos-fix`
+**Skills asignadas** (14): `agteamos-spec`, `agteamos-task`, `agteamos-context`, `agteamos-implement`, `agteamos-quality`, `agteamos-knowledge`, `agteamos-capture`, `agteamos-bootstrap`, `agteamos-decisions`, `agteamos-metrics`, `agteamos-pr`, `agteamos-meta`, `agteamos-dashboard`, `agteamos-fix`
 
 **Herramientas**: Read, Write, Edit, Bash, Glob
 
@@ -129,7 +129,7 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 
 **Stacks**: Python/FastAPI + SQLAlchemy 2.0 + pytest, C#/.NET + EF Core + xUnit, TypeScript/Node.js + Prisma + Vitest
 
-**Skills asignadas** (11): `agteamos-implement`, `agteamos-sdd-protocol`, `agteamos-context-engineering`, `agteamos-pr-standards`, `agteamos-security`, `agteamos-build`, `agteamos-debug`, `agteamos-fix`, `agteamos-capture`, `agteamos-dashboard`, `agteamos-plugin-improvement`
+**Skills asignadas** (11): `agteamos-implement`, `agteamos-spec`, `agteamos-context`, `agteamos-pr`, `agteamos-security`, `agteamos-build`, `agteamos-debug`, `agteamos-fix`, `agteamos-capture`, `agteamos-dashboard`, `agteamos-meta`
 
 **Herramientas**: Read, Write, Edit, Bash, Grep, Glob
 
@@ -144,7 +144,7 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 
 **Stacks**: React 19 + TypeScript + Vite, Vue 3 + Pinia, Angular + RxJS
 
-**Skills asignadas** (10): `agteamos-implement`, `agteamos-sdd-protocol`, `agteamos-context-engineering`, `agteamos-pr-standards`, `agteamos-debug`, `agteamos-fix`, `agteamos-build`, `agteamos-capture`, `agteamos-dashboard`, `agteamos-plugin-improvement`
+**Skills asignadas** (10): `agteamos-implement`, `agteamos-spec`, `agteamos-context`, `agteamos-pr`, `agteamos-debug`, `agteamos-fix`, `agteamos-build`, `agteamos-capture`, `agteamos-dashboard`, `agteamos-meta`
 
 **Herramientas**: Read, Write, Edit, Bash, Playwright
 
@@ -157,7 +157,7 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 
 **Responsabilidades**: ejecutar tests E2E con Playwright y guardar screenshots como evidencia · revisar código contra los ACs de `requirements.md` · verificar cobertura de unit tests · aprobar/rechazar PRs con justificación · auditar accesibilidad con axe-core.
 
-**Skills asignadas** (11): `agteamos-implement`, `agteamos-deploy-readiness`, `agteamos-pr-standards`, `agteamos-security`, `agteamos-quality`, `agteamos-incidents`, `agteamos-debug`, `agteamos-fix`, `agteamos-capture`, `agteamos-dashboard`, `agteamos-plugin-improvement`
+**Skills asignadas** (11): `agteamos-implement`, `agteamos-deploy`, `agteamos-pr`, `agteamos-security`, `agteamos-quality`, `agteamos-incidents`, `agteamos-debug`, `agteamos-fix`, `agteamos-capture`, `agteamos-dashboard`, `agteamos-meta`
 
 **Herramientas**: Read, Bash, Grep, Glob
 
@@ -170,7 +170,7 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 
 **Responsabilidades**: threat modeling (STRIDE) de nuevas features · revisión contra OWASP Top 10 · verificación con checklist ASVS · detectar secrets hardcodeados, SQL injection, XSS, CSRF · crear ADRs y issues de seguridad con severidad y plan de remediación.
 
-**Skills asignadas** (7): `agteamos-quality`, `agteamos-security`, `agteamos-context-engineering`, `agteamos-implement`, `agteamos-deploy-readiness`, `agteamos-decisions`, `agteamos-capture`
+**Skills asignadas** (7): `agteamos-quality`, `agteamos-security`, `agteamos-context`, `agteamos-implement`, `agteamos-deploy`, `agteamos-decisions`, `agteamos-capture`
 
 **Herramientas**: Read, Write, Edit, Bash, Grep, Glob
 
@@ -183,7 +183,7 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 
 **Responsabilidades**: crear y optimizar Dockerfiles y docker-compose · configurar pipelines CI/CD · desplegar en Cloud Run, VPS, Railway, Vercel, Fly.io, AWS, Azure · gestionar secrets y variables de entorno · configurar monitoreo, alertas y rollback · ejecutar smoke tests post-deploy.
 
-**Skills asignadas** (10): `agteamos-deploy-readiness`, `agteamos-metrics`, `agteamos-context-engineering`, `agteamos-incidents`, `agteamos-project-docs`, `agteamos-quality`, `agteamos-capture`, `agteamos-implement`, `agteamos-dashboard`, `agteamos-new-project`
+**Skills asignadas** (10): `agteamos-deploy`, `agteamos-metrics`, `agteamos-context`, `agteamos-incidents`, `agteamos-knowledge`, `agteamos-quality`, `agteamos-capture`, `agteamos-implement`, `agteamos-dashboard`, `agteamos-bootstrap`
 
 **Herramientas**: Read, Write, Edit, Bash, Grep, Glob
 
@@ -196,7 +196,7 @@ Distintas de las skills de "Operations": estas auditan y mejoran **el propio AgT
 
 **Responsabilidades**: diseñar wireframes y flujos de usuario · definir y mantener el Design System · prototipar interacciones en texto (no genera imágenes, describe con precisión) · verificar accesibilidad visual · obtener aprobación del usuario antes de que Frontend implemente — el gate es obligatorio, no una sugerencia.
 
-**Skills asignadas** (7): `agteamos-new-task`, `agteamos-sdd-protocol`, `agteamos-context-engineering`, `agteamos-project-docs`, `agteamos-build`, `agteamos-capture`, `agteamos-new-project`
+**Skills asignadas** (7): `agteamos-task`, `agteamos-spec`, `agteamos-context`, `agteamos-knowledge`, `agteamos-build`, `agteamos-capture`, `agteamos-bootstrap`
 
 **Herramientas**: Read, Write, Edit, Bash, Playwright, WebFetch
 
@@ -250,21 +250,21 @@ Fuente de verdad: el campo `skills:` del frontmatter de cada `agents/*.md`. 22 s
 | agteamos-router | ✓ | | | | | | | |
 | agteamos-setup | ✓ | | | | | | | |
 | agteamos-explore | ✓ | | | | | | | |
-| agteamos-new-project | ✓ | ✓ | | | | | ✓ | ✓ |
-| agteamos-new-task | ✓ | ✓ | | | | | | ✓ |
+| agteamos-bootstrap | ✓ | ✓ | | | | | ✓ | ✓ |
+| agteamos-task | ✓ | ✓ | | | | | | ✓ |
 | agteamos-implement | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | |
 | agteamos-decisions | ✓ | ✓ | | | | ✓ | | |
-| agteamos-sdd-protocol | ✓ | ✓ | ✓ | ✓ | | | | ✓ |
-| agteamos-context-engineering | ✓ | ✓ | ✓ | ✓ | | ✓ | ✓ | ✓ |
+| agteamos-spec | ✓ | ✓ | ✓ | ✓ | | | | ✓ |
+| agteamos-context | ✓ | ✓ | ✓ | ✓ | | ✓ | ✓ | ✓ |
 | agteamos-quality | ✓ | ✓ | | | ✓ | ✓ | ✓ | |
-| agteamos-project-docs | ✓ | ✓ | | | | | ✓ | ✓ |
-| agteamos-deploy-readiness | ✓ | | | | ✓ | ✓ | ✓ | |
+| agteamos-knowledge | ✓ | ✓ | | | | | ✓ | ✓ |
+| agteamos-deploy | ✓ | | | | ✓ | ✓ | ✓ | |
 | agteamos-capture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | agteamos-build | ✓ | | ✓ | ✓ | | | | ✓ |
 | agteamos-dashboard | ✓ | ✓ | ✓ | ✓ | ✓ | | ✓ | |
 | agteamos-metrics | ✓ | ✓ | | | | | ✓ | |
-| agteamos-plugin-improvement | ✓ | ✓ | ✓ | ✓ | ✓ | | | |
-| agteamos-pr-standards | ✓ | ✓ | ✓ | ✓ | ✓ | | | |
+| agteamos-meta | ✓ | ✓ | ✓ | ✓ | ✓ | | | |
+| agteamos-pr | ✓ | ✓ | ✓ | ✓ | ✓ | | | |
 | agteamos-security | ✓ | | ✓ | | ✓ | ✓ | | |
 | agteamos-incidents | | | | | ✓ | | ✓ | |
 | agteamos-debug | | | ✓ | ✓ | ✓ | | | |

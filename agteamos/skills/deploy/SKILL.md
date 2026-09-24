@@ -1,5 +1,5 @@
 ---
-name: agteamos-deploy-readiness
+name: agteamos-deploy
 description: >
   Reemplaza a agteamos-production-readiness y agteamos-deploy-workflow
   (fusionadas). Checklist de preparacion para produccion (infraestructura,
@@ -15,7 +15,7 @@ used_by:
   - qa-engineer
 ---
 
-# Skill: Deploy Readiness (agteamos-deploy-readiness)
+# Skill: Deploy Readiness (agteamos-deploy)
 
 ## CONTRACT
 
@@ -431,4 +431,12 @@ Smoke test FAIL: Auth guard active — expected 401, got 500
 - Overwriting the `latest` Docker tag without a versioned tag — makes rollback impossible
 - Running smoke tests from localhost against staging instead of against the production URL — the point is to verify the production deployment
 - Updating DORA metrics only when convenient — the data is only useful if it is complete and consistent
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: `agteamos-metrics` (registrar DORA) — o
+`agteamos-incidents` si algo falló en el despliegue (ver `agteamos-context`
+§Próximo paso).
 </content>

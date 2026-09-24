@@ -1,5 +1,5 @@
 ---
-name: agteamos-plugin-improvement
+name: agteamos-meta
 description: >
   Reemplaza a agteamos-self-audit y agteamos-improve-skill-workflow
   (fusionadas). Distinta de agteamos-quality (esa audita el codigo/proyecto del
@@ -17,12 +17,12 @@ used_by:
   - qa-engineer
 ---
 
-# Skill: Plugin Improvement (agteamos-plugin-improvement)
+# Skill: Plugin Improvement (agteamos-meta)
 
 > **No confundir con `agteamos-quality`.** `agteamos-quality` audita el
 > código/arquitectura del **proyecto consumidor** (el repo donde se instaló
 > AgTeamOS) — deuda técnica, seguridad, cobertura de tests, etc. Esta skill,
-> `agteamos-plugin-improvement`, cubre al **propio AgTeamOS como sistema**:
+> `agteamos-meta`, cubre al **propio AgTeamOS como sistema**:
 > primero detecta cómo se está usando el framework en la práctica
 > (`agteamos/changes/`, `verify-report.md`, `dashboard.html`) para encontrar
 > fricción propia del workflow, y después ejecuta la mejora quirúrgica sobre
@@ -91,7 +91,7 @@ cuya duración (`hoy - created`) sea:
 `task.yml` con 3 o más entradas en `handoffs` es señal de que la tarea pasó
 por demasiadas personas — puede indicar documentación de contexto insuficiente
 (el "Next Action" de `progress.md` no le alcanza a quien retoma) o una tarea
-mal dimensionada que debió dividirse (`agteamos-new-task`).
+mal dimensionada que debió dividirse (`agteamos-task`).
 
 #### Step 3 — Redactar cada hallazgo como candidato de backlog
 
@@ -175,6 +175,9 @@ automáticas, pero decidir qué y cuándo ejecutar sigue siendo del usuario.
 - Dejar que la pregunta de fricción de `agteamos-implement` bloquee o rompa el cierre si el usuario solo aprieta Enter — el cierre ya debe estar completo antes de llegar a esta pregunta.
 - Usar umbrales de duración/handoffs sin ajustarlos al histórico real del proyecto cuando hay suficientes tareas archivadas para calcularlo — el umbral fijo de 14 días es un fallback, no la regla por default cuando ya hay datos propios.
 - Ejecutar la sección "Ejecución de la mejora" automáticamente al detectar un patrón — esta sección solo detecta y propone; la ejecución la decide el usuario (ver Step 7).
+
+**Próximo paso sugerido**: `agteamos-meta` (sección Ejecución), si se decide
+actuar sobre un hallazgo (ver `agteamos-context` §Próximo paso).
 
 ---
 
@@ -375,3 +378,11 @@ Step 5 report:
 - Making the edit without reporting the diff — the user cannot verify what changed
 - Silently redirecting feedback without explaining why — the user may not know which skill covers their use case
 - Editing ANTI-PATTERNS to remove valid warnings because a user disagrees with them — anti-patterns exist because the mistake has been made; the disagreement is itself a signal to explain the reasoning more clearly
+
+---
+
+## Próximo paso sugerido (Ejecución)
+
+**Próximo paso sugerido**: ninguno — el cambio ya está aplicado y
+reportado; continuar con lo que se estaba haciendo (ver `agteamos-context`
+§Próximo paso).

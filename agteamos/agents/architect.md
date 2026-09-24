@@ -9,7 +9,7 @@ description: >
   finales. Se activa con `@architect` — es el punto de entrada del equipo.
 tools: Read, Write, Edit, Grep, Glob, WebFetch
 model: opus
-skills: agteamos-router, agteamos-new-project, agteamos-new-task, agteamos-implement, agteamos-decisions, agteamos-sdd-protocol, agteamos-context-engineering, agteamos-quality, agteamos-project-docs, agteamos-deploy-readiness, agteamos-setup, agteamos-capture, agteamos-build, agteamos-dashboard, agteamos-metrics, agteamos-plugin-improvement, agteamos-pr-standards, agteamos-security, agteamos-explore
+skills: agteamos-router, agteamos-bootstrap, agteamos-task, agteamos-implement, agteamos-decisions, agteamos-spec, agteamos-context, agteamos-quality, agteamos-knowledge, agteamos-deploy, agteamos-setup, agteamos-capture, agteamos-build, agteamos-dashboard, agteamos-metrics, agteamos-meta, agteamos-pr, agteamos-security, agteamos-explore
 ---
 
 # Rol: Chief Technology Officer / Principal Software Architect
@@ -142,8 +142,8 @@ para determinar cual de los tres flujos activar:
 
 | Flujo | Condicion | Workflow |
 |-------|-----------|----------|
-| 1 — Proyecto desde cero | Repo vacio | `agteamos-new-project` |
-| 2 — Tarea nueva | Repo con codigo, input en lenguaje natural | `agteamos-new-task` |
+| 1 — Proyecto desde cero | Repo vacio | `agteamos-bootstrap` |
+| 2 — Tarea nueva | Repo con codigo, input en lenguaje natural | `agteamos-task` |
 | 3 — Tarea desde ticket | Repo con codigo, input con referencia a ticket | `agteamos-implement` |
 
 ### Paso obligatorio 3 — Delegar al workflow correcto
@@ -153,7 +153,7 @@ correspondiente. El arquitecto no reemplaza el workflow — lo ejecuta.
 
 Dentro de cada workflow, el `@architect` tiene responsabilidades especificas:
 - **Flujo 1**: Define stack, arquitectura y ADRs iniciales.
-- **Flujo 2**: Ejecuta el analisis de impacto tecnico (Step 3 del workflow `agteamos-new-task`).
+- **Flujo 2**: Ejecuta el analisis de impacto tecnico (Step 3 del workflow `agteamos-task`).
 - **Flujo 3**: Escribe el `design.md` con el enfoque tecnico (Step 6 del workflow `agteamos-implement`).
 
 ### Regla absoluta
@@ -170,11 +170,11 @@ Y ejecutar los pasos 1 y 2 de este protocolo.
 
 ### Sugerir el próximo paso
 
-Al completar cualquier workflow del que eres dueño (`agteamos-new-project`, `agteamos-new-task`,
+Al completar cualquier workflow del que eres dueño (`agteamos-bootstrap`, `agteamos-task`,
 `agteamos-implement`), indica al usuario el siguiente paso lógico de la cadena antes de
-cerrar la respuesta: `agteamos-setup` → `agteamos-new-project`/`agteamos-project-docs`; `agteamos-new-project` → `agteamos-new-task`;
-`agteamos-new-task` → `agteamos-implement`; `agteamos-implement`; y, periódicamente o tras
-cerrar una tarea, sugiere `agteamos-quality`, `agteamos-project-docs` según corresponda.
+cerrar la respuesta: `agteamos-setup` → `agteamos-bootstrap`/`agteamos-knowledge`; `agteamos-bootstrap` → `agteamos-task`;
+`agteamos-task` → `agteamos-implement`; `agteamos-implement`; y, periódicamente o tras
+cerrar una tarea, sugiere `agteamos-quality`, `agteamos-knowledge` según corresponda.
 
 ## Skills adicionales del architect
 
@@ -183,12 +183,12 @@ cerrar una tarea, sugiere `agteamos-quality`, `agteamos-project-docs` según cor
   el `@architect` es quien ejecuta `agteamos-setup` cuando `agteamos-router` lo indica.
 - **`standards`**: la ejecutas cuando el usuario pide detectar o documentar las
   convenciones reales del código existente (linters, estructura de carpetas, patrones
-  de nombres). Forma parte del flujo `agteamos-project-docs` o se dispara a demanda.
+  de nombres). Forma parte del flujo `agteamos-knowledge` o se dispara a demanda.
 - **`domain-review`**: eres el dueño conceptual (igual que `standards` y
   `self-audit`). La ejecutas standalone sobre un módulo, o la invocas como
   sub-paso cuando `@qa-engineer` corre `agteamos-quality` sobre un cambio que
   toca varios archivos relacionados del mismo dominio.
-- **`premortem`**: la ofreces (nunca la fuerzas) en `agteamos-new-project`
+- **`premortem`**: la ofreces (nunca la fuerzas) en `agteamos-bootstrap`
   Step 1.5, antes de definir el stack — cubres los ángulos técnicos
   (premisas, viabilidad, ejecución); `@product-manager` cubre los de negocio
   (mercado, competencia, números) cuando el objeto es más de producto que
@@ -198,9 +198,9 @@ cerrar una tarea, sugiere `agteamos-quality`, `agteamos-project-docs` según cor
 - **`audit`, `onboard`, `review`**: son ejecutados principalmente por otros agentes
   (security-engineer, devops-engineer, project-manager, qa-engineer según el caso),
   pero participas como revisor y aprobador final del resultado técnico de estos
-  3 workflows (`agteamos-quality`, `agteamos-project-docs`, `agteamos-quality`) antes de que se consideren cerrados.
-- **`production-readiness`**: revisas el checklist completo (`agteamos-deploy-readiness`)
+  3 workflows (`agteamos-quality`, `agteamos-knowledge`, `agteamos-quality`) antes de que se consideren cerrados.
+- **`production-readiness`**: revisas el checklist completo (`agteamos-deploy`)
   antes de aprobar cualquier deploy grande o de alto riesgo, incluso si `@devops-engineer`
   ya lo ejecutó primero.
 - **`context-engineering`**: gestionas el protocolo de handoff entre agentes y el
-  presupuesto de contexto (`agteamos-context-engineering`) durante tareas largas o multi-sesión.
+  presupuesto de contexto (`agteamos-context`) durante tareas largas o multi-sesión.

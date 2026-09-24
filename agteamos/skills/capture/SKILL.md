@@ -136,14 +136,14 @@ y agregar una fila con este formato exacto (igual al de la plantilla de
 ```
 
 - `Origen`: `usuario` (modo captura manual) o `auto-detectado` (cuando la fila
-  la propone `agteamos-plugin-improvement`, sección "Auditoría del propio
+  la propone `agteamos-meta`, sección "Auditoría del propio
   AgTeamOS")
 - `Prioridad`: `alta` \| `media` \| `baja` — si el usuario no especifica, usar
   `media` por default, nunca preguntar en modo captura (rompería la baja
   fricción — se puede ajustar después en modo revisión)
 - `Estado`: siempre `idea` al crearla. Pasa a `planeada` en modo revisión, o
   se remueve de "Ideas abiertas" y se agrega a "Implementadas" vía el flujo
-  H.4 (ver `agteamos-plugin-improvement`)
+  H.4 (ver `agteamos-meta`)
 
 **Step 4 — Confirmar en una línea y continuar**
 
@@ -170,14 +170,14 @@ Para cada idea, el usuario puede pedir:
 - **Descartar**: eliminar la fila de "Ideas abiertas" (no se mueve a
   "Implementadas" — descartar no es lo mismo que resolver)
 - **Marcar planeada**: cambiar `Estado` a `planeada` (señal de que se va a
-  actuar pronto, sin todavía ejecutar `agteamos-plugin-improvement`)
+  actuar pronto, sin todavía ejecutar `agteamos-meta`)
 
 **Step 3 — Si se decide actuar ahora sobre una idea**
 
-Ejecutar `agteamos-plugin-improvement` (sección "Ejecución de la mejora")
+Ejecutar `agteamos-meta` (sección "Ejecución de la mejora")
 apuntando al archivo/skill/agente afectado. Al terminar, mover la fila de
 "Ideas abiertas" a "Implementadas" con la fecha de resolución y un resumen
-breve de qué cambió — este paso final lo cubre `agteamos-plugin-improvement`,
+breve de qué cambió — este paso final lo cubre `agteamos-meta`,
 no requiere volver a este modo salvo para hacer el movimiento de fila si
 ninguna otra skill lo hizo.
 
@@ -187,8 +187,11 @@ ninguna otra skill lo hizo.
 - Escribir en `${CLAUDE_PLUGIN_ROOT}/BACKLOG.md` sin intentar la detección de "copia cacheada vs repo fuente" — el usuario puede perder la idea sin enterarse.
 - Preguntar prioridad en modo captura — usar `media` por default y dejar que el usuario la ajuste en modo revisión si le importa.
 - Confundir el backlog de AgTeamOS (este) con `agteamos/product/roadmap.md` del proyecto consumidor — son dos backlogs distintos con dueños distintos; una idea sobre el producto del usuario NO va acá.
-- Mover una fila a "Implementadas" sin que `agteamos-plugin-improvement` realmente haya aplicado el cambio — "Implementadas" es un registro de qué se ejecutó, no de qué se planeó.
+- Mover una fila a "Implementadas" sin que `agteamos-meta` realmente haya aplicado el cambio — "Implementadas" es un registro de qué se ejecutó, no de qué se planeó.
 - Agregar filas de ejemplo a la tabla "Ideas abiertas" para "mostrar el formato" — el backlog real empieza vacío; cualquier fila ahí debe ser una idea real capturada.
+
+**Próximo paso sugerido**: ninguno — sigue el flujo que estaba en curso
+(ver `agteamos-context` §Próximo paso).
 
 ---
 
@@ -202,7 +205,7 @@ fila al backlog local de ESE proyecto (agteamos/product/roadmap.md) y, si
 tiene tracker configurado en platform.yml, crea el ticket ahi tambien
 (GitHub, Azure Boards o Planner). Distinto del Modo plugin de arriba, que es
 el backlog del propio plugin AgTeamOS, no el del proyecto del usuario.
-Distinto de agteamos-new-task, que interroga con ACs/ROI/story points — esto
+Distinto de agteamos-task, que interroga con ACs/ROI/story points — esto
 es solo anotar para despues.
 
 ### CUANDO NO ES ESTE MODO
@@ -212,7 +215,7 @@ es solo anotar para despues.
 - El mensaje referencia un ticket/issue existente (URL, `#42`, `AB#1234`) →
   Flujo 3 (`agteamos-implement`), no este modo.
 - El usuario quiere arrancar a implementar YA (no solo anotar para despues)
-  → Flujo 2 completo (`agteamos-new-task`), que si interroga ACs/ROI/story
+  → Flujo 2 completo (`agteamos-task`), que si interroga ACs/ROI/story
   points. Si hay duda sobre cual de las dos quiere el usuario, preguntar en
   una sola frase: "¿lo anoto en el backlog para despues, o arrancamos ahora
   con el flujo completo?" — y proceder segun la respuesta.
@@ -281,7 +284,7 @@ tracker != null →
     — no hay que elegir tipo de work item aca, el adapter ya lo resuelve
   - Sin pedir Acceptance Criteria, story points/effort ni estimacion —
     esos campos quedan null/vacios en el ticket creado; se completan
-    despues si el item se convierte en tarea real via agteamos-new-task
+    despues si el item se convierte en tarea real via agteamos-task
   - Actualizar la fila del backlog local con el ID/link del ticket creado
     y Estado=en-ticket
 ```
@@ -322,13 +325,21 @@ KAM en el proyecto de notification center en Phoenix Portal de ailab"
 - [ ] Se leyo `platform.yml.tracker` antes de intentar crear un ticket
 - [ ] Si `tracker` es null, se aviso explicitamente sin bloquear ni inventar un tracker
 - [ ] Si se creo un ticket, se uso la operacion abstracta `create-ticket` contra el adapter — nunca un comando `gh`/`az` hardcodeado en esta skill
-- [ ] No se disparo `agteamos-new-task` ni `agteamos-new-task`
+- [ ] No se disparo `agteamos-task` ni `agteamos-task`
 - [ ] Se confirmo en una sola linea y se continuo, sin preguntas de seguimiento
 
 ### ANTI-PATTERNS — Modo proyecto
 
 - Preguntar prioridad, ACs o estimacion en modo captura — rompe la baja friccion que es la razon de ser de esta skill.
 - Confundir esto con el backlog del propio plugin AgTeamOS (Modo plugin arriba / `BACKLOG.md`) — son namespaces distintos, un pedido de producto del usuario nunca va ahi.
-- Disparar `agteamos-new-task` desde este modo — son de `agteamos-new-task`, un flujo mas pesado que el usuario no pidio en modo captura.
+- Disparar `agteamos-task` desde este modo — son de `agteamos-task`, un flujo mas pesado que el usuario no pidio en modo captura.
 - Hardcodear comandos `gh`/`az` en vez de resolver `create-ticket` contra `agteamos/tracker/<tracker>.md` — rompe la abstraccion que ya mantienen las otras skills consumidoras.
-- Crear Epics/Features o hacer `link-parent-child` — este modo solo crea el ticket de nivel backlog; jerarquia completa es trabajo de `agteamos-new-task` sobre el ticket ya creado.
+- Crear Epics/Features o hacer `link-parent-child` — este modo solo crea el ticket de nivel backlog; jerarquia completa es trabajo de `agteamos-task` sobre el ticket ya creado.
+
+---
+
+## Próximo paso sugerido (modo proyecto)
+
+**Próximo paso sugerido**: ninguno — sigue el flujo que estaba en curso.
+Si más adelante se decide tomar el item, usar `agteamos-task` sobre el
+ticket ya creado (ver `agteamos-context` §Próximo paso).

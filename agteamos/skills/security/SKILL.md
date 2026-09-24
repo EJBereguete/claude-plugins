@@ -674,4 +674,12 @@ Minima    | Minimo |  Bajo |  Bajo  | Medio  |
 5. **Asumir que el cifrado en transito es suficiente.** Cifrado en reposo, en uso y en transito son capas independientes.
 6. **Mitigaciones sin evidencia.** Cada mitigacion debe tener un PR o issue que demuestre que esta implementada.
 7. **Omitir actores internos en el modelo.** Insiders maliciosos o comprometidos son una amenaza real — zero trust.
+
+---
+
+## Próximo paso sugerido
+
+**Próximo paso sugerido**: mismo criterio que `agteamos-quality` — si hay
+hallazgos Bloqueantes, volver a `agteamos-implement`/`agteamos-build`; si
+no, `agteamos-implement` (merge) — ver `agteamos-context` §Próximo paso.
 </content>
