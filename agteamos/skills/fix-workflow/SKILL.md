@@ -6,7 +6,7 @@ description: >
 used_by:
   - backend-engineer
   - frontend-engineer
-  - project-manager
+  - product-manager
   - qa-engineer
 ---
 
@@ -15,10 +15,10 @@ used_by:
 ## CONTRACT
 
 - **Input**: descripcion del bug o cambio menor a realizar
-- **Output**: fix implementado + test unitario + PR hacia la rama base correcta + tarea cerrada vía `agteamos-close-task` (merge + cierre de ticket + limpieza de rama)
-- **Who runs this**: @project-manager triages, @backend-engineer or @frontend-engineer implements, @qa-engineer validates
+- **Output**: fix implementado + test unitario + PR hacia la rama base correcta + tarea cerrada vía `agteamos-implement` (merge + cierre de ticket + limpieza de rama)
+- **Who runs this**: @product-manager triages, @backend-engineer or @frontend-engineer implements, @qa-engineer validates
 - **Cierre**: esta skill NUNCA mergea ni cierra el ticket a mano — el Step 7
-  invoca `agteamos-close-task`, que sabe manejar la bifurcación `schema: lite`
+  invoca `agteamos-implement`, que sabe manejar la bifurcación `schema: lite`
   (verify reducido al test de regresión, sin delta ni sync de spec maestra).
   No duplicar lógica de merge acá.
 - **Schema**: `lite` (ver Fase F.1 del plan AgTeamOS, adoptado de OpenSpec). Un
@@ -39,7 +39,7 @@ used_by:
 
 ### Step 1 — Triage: classify the fix
 
-@project-manager analyzes the report and answers three questions:
+@product-manager analyzes the report and answers three questions:
 
 **1. What layer is affected?**
 - Backend only → assign @backend-engineer
@@ -193,9 +193,9 @@ If the fix is P0 and there is no time for a full review — @qa-engineer approve
 
 ---
 
-### Step 7 — Cerrar la tarea vía `agteamos-close-task`
+### Step 7 — Cerrar la tarea vía `agteamos-implement`
 
-No mergear ni cerrar el ticket a mano acá. Invocar `agteamos-close-task` y
+No mergear ni cerrar el ticket a mano acá. Invocar `agteamos-implement` y
 dejar que esa skill haga el merge, el cierre del ticket, la limpieza de rama
 y (si corresponde) el archivado — usando su bifurcación para `schema: lite`
 (ver `agteamos-sdd-protocol`): el paso `verify` se reduce a comprobar que el
@@ -204,21 +204,21 @@ tocar `agteamos/specs/<dominio>.md`, porque un cambio `lite` por definición
 no altera el contrato del dominio.
 
 ```
-Invocar: agteamos-close-task
+Invocar: agteamos-implement
   con: PR aprobado por @qa-engineer (Step 6), schema: lite, test de
        regresión del Step 4 como único criterio de verify
 ```
 
 Esto reemplaza cualquier `gh pr merge` / `gh issue close` manual — mergear o
 cerrar el ticket a mano en esta skill duplica lógica que ya vive en
-`agteamos-close-task` y es exactamente el tipo de divergencia que este fix
+`agteamos-implement` y es exactamente el tipo de divergencia que este fix
 corrige.
 
 ### Step 8 — Cherry-pick para P0 hotfixes (después de confirmar el merge)
 
 Solo si `branch_strategy` tiene una rama de integración separada de la de
 producción (`team`, o `custom` si aplica) y el fix era P0: una vez que
-`agteamos-close-task` confirma que el merge a la rama de producción se
+`agteamos-implement` confirma que el merge a la rama de producción se
 completó, traer el fix a la rama de integración para que no se pierda en el
 próximo release:
 
@@ -247,7 +247,7 @@ Branch: hotfix/91-login-500-error from <rama de produccion, ver platform.yml>
 Fix: Read auth route → found missing null check on user.last_login
 Test: test_login_returns_200_for_user_without_last_login
 PR → rama de produccion
-agteamos-close-task → verify (lite: solo el test de regresion) → merge → ticket #91 cerrado → rama eliminada
+agteamos-implement → verify (lite: solo el test de regresion) → merge → ticket #91 cerrado → rama eliminada
 Cherry-pick → rama de integracion (si branch_strategy: team)
 ```
 
@@ -285,6 +285,6 @@ skill inventa su propio esquema de id temporal.
 - Opening the PR to the production branch for a P2 bug — bypasses the test/staging pipeline
 - Fixing multiple bugs in a single PR — makes bisecting impossible and code review unfocused
 - Merging a P0 hotfix without cherry-picking to the integration branch (`team` strategy) — the fix disappears in the next release
-- Mergear el PR o cerrar el ticket a mano (`gh pr merge`, `gh issue close`) en vez de invocar `agteamos-close-task` — duplica lógica de cierre en 3 skills distintas y las hace divergir con el tiempo
+- Mergear el PR o cerrar el ticket a mano (`gh pr merge`, `gh issue close`) en vez de invocar `agteamos-implement` — duplica lógica de cierre en 3 skills distintas y las hace divergir con el tiempo
 - Crear la rama sin el id de la tarea (`hotfix/<slug>` en vez de `hotfix/<id>-<slug>`) — rompe la trazabilidad con el dashboard y con el resto de las ramas del proyecto
 - Hardcodear `main`/`develop`/`testing` en vez de leer `agteamos/platform.yml → branch_strategy` — la rama fantasma `testing` no existe en ningún `platform.yml` real

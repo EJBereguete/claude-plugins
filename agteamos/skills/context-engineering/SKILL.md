@@ -8,7 +8,7 @@ used_by:
   - architect
   - backend-engineer
   - frontend-engineer
-  - project-manager
+  - product-manager
 ---
 
 # Skill: Context Engineering
@@ -45,6 +45,90 @@ Subir de tier durante la tarea es válido y esperado (ej. empezar en Tier 2 y
 descubrir que hace falta un ADR relacionado → subir a Tier 3 solo para esa
 consulta puntual, sin recargar todo desde el inicio). Bajar de tier no aplica —
 una vez cargado un nivel de contexto, se mantiene para el resto de la tarea.
+
+---
+
+## LAZY ARTIFACTS — protocolo `ensure-artifact`
+
+Los CONTEXT TIERS de arriba resuelven la lectura perezosa (qué contexto cargar
+para una tarea). Esta sección resuelve la **escritura** perezosa: qué
+documentación/estándar generar, y cuándo. Antes de este contrato,
+`agteamos-project-docs` generaba las ~17 carpetas de `agteamos/` y los 11 temas de
+`agteamos-project-docs` el día 1, sin importar si la tarea en curso los tocaba —
+el mismo costo que Tier 3 pagaría si se cargara siempre. `agteamos-capture` ya aplican el contrato correcto para capturas
+puntuales (capturar primero, refinar después); esta sección lleva el mismo
+principio a la generación de contexto de proyecto.
+
+### El manifest — `agteamos/onboarding.yml`
+
+Registro de qué artefacto existe, cuál está pendiente y qué lo dispara. Lo
+crea el onboarding L0 (`agteamos-project-docs`) o la Fase 0 de `agteamos-new-project`,
+y lo actualiza cada skill generadora al escribir su artefacto.
+
+```yaml
+# agteamos/onboarding.yml
+mode: lazy                 # lazy | full — full = comportamiento pre-lazy, todo ya generado
+created_at: 2026-09-23
+custom_standards_asked: false   # ver agteamos-project-docs Step 3 — se pregunta una sola vez por proyecto
+artifacts:
+  project_context:   { path: architecture/PROJECT_CONTEXT.md, status: done,    generated_at: 2026-09-23 }
+  platform:          { path: platform.yml,                    status: partial }
+  standards.api:     { path: standards/api/,                  status: pending, trigger: "build-api | review sobre routers | edit en globs de api" }
+  standards.testing: { path: standards/testing/,              status: pending, trigger: "edit/creacion de archivo de test | qa-engineer" }
+  # ... una entrada por cada uno de los 11 temas de agteamos-project-docs
+  spec.billing:      { path: specs/billing.md,                status: candidate, evidence: "src/billing/ (14 archivos)" }
+  api_map:           { path: api/endpoints.md,                status: pending, trigger: "build-api | tarea que toca routers" }
+  design_system:     { path: design/DESIGN_SYSTEM.md,         status: pending, trigger: "build-ui" }
+  infrastructure:    { path: devops/INFRASTRUCTURE.md,        status: pending, trigger: "deploy | production-readiness | edit de Dockerfile/CI" }
+  product_roadmap:   { path: product/roadmap.md,              status: pending, trigger: "project-backlog | pedido explicito" }
+  tracker_labels:    { status: pending, trigger: "primer create-ticket (se pregunta 1 vez)" }
+```
+
+Estados posibles: `done` | `partial` | `pending` | `candidate` (solo dominios
+de specs, ver `agteamos-project-docs` L1) | `stale` | `n/a`.
+
+### Protocolo `ensure-artifact(<clave>)`
+
+Toda skill consumidora que necesita leer un artefacto de `agteamos/` lo invoca
+antes de leerlo, en vez de asumir que ya existe o de anotar "no existe" y
+seguir sin más:
+
+1. Leer `agteamos/onboarding.yml` → entrada `<clave>`. Si el archivo no
+   existe (proyecto onboardeado antes de este contrato), tratar todo como
+   `mode: full` — ver "Compatibilidad hacia atrás" abajo.
+2. `done` → leer el artefacto y seguir, no hay nada más que hacer.
+3. `pending`, `candidate` o `stale` → anunciar en **una línea**, sin
+   preguntar si el disparador ya es inequívoco, y generar **solo ese
+   artefacto** en modo acotado (scope = archivos de la tarea actual + 5-10
+   representativos, nunca el repo completo). Ejemplo: *"Primera vez que
+   tocamos API en este proyecto: genero `agteamos/standards/api/` leyendo 8
+   archivos de rutas."*
+4. Aplicar siempre las reglas de honestidad ya vigentes en el resto del
+   plugin (`Estado`/`Confidence`/`Fuentes revisadas` — nunca declarar más
+   confianza de la que hay evidencia).
+5. Actualizar `onboarding.yml` → esa entrada pasa a `status: done` +
+   `generated_at: <hoy>`.
+6. **Presupuesto**: máximo 1 generación JIT por Step de la skill
+   consumidora. Si un mismo Step necesitaría generar más de un artefacto,
+   listarlos y preguntar una vez: *"¿Genero también X e Y ahora, o sigo con
+   lo mínimo?"* — nunca encadenar generaciones sin esa pregunta.
+7. `mode: full` → el protocolo es un no-op (todo ya está `done`), no cambia
+   nada del comportamiento actual.
+
+### Regla de carpetas
+
+*La skill que escribe un artefacto es la que crea su carpeta* (`mkdir -p` al
+momento de escribir, no antes). Ninguna skill pre-crea carpetas vacías "por
+las dudas" — eso es lo que hacía pesado el esqueleto completo de
+`agteamos-project-docs` y `agteamos-new-project`.
+
+### Compatibilidad hacia atrás
+
+Un proyecto que ya tiene `agteamos/` pero no `onboarding.yml` (onboardeado
+antes de este contrato) se trata como `mode: full`: todos los artefactos que
+ya existen en disco se consideran `done` sin re-generarlos, y el protocolo
+`ensure-artifact` no dispara nada nuevo salvo que el usuario pida
+explícitamente completar algo que falte.
 
 ---
 
@@ -118,13 +202,13 @@ Cada agente tiene condiciones explicitas de parada:
 | Agente | Para cuando... |
 |--------|----------------|
 | @architect | Entrego design.md + ADRs + instrucciones al equipo |
-| @product-owner | Entrego requirements.md con ACs verificables |
+| @product-manager | Entrego requirements.md con ACs verificables |
 | @backend-engineer | Codigo + tests pasan + PR abierto |
 | @frontend-engineer | Codigo + tests pasan + PR abierto |
 | @qa-engineer | Review completo + screenshots + decision (approve/reject) |
 | @security-engineer | Threat model completo + ASVS check + issues creados |
 | @devops-engineer | Deploy exitoso + smoke tests pasan |
-| @project-manager | Tickets creados + tasks.md escrito + handoff listo |
+| @product-manager | Tickets creados + tasks.md escrito + handoff listo |
 | @ui-ux-designer | Mockup aprobado por usuario + design tokens documentados |
 
 ## ANTI-PATTERNS

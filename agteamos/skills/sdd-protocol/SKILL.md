@@ -10,12 +10,11 @@ description: >
   La capa de specs maestras es agteamos/specs/<dominio>.md — el archivo
   persistente y acumulativo del comportamiento vigente de cada dominio.
   specs/deltas/<dominio>.md es el diff efimero contra esa spec maestra
-  (estilo OpenSpec), que agteamos-close-task aplica en su paso sync al cerrar
+  (estilo OpenSpec), que agteamos-implement aplica en su paso sync al cerrar
   la tarea. Permite un delta por dominio si la tarea toca varios.
 used_by:
   - architect
-  - product-owner
-  - project-manager
+  - product-manager
   - backend-engineer
   - frontend-engineer
 ---
@@ -31,7 +30,7 @@ used_by:
 
 | Capa | Archivo | Vida | Quién la escribe |
 |---|---|---|---|
-| **Spec maestra** (fuente de verdad) | `agteamos/specs/<dominio>.md` | **Persistente y acumulativa** — vive mientras exista el dominio | Nadie a mano durante la tarea: la actualiza `agteamos-close-task` en su paso `sync`, o la siembra `agteamos-onboard` |
+| **Spec maestra** (fuente de verdad) | `agteamos/specs/<dominio>.md` | **Persistente y acumulativa** — vive mientras exista el dominio | Nadie a mano durante la tarea: la actualiza `agteamos-implement` en su paso `sync`, o la siembra `agteamos-project-docs` |
 | **Delta** (diff propuesto) | `agteamos/changes/<id>-<slug>/specs/deltas/<dominio>.md` | **Efímero** — nace y muere con la tarea, queda en el archive como historia | `@architect`, junto con `design.md` |
 
 El delta **no** es la capa de specs maestras: es el diff contra ella. Las dos
@@ -42,7 +41,7 @@ del paso `sync` sea determinista y no interpretativo.
 
 Estructura parseable de 3 niveles. No es decorativa: los nombres de los
 `### Requirement:` son las **anclas de merge** del delta, y los modales
-RFC 2119 son la **fuente de datos** del gate `verify` de `agteamos-close-task`.
+RFC 2119 son la **fuente de datos** del gate `verify` de `agteamos-implement`.
 
 | Elemento | Regla |
 |---|---|
@@ -70,7 +69,7 @@ posteriores a un registro exitoso.
 
 ### Modales RFC 2119 — dentro del texto, no como metadato
 
-| Modal | Significado | Efecto en el gate `verify` de `agteamos-close-task` |
+| Modal | Significado | Efecto en el gate `verify` de `agteamos-implement` |
 |---|---|---|
 | `MUST` / `SHALL` | Requisito duro, no negociable | Incumplido → **FAIL** (bloquea el cierre) |
 | `SHOULD` | Recomendación fuerte, admite excepción justificada | Incumplido → **WARNING** (se documenta, no bloquea) |
@@ -120,8 +119,8 @@ Un archivo por dominio, con el nombre del dominio declarado en `domains:` de
 `task.yml` (`notifications.md`, `billing.md`, `auth.md`). Describe el
 comportamiento **vigente completo** del dominio, no el cambio de una tarea.
 
-Solo la modifican `agteamos-close-task` (paso `sync`, aplicando deltas) y
-`agteamos-onboard` (siembra inicial por ingeniería inversa del código). Durante
+Solo la modifican `agteamos-implement` (paso `sync`, aplicando deltas) y
+`agteamos-project-docs` (siembra inicial por ingeniería inversa del código). Durante
 la implementación se **lee**, no se edita a mano.
 
 ### Plantilla
@@ -167,7 +166,7 @@ El sistema SHOULD <comportamiento observable>.
 ### El header `## Coverage` es obligatorio
 
 En proyectos existentes las specs maestras se **siembran parcialmente**:
-`agteamos-onboard` documenta lo que puede inferir del código y el resto se
+`agteamos-project-docs` documenta lo que puede inferir del código y el resto se
 completa tarea a tarea. Sin este header nadie puede distinguir "este
 comportamiento no existe" de "este comportamiento nunca se documentó".
 
@@ -280,7 +279,7 @@ explícitamente specs "lite" (bug fixes, cambio de 1 archivo) de "full"
 `schema: lite` **no** se escribe `specs/deltas/<dominio>.md` y **no** se
 modifica `agteamos/specs/<dominio>.md`. Por definición un cambio `lite` no
 altera el contrato de comportamiento del dominio, así que no hay nada que
-mergear en la spec maestra. El paso `sync` de `agteamos-close-task` no aplica.
+mergear en la spec maestra. El paso `sync` de `agteamos-implement` no aplica.
 Si al implementar aparece que sí cambia comportamiento observable, la tarea
 está mal clasificada: **promoverla a `full`** y escribir el delta, no
 "documentarlo después".
@@ -301,7 +300,7 @@ crea la carpeta, con `schema: lite` solo lleva `task.yml` y `progress.md`
 
 ## LOS 4 ARTEFACTOS (schema `full`)
 
-### 1. requirements.md — QUE (produce @product-owner)
+### 1. requirements.md — QUE (produce @product-manager)
 
 ```markdown
 # Feature: [Nombre descriptivo]
@@ -356,7 +355,7 @@ Si no existe ese archivo, omitir la sección por completo — no inventar
 `RF-XXX` que no vienen de ningún catálogo real.
 
 **Reglas de `## Requirements (RFC 2119)`** — esta sección es la **fuente de
-datos del gate `verify`** de `agteamos-close-task`; sin ella el gate no tiene
+datos del gate `verify`** de `agteamos-implement`; sin ella el gate no tiene
 nada que clasificar y las severidades se inventan:
 
 - Cada requirement lleva un **id** (`R1`, `R2`, …) y **un solo** modal
@@ -382,7 +381,7 @@ recalcula lo mismo que el código de producción, así que pasa "por
 construcción" incluso si la lógica real está mal). El resultado esperado en
 un AC verificable debe ser un **valor concreto conocido de antemano**
 (`Then el total es $45.50`), no una fórmula que se repite. Ver también
-`agteamos-review` Dimensión 5 (Tests).
+`agteamos-quality` Dimensión 5 (Tests).
 
 ### 2. design.md — COMO (produce @architect)
 
@@ -465,7 +464,7 @@ si necesita seam o no:
 Cada sección (`## ADDED Requirements`, `## MODIFIED Requirements`,
 `## REMOVED Requirements`) contiene bloques `### Requirement:` completos con
 sus `#### Scenario:`, escritos en el formato canónico de arriba. Eso es lo que
-hace que el merge sea determinista: `agteamos-close-task` (paso `sync`)
+hace que el merge sea determinista: `agteamos-implement` (paso `sync`)
 mergea por **nombre de requirement**, sin interpretar prosa.
 
 El delta es el diff propuesto contra `agteamos/specs/<dominio>.md`, y se
@@ -533,7 +532,7 @@ un fix interno sin impacto de contrato — declarar esto explicitamente en vez
 de dejar el archivo vacio, y omitir las tres secciones de arriba]
 ```
 
-### Semántica de merge (la ejecuta `agteamos-close-task`, paso `sync`)
+### Semántica de merge (la ejecuta `agteamos-implement`, paso `sync`)
 
 | Sección del delta | Ancla | Efecto sobre `agteamos/specs/<dominio>.md` |
 |---|---|---|
@@ -564,7 +563,7 @@ marcado como `MODIFIED` no reemplaza nada.
 maestra" — un archivo vacío o ausente no es una señal válida de "no hay
 cambios", es una tarea incompleta.
 
-**Regla de gate (usada por `agteamos-close-task`, paso `verify`)**: todo
+**Regla de gate (usada por `agteamos-implement`, paso `verify`)**: todo
 `### Requirement:` declarado en `ADDED`/`MODIFIED` debe tener al menos una
 tarea asociada marcada como completada en `tasks.md`, y su modal RFC 2119 es
 el que determina la severidad del gate (`MUST`/`SHALL` → FAIL, `SHOULD` →
@@ -627,7 +626,7 @@ Razon: reemplazado por "Per-User Send Rate Limit" — el envio masivo sin limite
 permitia agotar la cuota del proveedor desde una sola cuenta.
 ```
 
-### 4. tasks.md — CUANDO (produce @project-manager)
+### 4. tasks.md — CUANDO (produce @product-manager)
 
 ```markdown
 # Tasks: [Nombre]
@@ -657,10 +656,10 @@ permitia agotar la cuota del proveedor desde una sola cuenta.
 12. [ ] Ejecutar audit de accesibilidad con axe-core
 13. [ ] Aprobar o rechazar PR con evidencia
 
-### Closure (@project-manager)
+### Closure (@product-manager)
 14. [ ] Verificar que todos los ACs de requirements.md estan cubiertos
 15. [ ] Merge PR con "Closes #<id>"
-16. [ ] Ejecutar agteamos-close-task (verify → merge → sync → archive)
+16. [ ] Ejecutar agteamos-implement (verify → merge → sync → archive)
 ```
 
 ## ESQUEMA `lite` — resumen mínimo (para `agteamos-fix` / `agteamos-debug`)
@@ -678,7 +677,7 @@ sin ACs formales, sin design.md, sin `specs/deltas/<dominio>.md` y sin tocar
 ## FLUJO SDD COMPLETO (schema `full`)
 
 ```
-requirements.md              ←  @product-owner (Requirements RFC 2119 + ACs que los citan)
+requirements.md              ←  @product-manager (Requirements RFC 2119 + ACs que los citan)
        ↓
     [Usuario aprueba requirements y ACs]
        ↓
@@ -692,13 +691,13 @@ design.md                    ←  @architect
 specs/deltas/<dominio>.md    ←  @architect (junto con design.md, uno por dominio,
                                  bloques ### Requirement: completos)
        ↓
-tasks.md                     ←  @project-manager
+tasks.md                     ←  @product-manager
        ↓
     [Implementacion por engineers]
        ↓
     [QA valida contra ACs de requirements.md]
        ↓
-    [agteamos-close-task: verify (RFC 2119) → merge → sync aplica deltas sobre agteamos/specs/<dominio>.md]
+    [agteamos-implement: verify (RFC 2119) → merge → sync aplica deltas sobre agteamos/specs/<dominio>.md]
        ↓
     [Task closure / archivado en agteamos/changes/archive/]
 ```
@@ -710,7 +709,7 @@ Resumen de 1 párrafo + test de regresión   ←  el engineer que hace el fix
        ↓
     [Fix implementado, test pasa]
        ↓
-    [agteamos-close-task: verify (solo chequea el test de regresión) → merge → archive]
+    [agteamos-implement: verify (solo chequea el test de regresión) → merge → archive]
 ```
 
 ## REGLA CRITICA
@@ -735,7 +734,7 @@ siendo obligatorio antes de cerrar.
   `MODIFIED`/`REMOVED` — el nombre es la ancla de merge; si no coincide
   carácter por carácter no hay nada que reemplazar ni borrar.
 - **Requirement sin modal RFC 2119** — sin `MUST`/`SHALL`/`SHOULD`/`MAY` en la
-  frase, el gate `verify` de `agteamos-close-task` no puede clasificar la
+  frase, el gate `verify` de `agteamos-implement` no puede clasificar la
   severidad y la termina inventando. Un modal por requirement, dentro del texto.
 - **Dos `MUST` en un mismo requirement** — o un "y además": son dos
   requirements con dos anclas distintas. Separarlos.
@@ -760,8 +759,8 @@ siendo obligatorio antes de cerrar.
   comportamiento no existe" de "nunca se documentó", y en proyectos existentes
   las specs se siembran parcialmente por diseño.
 - **Editar `agteamos/specs/<dominio>.md` a mano durante la implementación** —
-  se actualiza solo vía el paso `sync` de `agteamos-close-task` (o la siembra
-  de `agteamos-onboard`). Editarla directo saltea el gate de `verify` y deja el
+  se actualiza solo vía el paso `sync` de `agteamos-implement` (o la siembra
+  de `agteamos-project-docs`). Editarla directo saltea el gate de `verify` y deja el
   delta y la spec maestra contando historias distintas.
 - **Asumir que lo ausente de una spec `seeded`/`partial` no existe** — hay que
   verificar contra el código antes de escribir el delta.

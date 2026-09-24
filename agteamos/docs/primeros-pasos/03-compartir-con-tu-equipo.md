@@ -61,4 +61,4 @@ agteamos/dashboard.html
 agteamos/changes/**/report.html
 ```
 
-Agregá esas dos líneas a tu `.gitignore`. Ambos se regeneran on-demand con `/agteamos-dashboard` (o automáticamente al cerrar una tarea con `/agteamos-close-task`) — no hace falta que existan en el repo para que el sistema funcione, cada persona los abre localmente con `file://`. Ver el árbol completo, con estos dos archivos marcados, en [Estructura de carpetas](../referencia/estructura-de-carpetas.md).
+Agregá esas dos líneas a tu `.gitignore`. Ambos se regeneran on-demand con `/agteamos-dashboard` (o automáticamente al cerrar una tarea con `/agteamos-implement`) — no hace falta que existan en el repo para que el sistema funcione, cada persona los abre localmente con `file://`. Ver el árbol completo, con estos dos archivos marcados, en [Estructura de carpetas](../referencia/estructura-de-carpetas.md).

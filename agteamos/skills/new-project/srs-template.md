@@ -198,13 +198,13 @@ Formato base (siempre presente):
 **Columna 5 — solo si `agteamos/platform.yml` tiene `tracker: planner`**:
 agregar `| Planner Task ID |` al final de cada fila. La llena
 `agteamos-new-project` (Step 3.5) al crear una tarea de Planner por cada
-`RF-XXX`, y la usa `agteamos-task-closure` (Step 5) para saber qué tarea de
+`RF-XXX`, y la usa `agteamos-implement` (Step 5) para saber qué tarea de
 Planner actualizar cuando el requisito se verifica:
 | Requisito | Caso de uso | Método de verificación | Estado | Planner Task ID |
 |---|---|---|---|---|
 | RF-001 | CU-001 | | Pendiente/En progreso/Verificado | `<id>` |
 
-> Esta tabla se actualiza en `agteamos-task-closure` (Step 5 — Verify), no a
+> Esta tabla se actualiza en `agteamos-implement` (Step 5 — Verify), no a
 > mano: cuando una tarea que cita `RF-XXX` en su `requirements.md` cierra con
 > `verify-report.md` en `PASS`, la fila correspondiente pasa a `Verificado`
 > (y, si hay `tracker: planner`, la tarea de Planner citada en la columna 5

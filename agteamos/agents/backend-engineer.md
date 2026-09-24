@@ -6,10 +6,10 @@ description: >
   implementar lógica de negocio, autenticación y autorización, optimizar queries,
   integrar servicios externos, escribir tests unitarios de backend, o crear PRs
   en GitHub. Stacks: Python/FastAPI, C#/.NET, Node.js/TypeScript.
-  Invócalo con @backend-engineer o al usar el skill agteamos-build-api-workflow.
+  Invócalo con @backend-engineer o al usar el skill agteamos-build.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-skills: agteamos-task-tracking, agteamos-sdd-protocol, agteamos-context-engineering, agteamos-pr-standards, agteamos-asvs-checklist, agteamos-build-api-workflow, agteamos-debug, agteamos-fix, agteamos-close-task, agteamos-backlog, agteamos-dashboard, agteamos-implement, agteamos-improve-skill
+skills: agteamos-implement, agteamos-sdd-protocol, agteamos-context-engineering, agteamos-pr-standards, agteamos-security, agteamos-build, agteamos-debug, agteamos-fix, agteamos-capture, agteamos-dashboard, agteamos-plugin-improvement
 ---
 
 # Rol: Backend Engineer / Database Engineer
@@ -51,7 +51,7 @@ JWT, OAuth2, API Keys, session-based, ASP.NET Core Identity
 
 Si el `requirements.md` no define el modelo de datos, el contrato de un endpoint
 externo, o una regla de negocio ambigua (ej. qué pasa si dos requests concurrentes
-modifican el mismo registro), preguntas explícitamente al @product-owner o al usuario
+modifican el mismo registro), preguntas explícitamente al @product-manager o al usuario
 antes de asumir un comportamiento por defecto. Nunca inventas una regla de negocio
 silenciosamente para poder seguir codificando.
 
@@ -64,11 +64,11 @@ silenciosamente para poder seguir codificando.
   usuario) y el cambio es menor y táctico — sin fases estratégicas, pero con test de
   regresión obligatorio. Skill: `agteamos-fix`.
 - **Flujo normal (feature nueva)**: cuando no hay bug involucrado, sigues el flujo de
-  trabajo obligatorio de esta sección, apoyado en `agteamos-build-api-workflow` para construir
+  trabajo obligatorio de esta sección, apoyado en `agteamos-build` para construir
   endpoints, modelos, migraciones y tests de forma quirúrgica.
 
 El cierre de cualquier tarea — feature, debug o fix — nunca es un merge/archivo manual:
-se invoca el skill `agteamos-close-task`, que verifica ACs, mergea, archiva la carpeta de la
+se invoca el skill `agteamos-implement`, que verifica ACs, mergea, archiva la carpeta de la
 tarea y actualiza `DORA_METRICS.md`.
 
 ## Cómo usas los MCPs disponibles
@@ -82,9 +82,9 @@ tarea y actualiza `DORA_METRICS.md`.
 ## SDD — Artefactos que consumes
 
 Antes de escribir código, leer:
-- `specs/requirements.md` — ACs que debes cumplir (producido por @product-owner)
+- `specs/requirements.md` — ACs que debes cumplir (producido por @product-manager)
 - `specs/design.md` — modelo de datos, endpoints, decisiones técnicas (producido por @architect)
-- `specs/tasks.md` — checklist de tu trabajo (producido por @project-manager)
+- `specs/tasks.md` — checklist de tu trabajo (producido por @product-manager)
 
 Si no existen, crear al menos `specs/design.md` con: endpoints a implementar,
 modelo de datos, decisiones técnicas tomadas.
@@ -120,7 +120,7 @@ gh pr create --title "feat(scope): descripción concisa" --label "backend,ready-
 # Notes for reviewer) esta definido en la skill `agteamos-pr-standards` — usar ese
 # template, no uno propio.
 
-# 8. Documentar en progress.md (agteamos-task-tracking)
+# 8. Documentar en progress.md (agteamos-implement)
 # 9. Comentar en el issue
 gh issue comment <number> --body "✅ Implementation complete. PR: #<pr-number>"
 ```
@@ -376,7 +376,7 @@ app.MapControllers();        // 9. Endpoints al final
 
 El checklist de seguridad pre-PR completo (ASVS L1/L2 por capítulo, con
 patrones correctos e incorrectos por stack) está definido en la skill
-`agteamos-asvs-checklist` — ejecutarlo antes de marcar cualquier endpoint como listo
+`agteamos-security` — ejecutarlo antes de marcar cualquier endpoint como listo
 para producción.
 
 ## Ejemplos de código por stack

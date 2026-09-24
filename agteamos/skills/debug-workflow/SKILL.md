@@ -15,7 +15,7 @@ used_by:
 ## CONTRACT
 
 - **Input**: descripcion del error, stack trace, o comportamiento inesperado
-- **Output**: bug fixed + test de regresion escrito + causa raiz documentada + categoria del bug registrada + tarea cerrada vía `agteamos-close-task`
+- **Output**: bug fixed + test de regresion escrito + causa raiz documentada + categoria del bug registrada + tarea cerrada vía `agteamos-implement`
 - **Who runs this**: @backend-engineer or @frontend-engineer for implementation, @qa-engineer validates the regression test
 - **Schema**: `lite` (ver Fase F.1 del plan AgTeamOS, adoptado de OpenSpec). Un
   bug puntual de 1 archivo NO crea los 4 artefactos completos de
@@ -26,7 +26,7 @@ used_by:
   dominios, escalar a schema `full` (`agteamos-new-task` /
   `agteamos-sdd-protocol`) en vez de seguir en `debug`.
 - **Cierre**: esta skill NUNCA mergea ni cierra el ticket a mano — el Step 8
-  invoca `agteamos-close-task`, que maneja la bifurcación `schema: lite`
+  invoca `agteamos-implement`, que maneja la bifurcación `schema: lite`
   (verify reducido al test de regresión, sin delta ni sync de spec maestra).
   No duplicar lógica de merge acá (misma regla que `agteamos-fix`).
 
@@ -183,6 +183,28 @@ async def create_invoice(self, payload: InvoiceCreate, owner_id: uuid.UUID) -> I
 
 ---
 
+### Step 5.5 — Verificar la causa confirmada (gate, patrón `obra/superpowers`)
+
+**No pasar al Step 6 sin correr de nuevo el mismo loop del Step 1** (el
+mismo test/script/comando, no uno nuevo) y confirmar que pasó de rojo a
+verde. Esto es lo que distingue "arreglé el síntoma que yo creo que era el
+bug" de "confirmé que era el bug real":
+
+1. Correr el loop reproducible del Step 1 con el fix ya aplicado. Debe
+   estar en verde ahora.
+2. Si sigue en rojo (o falla distinto), el fix no ataca la causa
+   identificada en el Step 3 — volver al Step 3 con esa evidencia, no
+   ajustar el fix a ciegas hasta que "parezca" andar.
+3. Si el fix es chico y el costo es bajo, revertirlo momentáneamente y
+   confirmar que el loop vuelve a rojo (descarta que el loop estuviera mal
+   armado y siempre diera verde) — opcional pero recomendado cuando la
+   causa raíz no es obvia a simple vista.
+
+Sin este gate, el Step 6 (test de regresión) podría estar documentando un
+fix que en realidad no resuelve nada.
+
+---
+
 ### Step 6 — Write the regression test
 
 The regression test is the test that would have caught this bug BEFORE it reached production.
@@ -238,12 +260,12 @@ git bisect start HEAD <last-known-good-commit>
 
 ---
 
-### Step 8 — Cerrar la tarea vía `agteamos-close-task`
+### Step 8 — Cerrar la tarea vía `agteamos-implement`
 
 No mergear ni cerrar el ticket a mano. Con el fix implementado (Step 5), el
 test de regresión pasando (Step 6) y el bug categorizado (Step 7), abrir el
 PR hacia la rama base identificada en el Step 2 y luego invocar
-`agteamos-close-task` para que haga el merge, el cierre del ticket, la
+`agteamos-implement` para que haga el merge, el cierre del ticket, la
 limpieza de la rama y el archivado — usando su bifurcación para
 `schema: lite` (ver `agteamos-sdd-protocol`): `verify` se reduce a comprobar
 que el test de regresión del Step 6 pasa, sin `specs/deltas/<dominio>.md` ni
@@ -254,16 +276,16 @@ sync contra `agteamos/specs/<dominio>.md`.
   `Closes #<ticket>` en el body para link-pr-to-ticket; se resuelve contra
   agteamos/tracker/<tracker de platform.yml>.md)
 # QA valida (test de regresion + causa raiz documentada)
-Invocar: agteamos-close-task
+Invocar: agteamos-implement
   con: schema: lite, test de regresión del Step 6 como único criterio de verify
 ```
 
 Si el Step 9 (ADR) aplica, ese ADR se commitea en el mismo PR antes de
-invocar `agteamos-close-task` — no en un PR separado.
+invocar `agteamos-implement` — no en un PR separado.
 
 ### Step 9 — Create ADR if the bug reveals an architectural gap
 
-If the 5 Whys analysis reveals that the bug is a symptom of a systemic architectural problem (wrong layering, missing abstraction, unclear ownership), execute the `agteamos-adr` skill to document the architectural decision that prevents this class of bugs.
+If the 5 Whys analysis reveals that the bug is a symptom of a systemic architectural problem (wrong layering, missing abstraction, unclear ownership), execute the `agteamos-decisions` skill to document the architectural decision that prevents this class of bugs.
 
 **Example trigger**: "We have three different places where invoice validation is happening — we need a single source of truth for business rules."
 
@@ -293,9 +315,10 @@ Fix: Replace two-query pattern with `SELECT ... FOR UPDATE` + single transaction
 - Anclarse en la primera hipótesis plausible sin listar 3-5 candidatas falsables antes de probar — la primera idea rara vez es la correcta
 - Implementing the tactical patch and forgetting the structural fix — patches accumulate into unmaintainable code
 - Writing the regression test after the fix passes — write it first, verify it fails, then verify it passes
+- Saltar el Step 5.5 y asumir que el fix funciona porque "tiene sentido" — sin re-correr el loop del Step 1 no hay confirmación real de que la causa era la correcta
 - Not categorizing the bug — without categorization, the team cannot identify systemic patterns (e.g., "70% of our bugs are Type Errors — we need stricter schema validation")
 - Fixing without reading the original code — assumptions about what the code does are almost always wrong
 - Skipping the ADR when the root cause is architectural — the same class of bug will appear in a different module next sprint
-- Mergear el PR o cerrar el ticket a mano en vez de invocar `agteamos-close-task` — duplica lógica de cierre que ya vive en esa skill (misma regla que `agteamos-fix`)
+- Mergear el PR o cerrar el ticket a mano en vez de invocar `agteamos-implement` — duplica lógica de cierre que ya vive en esa skill (misma regla que `agteamos-fix`)
 - Crear la rama sin el id de la tarea (`bugfix/<slug>` en vez de `bugfix/<id>-<slug>`) — rompe la trazabilidad con el dashboard
 - Hardcodear `main`/`develop`/`testing` en vez de leer `agteamos/platform.yml → branch_strategy`

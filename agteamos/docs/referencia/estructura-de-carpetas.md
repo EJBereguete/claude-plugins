@@ -2,9 +2,19 @@
 
 AgTeamOS gestiona **una sola carpeta visible `agteamos/`** en la raíz de tu proyecto. Reemplaza por completo cualquier esquema anterior basado en `docs/00-08` + `docs/specs` + `docs/tasks` — todo lo que el sistema toca vive en su propia carpeta con nombre de marca, sin mezclarse con documentación humana genérica. No hay prefijos numéricos: insertar una categoría nueva en el medio no requiere renumerar nada.
 
-> **Esta página es el árbol canónico único.** `README.md` no mantiene su propia copia — cita o replica este árbol tal cual. Si alguna skill (`agteamos-new-project`, `agteamos-onboard`, `agteamos-docs`, `agteamos-repo-context-check`, `agteamos-task-tracking`) muestra un árbol distinto de este, es una divergencia a corregir ahí, no una variante válida.
+> **Esta página es el árbol canónico único.** `README.md` no mantiene su propia copia — cita o replica este árbol tal cual. Si alguna skill (`agteamos-new-project`, `agteamos-project-docs`, `agteamos-router`, `agteamos-implement`) muestra un árbol distinto de este, es una divergencia a corregir ahí, no una variante válida.
 
 > **Qué se commitea**: ver [Control de versiones](#control-de-versiones-qué-se-commitea-y-qué-no) más abajo — casi todo `agteamos/` se commitea como código fuente, con dos excepciones marcadas explícitamente en el árbol.
+
+> **Este árbol no se genera todo de una vez.** Por default (`agteamos-project-docs`
+> sin `--full`, y la Fase 0 de `agteamos-new-project`), solo se genera lo
+> mínimo (`platform.yml`, `PROJECT_CONTEXT.md` lean, `onboarding.yml`) y el
+> resto queda declarado `pending`/`candidate` en `onboarding.yml`, generándose
+> recién cuando una tarea real lo necesita (protocolo `ensure-artifact`, ver
+> `agteamos-context-engineering` §Lazy Artifacts). El árbol de abajo muestra
+> el estado **final** una vez que todo se generó — no el día 1. Detalle
+> completo del porqué y el diseño en
+> `DECISIONS.md`.
 
 ## Árbol completo
 
@@ -12,6 +22,7 @@ AgTeamOS gestiona **una sola carpeta visible `agteamos/`** en la raíz de tu pro
 tu-proyecto/
 ├── agteamos/
 │   ├── platform.yml                     ← agteamos-setup
+│   ├── onboarding.yml                    ← manifest lazy: que existe, que esta pending/candidate y que lo dispara (ver agteamos-context-engineering §Lazy Artifacts)
 │   ├── dashboard.html                    ← agteamos-dashboard (generado, NO se commitea)
 │   │
 │   ├── product/
@@ -56,7 +67,7 @@ tu-proyecto/
 │   │   └── rfcs/
 │   │       └── RFC-001-unified-auth-service.md
 │   │
-│   ├── standards/                       ← agteamos-standards
+│   ├── standards/                       ← agteamos-project-docs
 │   │   ├── standards.yml                 ← manifest: qué aplica, qué se adapta, qué se desvía
 │   │   ├── index.yml                     ← keyword → carpeta, para no escanear las ~11 carpetas
 │   │   ├── api/
@@ -78,6 +89,9 @@ tu-proyecto/
 │   │   ├── index.yml                     ← keyword → dominio.md (mismo criterio que standards/index.yml)
 │   │   ├── notifications.md              ← Coverage: seeded | partial | complete
 │   │   └── invoicing.md
+│   │
+│   ├── quality/
+│   │   └── debt-trend.yml                ← hotspots (churn x tamaño) por corrida — SE commitea, es un resumen versionado (hooks/scripts/inject-debt-signal.js)
 │   │
 │   └── changes/                          ← reemplaza tasks/active + tasks/completed
 │       ├── 42-email-notifications/       ← activa
@@ -144,7 +158,7 @@ Si venías de un proyecto documentado con el esquema anterior (`docs/00-08`), es
 
 ## Qué genera cada skill/agente
 
-### `agteamos-repo-context-check` / `agteamos-onboard` generan (proyecto sin `agteamos/` todavía):
+### `agteamos-router` / `agteamos-project-docs` generan (proyecto sin `agteamos/` todavía):
 
 - `agteamos/architecture/PROJECT_CONTEXT.md` — stack detectado desde `package.json`, `pyproject.toml`, `*.csproj`
 - `agteamos/api/openapi.yml` — escaneando routers/controllers
@@ -165,19 +179,19 @@ Si venías de un proyecto documentado con el esquema anterior (`docs/00-08`), es
 - `specs/deltas/<dominio>.md` — Architect
 - `specs/tasks.md` — Project Manager
 
-### `agteamos-task-tracking` genera, en `agteamos/changes/<id>-<slug>/`:
+### `agteamos-implement` genera, en `agteamos/changes/<id>-<slug>/`:
 
 - `progress.md` — tracking file con progress log, unit tests, evidencia y Next Action
 - `task.yml` — metadata estructurada, incluyendo `owner` capturado vía `git config`
 
-### `agteamos-close-task` genera al cerrar:
+### `agteamos-implement` genera al cerrar:
 
 - `verify-report.md` — gate RFC 2119 antes del merge
-- `knowledge-base.md` — aprendizajes y decisiones reutilizables de la tarea, para que el próximo agente (o `agteamos-onboard`/`agteamos-docs`) no repita la misma investigación
+- `knowledge-base.md` — aprendizajes y decisiones reutilizables de la tarea, para que el próximo agente (o `agteamos-project-docs`) no repita la misma investigación
 
 ### `agteamos-dashboard` genera:
 
-- `report.html` por tarea (se regenera cada vez que `agteamos-task-tracking` actualiza `progress.md`/`task.yml`) — **no se commitea**
+- `report.html` por tarea (se regenera cada vez que `agteamos-implement` actualiza `progress.md`/`task.yml`) — **no se commitea**
 - `agteamos/dashboard.html` — agrega el estado de todas las tareas activas y archivadas — **no se commitea**
 
 ### QA Engineer genera:
@@ -190,17 +204,17 @@ await page.screenshot({
 });
 ```
 
-### `agteamos-adr` genera:
+### `agteamos-decisions` genera:
 
 En `agteamos/architecture/adr/`: `ADR-{NNN}-{slug}.md` por cada decisión arquitectónica importante.
 
-### `agteamos-close-task` archiva:
+### `agteamos-implement` archiva:
 
 Mueve `agteamos/changes/{id}-{slug}/` → `agteamos/changes/archive/{fecha}-{id}-{slug}/` — solo después de generar `verify-report.md`, confirmar el merge y aplicar el paso `sync` sobre `agteamos/specs/<dominio>.md`. Limpia la branch y cierra el ticket en GitHub/Azure DevOps.
 
 ## Reglas de la carpeta `agteamos/`
 
-1. **Siempre existe** — si no existe, `agteamos-repo-context-check` dispara `agteamos-onboard` para crearla por ingeniería inversa antes de cualquier tarea.
+1. **Siempre existe** — si no existe, `agteamos-router` dispara `agteamos-project-docs` para crearla por ingeniería inversa antes de cualquier tarea.
 2. **Es la fuente de verdad** — los agentes la leen antes de cualquier acción; nunca asumen el estado del proyecto.
 3. **Se actualiza con cada tarea** — salvo que `task.yml` declare `doc_impact: false`.
 4. **Se commitea como código fuente** — con las 2 excepciones generadas (`dashboard.html`, `changes/**/report.html`) listadas arriba en `.gitignore`.

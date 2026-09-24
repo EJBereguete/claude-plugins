@@ -8,7 +8,7 @@ Hay dos capas de spec, con vidas distintas, y es la distinción más importante 
 
 | Capa | Archivo | Vida | Quién la escribe |
 |---|---|---|---|
-| **Spec maestra** (fuente de verdad) | `agteamos/specs/<dominio>.md` | **Persistente y acumulativa** — vive mientras exista el dominio | Nadie a mano durante la tarea: la actualiza `agteamos-close-task` en su paso `sync`, o la siembra `agteamos-onboard` |
+| **Spec maestra** (fuente de verdad) | `agteamos/specs/<dominio>.md` | **Persistente y acumulativa** — vive mientras exista el dominio | Nadie a mano durante la tarea: la actualiza `agteamos-implement` en su paso `sync`, o la siembra `agteamos-project-docs` |
 | **Delta** (diff propuesto) | `agteamos/changes/<id>-<slug>/specs/deltas/<dominio>.md` | **Efímero** — nace y muere con la tarea, queda en el archive como historia | `@architect`, junto con `design.md` |
 
 El delta no es "la capa de specs" — es el diff contra ella. Las dos usan el **mismo formato canónico**, y eso es justamente lo que hace posible que el merge del paso `sync` sea determinista en vez de interpretativo.
@@ -55,7 +55,7 @@ posteriores a un registro exitoso.
 
 ## La spec maestra y su header `## Coverage`
 
-`agteamos/specs/<dominio>.md` no nace completa — en un proyecto existente se **siembra parcialmente** (`agteamos-onboard` documenta lo que puede inferir del código real) y crece tarea a tarea. El header `## Coverage` es lo que hace esa parcialidad honesta en vez de silenciosa:
+`agteamos/specs/<dominio>.md` no nace completa — en un proyecto existente se **siembra parcialmente** (`agteamos-project-docs` documenta lo que puede inferir del código real) y crece tarea a tarea. El header `## Coverage` es lo que hace esa parcialidad honesta en vez de silenciosa:
 
 ```markdown
 # Spec: notifications
@@ -98,7 +98,7 @@ para un mismo usuario.
 | `partial` | Varios requirements documentados, pero `No cubre (todavia)` no está vacío. |
 | `complete` | Todo el comportamiento observable del dominio está especificado. |
 
-**Por qué existe esto**: en un proyecto brownfield real, pretender que la spec maestra está "completa" desde el día uno sería mentir — el código lleva años acumulando comportamiento que nadie escribió como spec. `agteamos-onboard` (ver [Adoptar un proyecto existente](../primeros-pasos/04-adoptar-proyecto-existente.md)) documenta lo que puede confirmar contra el código real, deja explícito qué queda afuera todavía, y el resto se llena tarea a tarea a medida que `agteamos-close-task` aplica deltas. Quien lee una spec `seeded` o `partial` **no asume que lo ausente no existe** — lo verifica contra el código antes de escribir un delta nuevo.
+**Por qué existe esto**: en un proyecto brownfield real, pretender que la spec maestra está "completa" desde el día uno sería mentir — el código lleva años acumulando comportamiento que nadie escribió como spec. `agteamos-project-docs` (ver [Adoptar un proyecto existente](../primeros-pasos/04-adoptar-proyecto-existente.md)) documenta lo que puede confirmar contra el código real, deja explícito qué queda afuera todavía, y el resto se llena tarea a tarea a medida que `agteamos-implement` aplica deltas. Quien lee una spec `seeded` o `partial` **no asume que lo ausente no existe** — lo verifica contra el código antes de escribir un delta nuevo.
 
 ## El delta: `specs/deltas/<dominio>.md`
 
@@ -152,7 +152,7 @@ Razon: reemplazado por "Per-User Send Rate Limit" — el envio masivo sin limite
 permitia agotar la cuota del proveedor desde una sola cuenta.
 ```
 
-### Semántica de merge (la ejecuta `agteamos-close-task`, paso `sync`)
+### Semántica de merge (la ejecuta `agteamos-implement`, paso `sync`)
 
 | Sección | Ancla | Efecto sobre la spec maestra |
 |---|---|---|
@@ -189,12 +189,12 @@ flowchart LR
     DES -->|"Usuario aprueba"| DELTA
     DELTA --> TSK
     TSK --> CODE[Implementación]
-    CODE -->|"agteamos-close-task:\nverify (RFC 2119) → sync"| SPEC[("agteamos/specs/&lt;dominio&gt;.md\nCoverage: seeded\|partial\|complete")]
+    CODE -->|"agteamos-implement:\nverify (RFC 2119) → sync"| SPEC[("agteamos/specs/&lt;dominio&gt;.md\nCoverage: seeded\|partial\|complete")]
 ```
 
 ## Los 4 artefactos (schema `full`)
 
-### 1. `requirements.md` — QUÉ (`@product-owner`)
+### 1. `requirements.md` — QUÉ (`@product-manager`)
 
 La sección clave es `## Requirements (RFC 2119)`: es la **fuente de datos** del gate `verify` — sin ella el gate no tiene nada que clasificar.
 
@@ -257,7 +257,7 @@ CREATE TABLE notifications (...)
 
 Ver la sección completa arriba. Se commitea en el **mismo PR** que el código que lo implementa — nunca aparte (disciplina tomada de OpenSpec: "OpenSpec never touches git" fuera del ciclo normal de PR).
 
-### 4. `tasks.md` — CUÁNDO (`@project-manager`)
+### 4. `tasks.md` — CUÁNDO (`@product-manager`)
 
 ```markdown
 # Tasks: Email Notifications
@@ -272,7 +272,7 @@ Ver la sección completa arriba. Se commitea en el **mismo PR** que el código q
 4. [ ] E2E: usuario recibe email en < 60s
 5. [ ] Screenshots en evidence/
 
-### Closure (@project-manager)
+### Closure (@product-manager)
 6. [ ] Verificar ACs cubiertos, mergear, sync de la spec maestra
 ```
 
@@ -300,7 +300,7 @@ La **spec maestra** persistente vive en `agteamos/specs/<dominio>.md` — fuera 
 
 ## Paso `verify` antes de archivar
 
-Entre "QA aprueba" y el paso `sync`, `agteamos-close-task` genera `verify-report.md` dentro de la carpeta de la tarea, chequeando:
+Entre "QA aprueba" y el paso `sync`, `agteamos-implement` genera `verify-report.md` dentro de la carpeta de la tarea, chequeando:
 
 - Todos los items de `tasks.md` están `done`.
 - Todo lo declarado en `specs/deltas/<dominio>.md` tiene al menos una tarea asociada completada en `tasks.md` — el delta es también un gate, no solo un log.

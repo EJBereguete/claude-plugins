@@ -128,7 +128,7 @@ Es el campo más importante del archivo de tracking. Es lo primero que lee un ag
 
 ## Capturar la persona, no solo el agente de IA
 
-`task.yml` tiene un campo `owner` (nombre + email), capturado automáticamente vía `git config user.name` / `git config user.email` en el momento en que `agteamos-task-tracking` crea la carpeta de la tarea — sin preguntarle nada al usuario. Si otra persona retoma la tarea en otra sesión (`git config user.name` distinto), se agrega una entrada a `handoffs:`. Es independiente de `assigned_to:` (los agentes de IA que intervinieron) — quién (persona real) trabajó la tarea y qué rol de IA se usó son dos cosas distintas, y ambas se muestran en `report.html` y en `agteamos/dashboard.html`.
+`task.yml` tiene un campo `owner` (nombre + email), capturado automáticamente vía `git config user.name` / `git config user.email` en el momento en que `agteamos-implement` crea la carpeta de la tarea — sin preguntarle nada al usuario. Si otra persona retoma la tarea en otra sesión (`git config user.name` distinto), se agrega una entrada a `handoffs:`. Es independiente de `assigned_to:` (los agentes de IA que intervinieron) — quién (persona real) trabajó la tarea y qué rol de IA se usó son dos cosas distintas, y ambas se muestran en `report.html` y en `agteamos/dashboard.html`.
 
 ## Handoff Protocol entre agentes
 

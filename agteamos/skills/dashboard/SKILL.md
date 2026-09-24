@@ -1,15 +1,21 @@
 ---
 name: agteamos-dashboard
 description: >
-  Dueña unica de los templates HTML de AgTeamOS. Genera report.html por tarea
-  (leyendo task.yml, progress.md, evidence/, specs/deltas/ y verify-report.md)
-  y agteamos/dashboard.html (escaneando todas las tareas activas y archivadas).
+  Absorbe tambien a agteamos-pulse como modo `--pulse`. Dueña unica de
+  los templates HTML de AgTeamOS. Genera report.html por tarea (leyendo
+  task.yml, progress.md, evidence/, specs/deltas/ y verify-report.md) y
+  agteamos/dashboard.html (escaneando todas las tareas activas y archivadas).
   Ambos son archivos estaticos — sin servidor, sin librerias externas, se
   abren con file://. Muestra la persona real (owner) por separado de los
-  agentes de IA que intervinieron (assigned_to).
+  agentes de IA que intervinieron (assigned_to). Incluye tambien un modo
+  --pulse de solo lectura: pantalla de salud del proyecto (artefactos
+  pending/stale de onboarding.yml, campos pending de platform.yml, tendencia
+  de deuda tecnica, top follow-ups abiertos, convenciones aprendidas
+  recientemente, y un "proximo paso de mayor valor" sugerido) que nunca
+  escribe nada.
 used_by:
   - architect
-  - project-manager
+  - product-manager
   - backend-engineer
   - frontend-engineer
   - qa-engineer
@@ -22,10 +28,13 @@ used_by:
 
 - **Input (por tarea)**: `task.yml` + `progress.md` + `specs/tasks.md` (si existe, schema `full`) + `evidence/` + `specs/deltas/*.md` + `verify-report.md` (si existe) de una carpeta en `agteamos/changes/<id>-<slug>/` (o `agteamos/changes/archive/<fecha>-<id>-<slug>/`) — una tarea `schema: lite` puede no tener carpeta `specs/` en absoluto, ver regla en "TAREAS INCOMPLETAS O `lite`" más abajo
 - **Input (general)**: todos los `agteamos/changes/*/task.yml` (activas) y `agteamos/changes/archive/*/task.yml` (cerradas)
+- **Input (modo `--pulse`)**: ninguno explícito — lee el estado ya existente del proyecto (`onboarding.yml`, `platform.yml`, `debt-trend.yml`, cache de findings, `standards/*/README.md`), ver sección "Modo `--pulse`" más abajo
 - **Output (por tarea)**: `report.html` escrito dentro de la carpeta de esa tarea — artefacto **local, regenerable, no se commitea** (ver "ARTEFACTOS LOCALES" más abajo)
 - **Output (general)**: `agteamos/dashboard.html` en la raíz de `agteamos/` — artefacto **local, regenerable, no se commitea** (ver "ARTEFACTOS LOCALES" más abajo)
-- **Trigger**: invocada desde `agteamos-task-tracking` (cada vez que actualiza `progress.md`/`task.yml`), desde `agteamos-close-task` (al archivar, badge pasa a `done`), o a demanda directa del usuario
-- **Regla de diseño**: esta skill es la **única dueña** de ambos templates. Ninguna otra skill genera o embebe su propia copia del HTML — `agteamos-task-tracking` y `agteamos-close-task` invocan esta skill en vez de duplicar la lógica de generación.
+- **Output (modo `--pulse`)**: un resumen en texto (no un archivo — read-only, no genera ningún artefacto nuevo)
+- **Trigger**: invocada desde `agteamos-implement` (cada vez que actualiza `progress.md`/`task.yml`), desde `agteamos-implement` (al archivar, badge pasa a `done`), a demanda directa del usuario, o en modo `--pulse` a demanda ("¿cómo está el proyecto?", "dame el pulso"), programable con la skill `schedule` si el usuario quiere una corrida periódica
+- **Regla de diseño**: esta skill es la **única dueña** de ambos templates. Ninguna otra skill genera o embebe su propia copia del HTML — `agteamos-implement` invocan esta skill en vez de duplicar la lógica de generación.
+- **Regla de oro (modo `--pulse`)**: el modo `--pulse` **nunca escribe nada** — ni `agteamos/onboarding.yml`, ni `platform.yml`, ni ningún otro archivo. Es una lectura agregada de fuentes que ya existen. **`--pulse` reutiliza el mismo cálculo** que ya usa el dashboard general para las secciones que se solapan (`onboarding.yml`, `platform.yml`) — ninguno de los dos modos depende del otro para funcionar solo, pero comparten la lógica de lectura en vez de duplicarla.
 
 ---
 
@@ -53,7 +62,7 @@ ninguna información que no viva ya en esas fuentes. Por diseño:
 ## POR QUÉ EXISTE ESTA SKILL
 
 Sin un dueño único del template, cada skill que necesita reflejar progreso
-(`agteamos-task-tracking`, `agteamos-close-task`) terminaría generando su
+(`agteamos-implement`) terminaría generando su
 propia versión del HTML, y con el tiempo las tres versiones divergirían
 (estilos distintos, campos faltantes en una y no en otra). Centralizar la
 plantilla acá significa: un solo lugar para corregir un bug visual, un solo
@@ -62,7 +71,7 @@ lugar para agregar un campo nuevo, y garantía de que `report.html` y
 
 ---
 
-## PROCESS
+## Reportes por tarea
 
 ### Step 1 — Generar `report.html` de una tarea
 
@@ -156,10 +165,10 @@ Estos casos no son errores del reporte, son estados válidos y esperados:
 | `task.yml → schema: lite` | Omitir por completo las cards "Checklist" y "Spec deltas aplicados" (no existen `specs/tasks.md` ni `specs/deltas/` en una tarea `lite`, ver `agteamos-sdd-protocol`). En su lugar, una única card **"Resumen (lite)"** con el párrafo de `progress.md` (sección `## Resumen (schema: lite)`) y el resultado del test de regresión (`## Test de regresión` en `progress.md`, o el ítem correspondiente de `verify-report.md` si ya existe) |
 | `specs/deltas/` ausente o vacía (incluso en `schema: full`) | Omitir la card "Spec deltas aplicados" — no dejarla vacía ni con un link roto |
 | `specs/` inexistente (carpeta completa ausente, típico de `lite`) | Mismo tratamiento que la fila `schema: lite` de arriba — no asumir `schema: full` solo porque `task.yml` no lo aclaró; si `schema` falta en `task.yml`, tratarlo como `full` únicamente si `specs/` sí existe, si no, tratarlo como `lite` |
-| `verify-report.md` ausente | Omitir la card "Verify report" — no es un error, simplemente el paso `verify` de `agteamos-close-task` todavía no corrió |
+| `verify-report.md` ausente | Omitir la card "Verify report" — no es un error, simplemente el paso `verify` de `agteamos-implement` todavía no corrió |
 
 **Integrar `verify-report.md`** (alimenta este mismo reporte, no es un artefacto
-aparte — ver `agteamos-close-task` paso "verify"): si el archivo existe, agregar
+aparte — ver `agteamos-implement` paso "verify"): si el archivo existe, agregar
 una card adicional usando el **mismo patrón visual** ya definido por el CSS
 (`class="card"`, tabla `th/td`), sin inventar clases nuevas:
 
@@ -174,6 +183,10 @@ una card adicional usando el **mismo patrón visual** ya definido por el CSS
 </div>
 ```
 
+---
+
+## Dashboard global
+
 ### Step 2 — Generar `agteamos/dashboard.html`
 
 **Fuentes leídas**: todos los `agteamos/changes/*/task.yml` (activas) y
@@ -183,7 +196,7 @@ carpeta (`changes/` vs `changes/archive/`) NO determina el conteo de
 "activas" / "en review" / "completadas" — eso lo determina exclusivamente
 el campo `status` real dentro de cada `task.yml`** (ver tabla de cómputo más
 abajo). Una tarea con `status: done` que todavía vive en `changes/` porque
-el archivado de `agteamos-close-task` falló o está pendiente cuenta como
+el archivado de `agteamos-implement` falló o está pendiente cuenta como
 "completada", no como "activa" — contar por carpeta la mostraría como activa
 y sería engañoso.
 
@@ -265,11 +278,93 @@ más allá de poblar el `<tbody>` correctamente.
 
 ### Step 3 — Actualizar el contador de standards (opcional, si `agteamos/standards/standards.yml` existe)
 
-Si la skill `agteamos-standards` ya corrió al menos una vez, agregar un
+Si la skill `agteamos-project-docs` ya corrió al menos una vez, agregar un
 `<div class="stat">` adicional en la misma fila de `.stats` (mismo patrón
 visual, sin CSS nuevo) con el conteo `X/Y estándares aplicando` leyendo
 `agteamos/standards/standards.yml` — opcional porque no todo proyecto habrá
-corrido `agteamos-standards` todavía.
+corrido `agteamos-project-docs` todavía.
+
+---
+
+## Modo `--pulse` (solo lectura)
+
+Pantalla de solo lectura con el pulso de salud del proyecto: artefactos
+pending/stale de `onboarding.yml`, campos pending de `platform.yml`,
+tendencia de deuda técnica (`debt-trend.yml`), top follow-ups abiertos,
+convenciones aprendidas recientemente, y un "próximo paso de mayor valor"
+sugerido. **Nunca escribe nada.** Reutiliza el mismo cálculo que ya usa el
+dashboard general (Step 2 arriba) para las secciones que se solapan
+(`onboarding.yml`, `platform.yml`) — este modo y el dashboard general no
+dependen uno del otro para funcionar de forma independiente, pero comparten
+la lógica de lectura en vez de duplicarla.
+
+### Process — 6 fuentes, en este orden
+
+Leer, en este orden, y componer el resumen — cada sección se omite si su
+fuente no existe todavía (proyecto sin ese contrato), en vez de mostrar un
+error:
+
+#### 1 — Artefactos pendientes/obsoletos (`agteamos/onboarding.yml`)
+
+Contar por estado: cuántos `pending`, cuántos `candidate` (dominios sin
+confirmar), cuántos `stale` (ver `agteamos-project-docs` §Step 6). Listar los
+`stale` explícitamente (son los que más vale la pena revisar) — el resto
+solo como conteo agregado.
+
+#### 2 — Configuración pendiente (`agteamos/platform.yml`)
+
+Si tiene `field_status`: listar los campos en `pending`/`detected` (nunca
+los `confirmed`, esos no son noticia). Si no tiene `field_status`
+(proyecto pre-contrato): solo decir si `reviewed: false`.
+
+#### 3 — Tendencia de deuda (`agteamos/quality/debt-trend.yml`)
+
+Si existe, mostrar los top 3 hotspots de la última snapshot con su delta
+contra la snapshot anterior (si hay más de una). Si no existe todavía
+(proyecto sin suficiente historial git, o el hook `inject-debt-signal.js`
+no corrió todavía), decirlo y seguir.
+
+#### 4 — Top follow-ups abiertos
+
+Leer `agteamos/.cache/findings/{review,audit,domain-review}.json` (los que
+existan) y contar entradas — son los IDs `SEEN` que siguen sin resolverse.
+No se puede reconstruir la severidad desde el cache (no la persiste
+`findings-ledger.js`), así que reportar el conteo total por skill de origen,
+no por severidad — decirlo explícitamente en vez de inventar una
+distribución.
+
+#### 5 — Convenciones aprendidas recientemente
+
+Recorrer `agteamos/standards/*/README.md` buscando la sección
+`## Aprendido en uso` y listar las filas con `Fuente` de los últimos 30 días.
+
+#### 6 — Próximo paso de mayor valor (sugerido, no automático)
+
+Con las 5 secciones de arriba, sugerir **una** acción concreta priorizada
+por impacto/costo — ej. "el hotspot #1 sigue creciendo y tiene 3
+follow-ups abiertos: buen candidato para la próxima tarea que lo toque" o
+"`platform.yml.deploy_target` sigue pending y ya hay 2 features listas para
+producción: vale la pena confirmarlo ahora". Es una sugerencia, nunca una
+tarea que esta skill cree sola.
+
+### Formato de salida (`--pulse`)
+
+```markdown
+## Pulso de <proyecto> — <fecha>
+
+**Onboarding**: 3 temas de standards done, 6 pending, 2 stale (api-design,
+database — no se revisan desde hace 40 commits)
+**Platform**: pending → deploy_target, pr_convention
+**Deuda**: src/billing/service.py sigue #1 (1040 → 1180 líneas, +140 desde el
+último pulse) — 3 follow-ups abiertos ahí
+**Follow-ups abiertos**: review 5, audit 2, domain-review 1
+**Aprendido reciente**: 2 convenciones en los últimos 30 días
+  - clean-architecture: "Result pattern en servicios" (2026-09-10)
+
+**Próximo paso sugerido**: src/billing/service.py acumula deuda y follow-ups
+— si la próxima tarea lo toca, es buen momento para el refactor acotado de
+`agteamos-implement` Step 8.5.
+```
 
 ---
 
@@ -277,20 +372,27 @@ corrido `agteamos-standards` todavía.
 
 | Quién | Cuándo | Qué regenera |
 |---|---|---|
-| `agteamos-task-tracking` | cada vez que actualiza `progress.md` o `task.yml` | `report.html` de esa tarea únicamente |
-| `agteamos-close-task` | al archivar la tarea (después del paso "verify" y "sync") | `report.html` de esa tarea (badge → `done`) y `agteamos/dashboard.html` completo |
+| `agteamos-implement` | cada vez que actualiza `progress.md` o `task.yml` | `report.html` de esa tarea únicamente |
+| `agteamos-implement` | al archivar la tarea (después del paso "verify" y "sync") | `report.html` de esa tarea (badge → `done`) y `agteamos/dashboard.html` completo |
 | Usuario / cualquier agente | a demanda ("actualizá el dashboard", "regenerá el reporte de la tarea 42") | lo que se pida explícitamente |
+| Usuario / cualquier agente | a demanda, modo `--pulse` ("¿cómo está el proyecto?", "dame el pulso") | nada — solo texto en pantalla |
+| `schedule` | corrida periódica opcional del modo `--pulse` | nada — solo texto en pantalla |
 
 ---
 
 ## ANTI-PATTERNS
 
-- Duplicar el HTML del template dentro de `agteamos-task-tracking` o `agteamos-close-task` en vez de invocar esta skill — rompe la garantía de "un solo dueño del template" y hace que las tres copias diverjan con el tiempo.
+- Duplicar el HTML del template dentro de `agteamos-implement` en vez de invocar esta skill — rompe la garantía de "un solo dueño del template" y hace que las tres copias diverjan con el tiempo.
 - Mostrar `assigned_to` (agentes de IA) en el campo "Owner" — son conceptos distintos; mezclarlos oculta quién es la persona real responsable de la tarea.
 - Usar `.badge.in_progress` como aproximación para `pending` o `in_review` — las 4 clases (`pending`/`in_progress`/`in_review`/`done`) ya existen, no hay motivo para aproximar.
 - Dejar `<img>` rotos en la card de evidencia cuando `evidence/` está vacía — omitir la card completa en ese caso. Mismo criterio para la card de "Spec deltas aplicados" cuando `specs/deltas/` está vacía o ausente.
 - Regenerar `dashboard.html` escaneando solo `agteamos/changes/*/` y olvidando `agteamos/changes/archive/*/` — el conteo de "completadas" quedaría siempre en 0.
-- Contar "activas"/"completadas" por en qué carpeta vive el `task.yml` en vez de por su `status` — una tarea `done` que todavía no se archivó (ej. porque el sync o el archivado de `agteamos-close-task` falló) se contaría como activa, lo cual es engañoso.
+- Contar "activas"/"completadas" por en qué carpeta vive el `task.yml` en vez de por su `status` — una tarea `done` que todavía no se archivó (ej. porque el sync o el archivado de `agteamos-implement` falló) se contaría como activa, lo cual es engañoso.
 - Asumir `schema: full` para una tarea que no declara `schema` en `task.yml` sin verificar si `specs/` existe — tratarla como `lite` si `specs/` está ausente, como `full` si existe.
 - Usar rutas absolutas de archivo (`C:\Users\...`) en los `href` en vez de rutas relativas — rompe el `file://` portable si la carpeta se mueve o se comparte con otra persona.
 - Commitear `dashboard.html` o `report.html` al repositorio, o preocuparse por que no estén versionados — son artefactos locales regenerables por diseño, ver "ARTEFACTOS LOCALES" al inicio de esta skill.
+- (Modo `--pulse`) Escribir o modificar cualquier archivo — este modo es 100% read-only.
+- (Modo `--pulse`) Inventar una distribución de severidad para los follow-ups cuando el cache no la tiene — decir "conteo total, sin severidad" en vez de adivinar.
+- (Modo `--pulse`) Convertir el "próximo paso sugerido" en una tarea creada automáticamente — es una sugerencia en texto, el usuario decide si la convierte en `agteamos-new-task`/`agteamos-capture`.
+- (Modo `--pulse`) Bloquear o fallar por completo porque una de las 6 fuentes no existe — cada sección se omite independientemente.
+</content>

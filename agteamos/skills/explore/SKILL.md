@@ -7,7 +7,7 @@ description: >
   artefacto, no crea rama, no toca agteamos/changes/, no escribe codigo.
   Termina proponiendo si conviene pasar a agteamos-new-task (con una idea
   ya mas formada) o si hace falta seguir explorando. Sugerida por
-  agteamos-flow-router cuando el input describe un problema sin solucion
+  agteamos-router cuando el input describe un problema sin solucion
   propuesta.
 used_by:
   - architect
@@ -20,7 +20,7 @@ used_by:
 - **Output**: NINGUN artefacto persistente — solo una conversacion con diagnostico, opciones con trade-offs, y una recomendacion explicita de proximo paso
 - **Regla**: NO crea `agteamos/changes/<id>-<slug>/`, NO crea branch, NO escribe codigo, NO modifica `agteamos/` de ninguna forma. Es de solo lectura sobre el codigo del proyecto.
 - **Quien ejecuta**: `@architect`
-- **Trigger**: sugerido (nunca forzado) por `agteamos-flow-router` cuando el input del usuario describe un sintoma/dolor sin una solucion concreta propuesta; tambien invocable directamente por el usuario ("quiero explorar opciones para X", "ayudame a pensar Y")
+- **Trigger**: sugerido (nunca forzado) por `agteamos-router` cuando el input del usuario describe un sintoma/dolor sin una solucion concreta propuesta; tambien invocable directamente por el usuario ("quiero explorar opciones para X", "ayudame a pensar Y")
 
 ---
 
@@ -152,7 +152,7 @@ riesgo?"
   en "hace falta seguir explorando" es un resultado válido, no un fracaso de
   la skill.
 - Usar `agteamos-explore` como excusa para saltarse
-  `agteamos-clarification-protocol` cuando el usuario YA sabe lo que quiere —
+  `agteamos-new-task` cuando el usuario YA sabe lo que quiere —
   si el input ya es una feature o cambio concreto, no es este el flujo, es
   Flujo 2 directo (`agteamos-new-task`).
 - Diagnosticar sin haber leído el código — "puede ser un problema de

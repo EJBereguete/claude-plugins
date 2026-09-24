@@ -1,3 +1,11 @@
+---
+topic: database
+description: PostgreSQL — migraciones, naming, indices, transacciones y query safety
+keywords: [migration, alembic, sql, postgres, index, orm, sqlalchemy, schema]
+globs: ["**/migrations/**", "**/alembic/versions/**", "**/models/**/*.py", "**/*.sql"]
+first_consumers: [backend-engineer, build]
+---
+
 # Database Standard
 
 PostgreSQL standards for the team. These rules apply to all production databases. Migrations, naming, indexing, and query safety are non-negotiable — everything else is a strong default.
@@ -285,7 +293,7 @@ def upgrade() -> None:
         # time.sleep(0.05) in prod — gives autovacuum room to breathe
 ```
 
-C#/EF Core batch backfill uses the equivalent looped `UPDATE ... LIMIT ... RETURNING` via `migrationBuilder.Sql(...)` inside a `DO $$ ... LOOP ... END $$;` block — see [`../clean-architecture/examples/csharp.md`](../clean-architecture/examples/csharp.md) for the full migration class.
+C#/EF Core batch backfill uses the equivalent looped `UPDATE ... LIMIT ... RETURNING` via `migrationBuilder.Sql(...)` inside a `DO $$ ... LOOP ... END $$;` block — see [`../design-de-codigo/examples/csharp.md`](../design-de-codigo/examples/csharp.md) for the full migration class.
 
 ---
 
@@ -640,5 +648,5 @@ Domain entities never import from `infrastructure/`. The mapper is the only file
 | Stack | Archivo |
 |-------|---------|
 | Python / SQLAlchemy + Alembic | [examples/python.md](./examples/python.md) |
-| C# / EF Core | [../clean-architecture/examples/csharp.md](../clean-architecture/examples/csharp.md) |
-| TypeScript / Prisma | [../clean-architecture/examples/typescript.md](../clean-architecture/examples/typescript.md) - schema DSL, migrate commands, seed scripts (no hay un ejemplo dedicado de database para TypeScript aun) |
+| C# / EF Core | [../design-de-codigo/examples/csharp.md](../design-de-codigo/examples/csharp.md) |
+| TypeScript / Prisma | [../design-de-codigo/examples/clean-architecture-typescript.md](../design-de-codigo/examples/clean-architecture-typescript.md) - schema DSL, migrate commands, seed scripts (no hay un ejemplo dedicado de database para TypeScript aun) |

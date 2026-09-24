@@ -8,7 +8,7 @@ used_by:
   - frontend-engineer
   - qa-engineer
   - architect
-  - project-manager
+  - product-manager
 ---
 
 # SKILL: PR Standards
@@ -178,7 +178,7 @@ mismo criterio para cada `agteamos/changes/<id>-<slug>/`:
   Revisar el diff de código primero, sin haber leído el delta de spec, es la
   causa más común de reviews superficiales — el reviewer aprueba código
   correcto que no cumple lo que la spec pedía.
-- **Archivar DESPUÉS del merge, no antes.** El paso de `agteamos-close-task` que
+- **Archivar DESPUÉS del merge, no antes.** El paso de `agteamos-implement` que
   mueve la carpeta a `agteamos/changes/archive/<fecha>-<id>-<slug>/` solo corre
   una vez confirmado el merge a la rama destino — nunca mientras el PR sigue
   abierto. Archivar antes de merge arriesga archivar una tarea que después no
@@ -186,7 +186,7 @@ mismo criterio para cada `agteamos/changes/<id>-<slug>/`:
 
 ---
 
-### Step 10 — Disciplina de redacción (aplica a PR body, comentarios de review, y a cualquier reporte que use este skill como referencia de tono — `agteamos-review`, `agteamos-audit`, `agteamos-premortem`)
+### Step 10 — Disciplina de redacción (aplica a PR body, comentarios de review, y a cualquier reporte que use este skill como referencia de tono — `agteamos-quality`, `agteamos-decisions`)
 
 **Regla 1 — la conclusión primero.** La primera línea de un "Summary", un
 comentario de review, o el resumen de un reporte debe ser algo accionable o

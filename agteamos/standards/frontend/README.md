@@ -1,3 +1,11 @@
+---
+topic: frontend
+description: React + TypeScript + Vite + Zustand + Vitest + Testing Library + Playwright
+keywords: [react, vue, angular, component, hook, state, tsx, jsx]
+globs: ["**/*.tsx", "**/*.jsx", "**/*.vue", "**/components/**"]
+first_consumers: [frontend-engineer, build]
+---
+
 # Frontend Standard
 
 Stack: React 18 + TypeScript + Vite + Zustand + Vitest + Testing Library + Playwright.

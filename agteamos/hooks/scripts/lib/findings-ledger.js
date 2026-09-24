@@ -174,7 +174,7 @@ module.exports = { scopeFromGit, isIntroducedByChange, findingId, reconcile };
 // Este modulo se usa de dos formas:
 //   1. require()'d desde otro script Node (ej. nudge-review.js).
 //   2. invocado directamente por un agente via Bash dentro de una skill
-//      (agteamos-review, agteamos-audit, agteamos-domain-review), que no
+//      (agteamos-quality, agteamos-quality, agteamos-quality), que no
 //      puede "require" un modulo -- necesita un CLI que reciba/devuelva JSON.
 //
 // Uso:

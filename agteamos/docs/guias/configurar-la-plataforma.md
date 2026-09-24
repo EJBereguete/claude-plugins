@@ -1,10 +1,10 @@
 # Configurar la plataforma (`agteamos-setup`)
 
-Guía de referencia rápida para configurar o reconfigurar `agteamos/platform.yml`. Si es la primera vez que usas AgTeamOS, ve al recorrido guiado en [Primeros pasos](../primeros-pasos/02-primer-proyecto.md).
+Guía de referencia rápida para configurar o reconfigurar `agteamos/platform.yml`. Si es la primera vez que usas AgTeamOS, ve al recorrido guiado en [Quickstart](../primeros-pasos/01-quickstart.md).
 
 ## Cuándo se dispara
 
-- Automáticamente desde `agteamos-flow-router` (Step 0), si `agteamos/platform.yml` todavía no existe.
+- Automáticamente desde `agteamos-router` (Step 0), si `agteamos/platform.yml` todavía no existe.
 - A demanda: pídele directamente a `@architect` "configura el proyecto" o invoca `/agteamos-setup`.
 - Para completar campos que quedaron pendientes de una ejecución anterior — no regenera el archivo completo salvo que lo pidas explícitamente.
 
@@ -23,7 +23,7 @@ Ningún campo tiene un default silencioso, salvo `handoff_mode`. Si el usuario n
 
 ## El campo `handoff_mode`
 
-Controla cómo se comportan las transiciones entre agentes durante un flujo (ej. `@product-owner` → `@architect` → `@project-manager`):
+Controla cómo se comportan las transiciones entre agentes durante un flujo (ej. `@product-manager` → `@architect` → `@product-manager`):
 
 | Valor | Comportamiento |
 |---|---|
@@ -63,9 +63,9 @@ created_at: "2026-08-09"
 
 | Consumidor | Campo | Para qué |
 |---|---|---|
-| `agteamos-flow-router` | existencia del archivo | Step 0 — decide si disparar `agteamos-setup` primero |
+| `agteamos-router` | existencia del archivo | Step 0 — decide si disparar `agteamos-setup` primero |
 | Backend/Frontend Engineer | `branch_strategy` | Rama destino del PR |
-| `agteamos-deploy` | `deploy_target`, `ci_target` | Comandos de deploy y verificación de CI |
+| `agteamos-deploy-readiness` | `deploy_target`, `ci_target` | Comandos de deploy y verificación de CI |
 | `agteamos-pr-standards` | `pr_convention` | Reviewers requeridos, merge strategy |
 | MCP `github`/`azure-devops` | `repo_host`, `repo.*`, `env_var_names` | Qué servidor MCP usar y con qué variable de auth |
 | Todos los agentes | `handoff_mode` | Si piden confirmación en cada handoff o continúan solos |
@@ -79,4 +79,4 @@ created_at: "2026-08-09"
 
 ## Siguiente paso sugerido
 
-Si `agteamos-repo-context-check` determinó que el repo está vacío, sigue con `agteamos-new-project`. Si el repo ya tiene código, sigue con `agteamos-onboard` para documentar lo existente contra esta configuración.
+Si `agteamos-router` determinó que el repo está vacío, sigue con `agteamos-new-project`. Si el repo ya tiene código, sigue con `agteamos-project-docs` para documentar lo existente contra esta configuración.

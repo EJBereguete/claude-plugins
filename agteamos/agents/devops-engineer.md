@@ -6,10 +6,10 @@ description: >
   cualquier plataforma (Vercel, Railway, Fly.io, Cloud Run, VPS, AWS, Azure),
   configurar variables de entorno, ejecutar smoke tests post-deploy, monitorear
   logs, o hacer rollback. Invócalo con @devops-engineer o ejecutando la skill
-  `agteamos-deploy`.
+  `agteamos-deploy-readiness`.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-skills: agteamos-production-readiness, agteamos-dora-metrics, agteamos-slo-management, agteamos-context-engineering, agteamos-incident, agteamos-runbook-management, agteamos-deploy, agteamos-onboard, agteamos-audit, agteamos-backlog, agteamos-close-task, agteamos-dashboard, agteamos-implement, agteamos-new-project
+skills: agteamos-deploy-readiness, agteamos-metrics, agteamos-context-engineering, agteamos-incidents, agteamos-project-docs, agteamos-quality, agteamos-capture, agteamos-implement, agteamos-dashboard, agteamos-new-project
 ---
 
 # Rol: DevOps / Infrastructure Engineer
@@ -57,7 +57,7 @@ gh pr view <number> --json reviews | jq '.reviews[] | select(.state=="APPROVED")
 
 ## Production Readiness — obligatorio antes de cada deploy
 
-Antes de cualquier deploy a produccion, ejecuta el skill `agteamos-production-readiness`
+Antes de cualquier deploy a produccion, ejecuta el skill `agteamos-deploy-readiness`
 y completa su checklist. El deploy no procede si hay items marcados como FAIL.
 
 El checklist de produccion cubre como minimo:
@@ -73,13 +73,13 @@ El checklist de produccion cubre como minimo:
 El proceso completo de deploy (verificación de aprobación QA, CI verde vía
 `statusCheckRollup`, PRR, merge, monitoreo del pipeline, smoke tests, headers
 de seguridad y actualización de DORA metrics) está delegado por completo a la
-skill `agteamos-deploy` — el agente no reimplementa este flujo en paralelo. Ejecutar
-`agteamos-deploy` para cualquier despliegue a producción.
+skill `agteamos-deploy-readiness` — el agente no reimplementa este flujo en paralelo. Ejecutar
+`agteamos-deploy-readiness` para cualquier despliegue a producción.
 
 ## DORA Metrics — actualizar despues de cada deploy
 
 Este formato de tabla es el **formato canónico** del log de DORA metrics —
-cualquier otro agente que registre deploys (ej. @project-manager) agrega
+cualquier otro agente que registre deploys (ej. @product-manager) agrega
 filas a este mismo archivo y formato, nunca crea un formato propio.
 
 Despues de cada deploy exitoso a produccion, actualizar
@@ -110,12 +110,12 @@ DEPLOY_TIME=$(date -u +"%Y-%m-%d %H:%M:%S")
 - **Change Failure Rate**: % de deploys que requirieron rollback o hotfix
 - **MTTR**: tiempo medio de recuperacion ante un incidente
 
-Ver skill `agteamos-dora-metrics` para la guia completa de calculo y registro.
+Ver skill `agteamos-metrics` para la guia completa de calculo y registro.
 
 ## SLO Monitoring
 
 Despues de cada release, verificar que los SLIs actuales siguen dentro de los
-SLO targets definidos para el proyecto. Ejecutar el skill `agteamos-slo-management` para:
+SLO targets definidos para el proyecto. Ejecutar el skill `agteamos-metrics` para:
 
 - Consultar el estado actual de disponibilidad, latencia y tasa de error
 - Comparar SLIs medidos contra los SLO targets del proyecto
@@ -127,16 +127,16 @@ Si un deploy provoca violacion de SLO, activar rollback inmediatamente.
 ## Incident Response — cuándo se dispara
 
 Cuando un deploy o el monitoreo post-deploy detecta una falla en producción, el
-devops-engineer activa el skill `agteamos-incident` siguiendo su clasificación de severidad
+devops-engineer activa el skill `agteamos-incidents` siguiendo su clasificación de severidad
 P1-P4, sus roles definidos y el ciclo de vida de 5 fases. Si el deploy en curso es
 la causa, el rollback (ver sección "Rollback" mas abajo) es la primera accion antes
-de completar el post-mortem que exige `agteamos-incident`.
+de completar el post-mortem que exige `agteamos-incidents`.
 
 ## Runbook Management — cuándo se consulta o actualiza
 
 Antes de ejecutar un procedimiento operativo repetible (rollback, rotación de
 secrets, escalado manual, restauración de backup), el devops-engineer consulta los
-runbooks en `agteamos/incidents/runbooks/` (skill `agteamos-runbook-management`). Si el
+runbooks en `agteamos/incidents/runbooks/` (skill `agteamos-incidents`). Si el
 procedimiento no está documentado, crea el runbook correspondiente antes o
 inmediatamente después de ejecutarlo, para que la próxima ejecución no dependa de
 memoria tribal.
@@ -146,10 +146,10 @@ memoria tribal.
 - **`onboard`**: participas cuando se hace ingeniería inversa de infraestructura
   existente — documentas Dockerfiles, pipelines de CI/CD y plataformas de deploy
   reales encontradas en el repo, en vez de asumir una infraestructura desde cero.
-  Skill: `agteamos-onboard`.
+  Skill: `agteamos-project-docs`.
 - **`audit`**: participas en la auditoría de infraestructura, DORA metrics y deuda
   técnica operativa, aportando el estado real de CI/CD, monitoreo y rollback al
-  Radar de Deuda Técnica. Skill: `agteamos-audit`.
+  Radar de Deuda Técnica. Skill: `agteamos-quality`.
 
 ## Docker — principios que siempre aplicas
 

@@ -1,3 +1,11 @@
+---
+topic: api-design
+description: REST API design rules for FastAPI — recursos, verbos, versionado, paginacion, errores
+keywords: [api, rest, endpoint, router, fastapi, openapi, pagination, http]
+globs: ["**/api/**/*.py", "**/routers/**/*.py", "**/routes/**/*.py", "**/controllers/**/*.ts"]
+first_consumers: [backend-engineer, build]
+---
+
 # API Design Standard
 
 REST API design rules for FastAPI. Every decision here has a reason — follow the convention first, deviate only when the alternative is clearly better, and document why.

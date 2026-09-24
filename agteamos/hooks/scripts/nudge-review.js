@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const { execSync } = require('child_process');
 const { readStdinSync } = require('./lib/read-stdin');
 
-// Stop hook — recuerda correr agteamos-review / agteamos-domain-review si el
+// Stop hook — recuerda correr agteamos-quality / agteamos-quality si el
 // turno modifico >=30 lineas de codigo o agrego un archivo de codigo nuevo.
 // Silencioso en arbol limpio. Dedupea por hash del diff actual: no repite el
 // mismo recordatorio para el mismo estado de arbol (mismo patron que el Stop
@@ -98,10 +98,15 @@ function main() {
   }
 
   saveLastHash(cachePath, diffHash);
-  process.stderr.write(
-    '[agteamos] Cambios sin revisar (>=30 lineas o archivo de codigo nuevo). ' +
-      'Considera correr agteamos-review y/o agteamos-domain-review antes de cerrar.\n'
-  );
+  // stdout con exit 0: la unica forma de que el mensaje llegue a Claude (y no
+  // solo al debug log). decision:block fuerza un turno mas para que Claude
+  // vea el reason y pueda ofrecer el review — el dedupe de arriba evita que
+  // esto se repita para el mismo estado de arbol.
+  process.stdout.write(JSON.stringify({
+    decision: 'block',
+    reason: '[agteamos] Cambios sin revisar (>=30 lineas o archivo de codigo nuevo). ' +
+      'Considera correr agteamos-quality (modo PR-review y/o domain-review) antes de cerrar.',
+  }) + '\n');
   process.exit(0);
 }
 

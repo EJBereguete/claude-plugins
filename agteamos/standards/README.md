@@ -10,17 +10,13 @@ no separate `examples/` tree grouped by language.
 
 | Folder | Description |
 |------|-------------|
-| [clean-architecture/](./clean-architecture/README.md) | Folder structures, dependency rule, and Use Case examples for Python/FastAPI, TypeScript/React and C#/ASP.NET Core |
-| [solid-principles/](./solid-principles/README.md) | All 5 SOLID principles with before/after code in Python, TypeScript and C# |
-| [dry-kiss-yagni/](./dry-kiss-yagni/README.md) | DRY, KISS, YAGNI with real examples — including when NOT to apply DRY (AHA principle) |
-| [domain-driven-design/](./domain-driven-design/README.md) | Entity, Value Object, Aggregate, Repository, Domain Events with real Python examples |
+| [design-de-codigo/](./design-de-codigo/README.md) | Clean Architecture (folder structure, dependency rule, Use Cases), SOLID (los 5 principios), DRY/KISS/YAGNI, y Domain-Driven Design (Entity, Value Object, Aggregate, Repository, Domain Events) — 4 secciones, un solo tema conceptual: cómo estructurar y no sobre-diseñar el código |
 | [api-design/](./api-design/README.md) | REST naming, HTTP methods, status codes, RFC 9457 errors, versioning, pagination, rate limiting |
 | [database/](./database/README.md) | PostgreSQL naming conventions, index naming, migrations (Expand-Contract), soft delete, audit columns |
 | [testing/](./testing/README.md) | Test pyramid, Given/When/Then, factories, what to test vs what not to test, anti-patterns |
 | [frontend/](./frontend/README.md) | React+TypeScript folder structure, component naming, strict TypeScript, state management, WCAG 2.2, CWV — plus C# UI examples (Blazor, MAUI, Razor Pages) |
-| [git/](./git/README.md) | Conventional Commits, branch naming, PR template, squash vs rebase vs merge, commitlint config |
 | [security/](./security/README.md) | OWASP ASVS L1 checklist, input validation, auth patterns, security headers, secrets, OWASP LLM Top 10 |
-| [devops/](./devops/README.md) | Dockerfile best practices, GitHub Actions template, health check standard, PRR checklist, SLO/SLI |
+| [entrega-y-operaciones/](./entrega-y-operaciones/README.md) | Git (Conventional Commits, branch naming, PR template, commitlint) + DevOps (Dockerfile best practices, GitHub Actions, health checks, PRR, SLO/SLI) — 2 secciones, un mismo tema: cómo se entrega y opera el código con seguridad |
 
 ---
 
@@ -38,8 +34,8 @@ standards/<tema>/
     └── typescript.md
 ```
 
-Topics without language-specific code (`git/`, `security/`, `devops/`, `dry-kiss-yagni/`) only have
-`README.md` — no `examples/` subfolder.
+Topics without language-specific code (`security/`, and the Git/DevOps sections of
+`entrega-y-operaciones/`) only have `README.md` — no `examples/` subfolder.
 
 A few C#-specific pattern references that don't map 1:1 to a single language file live as extra,
 descriptively-named files inside the closest topic's `examples/` folder instead of being forced into
@@ -47,9 +43,9 @@ a generic name:
 
 | File | Topic folder | Why it lives there |
 |------|--------------|---------------------|
-| `examples/csharp-cqrs-mediatr.md` | `clean-architecture/` | CQRS/MediatR is an Application-layer pattern within Clean Architecture |
-| `examples/csharp-design-patterns.md` | `clean-architecture/` | Result Pattern, Repository/UoW, Decorator, Strategy, Observer — architecture-layer patterns |
-| `examples/csharp-conventions.md` | `clean-architecture/` | Team-wide C#/.NET conventions and standard NuGet packages |
+| `examples/csharp-cqrs-mediatr.md` | `design-de-codigo/` | CQRS/MediatR is an Application-layer pattern within Clean Architecture |
+| `examples/csharp-design-patterns.md` | `design-de-codigo/` | Result Pattern, Repository/UoW, Decorator, Strategy, Observer — architecture-layer patterns |
+| `examples/csharp-conventions.md` | `design-de-codigo/` | Team-wide C#/.NET conventions and standard NuGet packages |
 | `examples/csharp-blazor.md`, `examples/csharp-maui.md`, `examples/csharp-razor-pages.md` | `frontend/` | C#'s UI framework equivalents to the React/TypeScript frontend standard |
 
 ## How to use these files

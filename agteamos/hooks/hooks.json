@@ -6,13 +6,19 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/session-start-context.js"],
-            "timeout": 5
-          },
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/session-start.js"],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/inject-standards-index.js"],
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/detect-correction.js"],
             "timeout": 5
           }
         ]
@@ -25,40 +31,7 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/block-destructive-sql.js"],
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/confirm-destructive-delete.js"],
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/confirm-protected-push.js"],
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/remind-merge-approval.js"],
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/guardrails.js"],
             "timeout": 5
           }
         ]
@@ -77,13 +50,13 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Write",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/remind-python-lint.js"],
-            "timeout": 5
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/scripts/post-write-checks.js"],
+            "timeout": 8
           }
         ]
       }

@@ -6,7 +6,7 @@ description: >
   forma independiente de donde vive el codigo), estrategia de branching,
   CI/CD, deploy target, convencion de PR y modo de handoff entre agentes.
   Persiste el resultado en agteamos/platform.yml. Se dispara automaticamente
-  desde agteamos-flow-router (Step 0) si ese archivo no existe todavia.
+  desde agteamos-router (Step 0) si ese archivo no existe todavia.
 used_by:
   - architect
 ---
@@ -17,7 +17,7 @@ used_by:
 
 - **Input**: ninguno explicito — se dispara cuando `agteamos/platform.yml` no existe
 - **Output**: `agteamos/platform.yml` committeado
-- **Trigger**: `agteamos-flow-router` Step 0, o el usuario pide "configura el proyecto" / "setup" directamente
+- **Trigger**: `agteamos-router` Step 0, o el usuario pide "configura el proyecto" / "setup" directamente
 - **Quien ejecuta**: `@architect`
 
 ---
@@ -35,91 +35,104 @@ Step 1.
 
 ## PROCESS
 
-### Step 1 — Preguntar en un solo mensaje (no una por una)
+### Step 0.5 — Autodetección antes de preguntar
+
+Antes de armar las preguntas de la Ronda 0, detectar lo que ya está en el
+repo, para mostrarlo como propuesta a confirmar en vez de preguntarlo en
+blanco:
+
+```bash
+git remote -v                                    # -> repo_host + repo.<host>.org/name
+git branch -a                                     # existen develop/staging? -> branch_strategy: team
+ls .github/workflows/ 2>/dev/null                 # -> ci_target: github_actions
+ls azure-pipelines.yml 2>/dev/null                # -> ci_target: azure_pipelines
+cat fly.toml 2>/dev/null                          # -> deploy_target: fly_io
+cat vercel.json 2>/dev/null                       # -> deploy_target: vercel
+cat cloudbuild.yaml 2>/dev/null                   # -> deploy_target: cloud_run
+cat Dockerfile 2>/dev/null                        # señal de deploy_target contenerizado (no concluyente por sí sola)
+```
+
+Cada detección alimenta la Ronda 0 (los 3 campos bloqueantes) como valor
+**propuesto para confirmar**, nunca como valor ya asumido — ver la regla de
+oro más abajo. Lo que no se pudo detectar (`ci_target`, `deploy_target`,
+`pr_convention`, etc.) queda para la Ronda 1+, sin adivinar.
+
+### Step 1 — Ronda 0 (bloqueante): un solo mensaje, con lo detectado para confirmar
+
+**Principio conservado, sin excepción**: nunca asumir en silencio. Un valor
+**detectado** (Step 0.5) se muestra y requiere un "sí" o una corrección
+explícita del usuario — nunca se escribe en `platform.yml` como `confirmed`
+sin esa confirmación. Un valor que no se pudo detectar nunca recibe un
+default silencioso (salvo `handoff_mode`, que sí tiene default explícito y
+anunciado).
+
+Solo estos 4 puntos son parte de la Ronda 0 — el resto pasa a la Ronda 1+
+(Step 1.5):
 
 ```
-1. ¿Dónde vive el repositorio de código?
-   a) GitHub
-   b) Azure DevOps
-   c) Ambos (monorepo o repos espejo)
+Detecté esto en el repo — confirmá o corregí (respondé "sí" o solo lo que cambia):
 
-1.1 ¿Dónde viven las tareas/tickets del proyecto? — independiente de dónde
-    vive el código: se puede tener código en GitHub y tickets en Azure
-    Boards o en Microsoft Planner, por ejemplo. El usuario elige libremente
-    entre las tres, sin que la respuesta de la pregunta 1 la condicione.
-   a) GitHub Issues
-   b) Azure Boards
-   c) Microsoft Planner
+1. ¿Dónde vive el repositorio de código? [propuesta: GitHub, org/repo detectado por git remote -v]
+   a) GitHub   b) Azure DevOps   c) Ambos (monorepo o repos espejo)
 
-   Si 1.1 = Azure Boards, preguntar además:
-   - Proceso de Azure Boards del proyecto: **Agile** (default — Epic >
-     Feature > User Story > Task, Bug con Acceptance Criteria) / Scrum
-     (Product Backlog Item en vez de User Story, Effort en vez de Story
-     Points) / Basic / CMMI. Los nombres de campo de cada work item type
-     dependen del proceso — no asumir Agile sin preguntar si el proyecto
-     puede ser Scrum.
-   - Area Path y Iteration Path por default para tickets nuevos (ej.
-     `MyProject\\Team1`, `MyProject\\Sprint 1`) — si no los tiene definidos
-     todavía, registrar `null` y resolverlo después (no bloquea, ver Step 2).
+2. ¿Dónde viven las tareas/tickets del proyecto? — independiente de dónde
+   vive el código. [si no hay señal para proponer, preguntar sin default]
+   a) GitHub Issues   b) Azure Boards   c) Microsoft Planner
 
-   Si 1.1 = Microsoft Planner, preguntar además:
-   - Plan ID de Microsoft Planner (se puede extraer del link del plan en
-     planner.cloud.microsoft, o vía Graph Explorer).
-   - Bucket por default donde `create-ticket` va a crear tareas nuevas — si
-     el usuario todavía no lo definió, registrar `null` y resolverlo después
-     (no bloquea el resto del setup, ver Step 2).
-   - Confirmar si los permisos de Microsoft Graph delegados
-     (`Tasks.ReadWrite`, `Group.Read.All`) ya están consentidos en el
-     tenant de M365. Si el usuario no lo sabe o dice que no: registrar
-     `tracker_planner.graph_permissions_consented: false` en `platform.yml`
-     y avisar explícitamente que `tracker: planner` va a quedar configurado
-     pero NO funcional hasta que un admin de M365 conceda esos permisos —
-     no es algo que AgTeamOS pueda resolver por su cuenta.
+   Si 2 = Azure Boards, preguntar además (bloquea junto con el resto de
+   Ronda 0 porque determina los nombres de campo de todo work item):
+   - Proceso: Agile (default) / Scrum / Basic / CMMI.
+   (Area Path, Iteration Path, Plan ID, bucket, permisos de Graph — Ronda 1+,
+   ver Step 1.5, no bloquean acá)
 
-2. Si aplica GitHub: org/usuario y nombre del repo (ej. "acme/invoicing-api").
-   Si aplica Azure DevOps: organización y nombre del proyecto.
-
-3. Nombres de las variables de entorno donde vivirán los tokens de acceso
-   (NUNCA el valor del token — solo el nombre de la variable, ej.
-   "GITHUB_TOKEN", "AZURE_DEVOPS_PAT"). El usuario configura el valor real
-   por fuera de esta conversación.
-
-4. Estrategia de branching:
+3. Estrategia de branching: [propuesta si se detectaron ramas develop/staging:
+   "team"; si no, preguntar sin proponer]
    a) Personal: feature/* → main
    b) Equipo: feature/* → develop → staging → main
    c) Otra (describir)
 
-5. CI/CD target: GitHub Actions / GitLab CI / Azure Pipelines / otro.
+Handoff entre agentes: explícito (default; se cambia cuando quieras, no bloquea).
 
-6. Deploy target: Vercel, Railway, Fly.io, Cloud Run, VPS, AWS, Azure,
-   otro — o "todavía no definido".
-
-7. Convención de PR:
-   - Reviewers obligatorios (¿cuántos? ¿quién?)
-   - Merge strategy: squash / merge commit / rebase
-
-8. Modo de handoff entre agentes (NUEVO):
-   a) Explícito (default) — cada transición entre agentes (ej.
-      @product-owner → @architect → @project-manager) pide confirmación
-      del usuario antes de continuar.
-   b) Automático — los agentes se pasan la posta solos, sin pedir
-      confirmación en cada paso.
+El resto (org/repo si no se detectó, nombres de variables de entorno, CI/CD,
+deploy target, convención de PR) lo pregunto la primera vez que haga falta —
+ver Ronda 1+.
 ```
 
-No proceder a Step 2 hasta tener respuesta a las 9 preguntas (o una respuesta
-explícita de "todavía no lo sé" para las que no bloquean, ver Step 2, o
-aceptar el default de la pregunta 8 si el usuario no tiene preferencia).
+No proceder al Step 2 hasta tener respuesta de los 3 campos bloqueantes
+(`repo_host`, `tracker`, `branch_strategy`) — confirmando lo detectado o
+corrigiéndolo. Si algo no se pudo detectar, se pregunta sin opción
+recomendada, igual que antes de este cambio.
+
+### Step 1.5 — Ronda 1+: diferida, se pregunta en el momento de uso
+
+Estos campos **no** se preguntan en la Ronda 0 — se preguntan, uno por vez,
+la primera vez que la skill que realmente los necesita los usa (convención
+"ask-and-continue", ver más abajo):
+
+| Campo | Se pregunta cuando... | Quién pregunta |
+|---|---|---|
+| `repo.<host>.org`/`name` (si Step 0.5 no lo detectó) | primera vez que se usa el MCP `github`/`azure-devops` | ese consumidor |
+| `tracker_azure_devops.*` (area path, iteration path) | primer `create-ticket` contra Azure | `agteamos-new-task`, `agteamos-capture`, `agteamos-new-project` |
+| `tracker_planner.*` (plan_id, bucket, permisos de Graph) | primer `create-ticket` contra Planner | ídem, más el wizard script existente |
+| `env_var_names.*` | primer uso del MCP `github`/`azure-devops` | ídem |
+| `ci_target` (si Step 0.5 no lo detectó, o para confirmar lo detectado) | primer edit de CI o `agteamos-implement` con checks | `agteamos-deploy-readiness` / `agteamos-implement` |
+| `deploy_target` | primer `agteamos-deploy-readiness` | ídem |
+| `pr_convention.*` | primer `[operación: create-pr]` | `agteamos-implement` |
+
+Cada una de estas es **una sola pregunta puntual**, nunca "corré
+`agteamos-setup` de nuevo" — ver §Convención ask-and-continue.
 
 ### Step 2 — Resolver respuestas incompletas
 
-Si el usuario no puede responder algo (ej. "todavía no elegimos deploy target"),
-registrar el valor como `null` en `platform.yml`, NUNCA inventar un valor. La
-skill `agteamos-setup` puede re-ejecutarse más adelante para completar campos
-pendientes — no bloquea el resto del flujo salvo `repo_host`, `tracker` y
-`branch_strategy`, que son obligatorios porque otras skills (`agteamos-deploy`,
-`agteamos-new-project`, `agteamos-new-task`, `agteamos-task-closure`, PRs de
-todos los engineers) dependen de ellos desde el primer commit.
-`handoff_mode` sí tiene default (`explicit`) si el usuario no responde nada.
+Si el usuario no puede responder algo de Ronda 0 más allá de los 3
+bloqueantes (ej. "todavía no elegimos deploy target"), registrar el valor
+como `null` en `platform.yml`, NUNCA inventar un valor — y no insistir, se
+resuelve en Ronda 1+. Los 3 bloqueantes (`repo_host`, `tracker`,
+`branch_strategy`) sí son obligatorios en Ronda 0 porque otras skills
+(`agteamos-deploy-readiness`, `agteamos-new-project`, `agteamos-new-task`,
+`agteamos-implement`, PRs de todos los engineers) dependen de ellos desde
+el primer commit. `handoff_mode` tiene default (`explicit`) si el usuario no
+responde nada.
 
 **Excepción dentro de `tracker: planner`**: `tracker` en sí es obligatorio,
 pero `tracker_planner.plan_id`, `default_bucket_id` y
@@ -170,8 +183,57 @@ pr_convention:
   reviewer_names: []
   merge_strategy: squash        # squash | merge_commit | rebase
 handoff_mode: explicit          # NUEVO — explicit (pide confirmacion en cada transicion) | auto
+field_status:                   # confirmed | detected | pending — por campo, ver Step 1/1.5
+  repo_host: confirmed
+  tracker: confirmed
+  branch_strategy: confirmed
+  ci_target: detected           # detectado en Step 0.5, no confirmado todavia por el usuario
+  deploy_target: pending
+  pr_convention: pending
+reviewed: true                  # derivado: true si repo_host+tracker+branch_strategy estan confirmed
+quality_pulse:                   # opcional -- feedback continuo de calidad, ver hooks/scripts/quality-pulse.js
+  enabled: true                  # default true; false apaga el hook por completo para este proyecto
+  lint_on_edit: false            # true corre el comando de Lint (ver PROJECT_CONTEXT.md#Comandos canonicos) sobre el archivo tocado
 created_at: "2026-08-09"
 ```
+
+`quality_pulse` no es parte de la Ronda 0 ni se pregunta nunca en modo
+setup normal — queda con sus defaults salvo que el usuario pida
+explícitamente ajustarlo ("apagá el quality-pulse", "activá lint en cada
+edit"). Ver `agteamos-quality` para la referencia de umbrales.
+
+`field_status` y `reviewed` conviven por compatibilidad: `reviewed` sigue
+siendo lo único que leen los consumidores que no conocen `field_status`
+todavía (ver `agteamos-router` Step 0) — es un campo **derivado**, no se
+edita a mano, se recalcula cada vez que cambia `field_status`. Un
+`platform.yml` de un proyecto onboardeado antes de este campo (sin
+`field_status`) se sigue evaluando solo por `reviewed`, como siempre.
+
+### Step 3.4 — Registrar/actualizar el proyecto en el registro global
+
+Después de escribir `platform.yml`, upsert de la entrada correspondiente en
+`~/.claude/agteamos/projects.yml` (match por `path` absoluto del repo
+actual — crear el archivo si no existe todavía):
+
+```yaml
+name: <slug del nombre de carpeta o repo>   # solo si la entrada es nueva
+aliases: []                                  # solo si la entrada es nueva
+path: <ruta absoluta del repo actual>
+has_agteamos: true
+repo_host: <platform.yml.repo_host>
+tracker: <platform.yml.tracker>
+reviewed: <platform.yml.reviewed>
+last_active: <hoy>
+```
+
+Si la entrada ya existía (el usuario llegó acá vía `agteamos-router`,
+que ya la había creado con valores placeholder), actualizar `has_agteamos`,
+`repo_host`, `tracker`, `reviewed` y `last_active` sin tocar `name`/`aliases`
+que el usuario pueda haber ajustado. Si no existía (el usuario abrió este
+repo directamente, sin pasar por `project-switch`), crearla entera. Esto es
+lo que mantiene el registro global consistente sin importar por qué puerta
+entró el usuario — ver `agteamos-router` para el detalle completo
+del esquema del registro.
 
 ### Step 3.5 — Asegurar `.gitignore` para los artefactos generados
 
@@ -189,16 +251,21 @@ agteamos/changes/**/report.html
 agteamos/.cache/
 ```
 `agteamos/.cache/` es el cache local y desechable de hallazgos (ledger de
-`agteamos-review`, `agteamos-audit` y `agteamos-domain-review`, más el hash
+`agteamos-quality`, más el hash
 del último nudge del Stop hook) — es por-checkout, nunca se comparte entre
 desarrolladores.
 
 Si el archivo ya tiene esas líneas (proyecto que corrió `setup` antes), no
 duplicar. Si `.gitignore` no existe, crearlo con solo esas 3 líneas — no
 inventar un `.gitignore` genérico de stack (eso es responsabilidad de
-`agteamos-new-project`/`agteamos-onboard`, no de `setup`).
+`agteamos-new-project`/`agteamos-project-docs`, no de `setup`).
 
 ### Step 3.6 — Generar el tracker adapter (`agteamos/tracker/<tipo>.md`)
+
+Este step se ejecuta cuando `tracker` pasa a `field_status: confirmed` — en
+Ronda 0 si ya se confirmó ahí, o recién en Ronda 1+ si `tracker` quedó
+`pending`/`detected` y se confirma después vía ask-and-continue. Nunca se
+genera el adapter para un tracker todavía no confirmado por el usuario.
 
 **Por qué existe esto**: hoy las skills tienen ~34 comandos `gh` hardcodeados
 repartidos en 11 archivos. Si `repo_host`/`tracker` es `azure_devops`, esos
@@ -240,6 +307,7 @@ archivos si `tracker != repo_host`, ver arriba):
 | Operación abstracta | Comando |
 |---|---|
 | create-ticket | `gh issue create --title "<title>" --body "<body>"` |
+| create-label | `gh label create "<name>" --color "<hex>"` |
 | get-ticket | `gh issue view <id> --json title,body,labels,assignees,state` |
 | close-ticket | `gh issue close <id>` |
 | comment-ticket | `gh issue comment <id> --body "<body>"` |
@@ -289,6 +357,7 @@ generado, no en silencio.
 | create-story | `az boards work-item create --type "User Story" --title "<title>" --description "<body>" --area "<area_path>" --iteration "<iteration_path>" --fields "Microsoft.VSTS.Common.AcceptanceCriteria=<criteria>" "Microsoft.VSTS.Scheduling.StoryPoints=<points>" "Microsoft.VSTS.Common.Priority=<1-4>"` |
 | create-task | `az boards work-item create --type "Task" --title "<title>" --description "<body>" --area "<area_path>" --iteration "<iteration_path>" --fields "Microsoft.VSTS.Scheduling.OriginalEstimate=<horas>" "Microsoft.VSTS.Common.Activity=<Development\|Testing\|Design\|Documentation>"` |
 | create-bug | `az boards work-item create --type "Bug" --title "<title>" --area "<area_path>" --iteration "<iteration_path>" --fields "Microsoft.VSTS.TCM.ReproSteps=<pasos>" "Microsoft.VSTS.Common.Severity=<1-4>"` — Bug usa `ReproSteps`, NO `Description` ni `AcceptanceCriteria` (esos campos no existen en el form de Bug del proceso Agile). |
+| create-label | N/A — Azure Boards no tiene labels pre-creadas como GitHub. El equivalente son Tags libres por work item: `az boards work-item update --id <id> --fields "System.Tags=<tag1>; <tag2>"` (se escriben al crear/actualizar el ticket, no hay comando de "crear label" separado). |
 | link-parent-child | `az boards work-item relation add --id <child_id> --relation-type parent --target-id <parent_id>` — correr siempre sobre el hijo, target es el padre (Epic←Feature←User Story←Task). |
 | link-external-url | `az boards work-item relation add --id <id> --relation-type Hyperlink --target-url "<url>"` — para referencias a sistemas externos (Odoo, helpdesk, etc.), aparece en la pestaña Links del work item, no solo como texto en la descripción. |
 | get-ticket | `az boards work-item show --id <id>` |
@@ -332,6 +401,7 @@ generado, no en silencio.
 | create-story | `az boards work-item create --type "Product Backlog Item" --title "<title>" --description "<body>" --area "<area_path>" --iteration "<iteration_path>" --fields "Microsoft.VSTS.Common.AcceptanceCriteria=<criteria>" "Microsoft.VSTS.Scheduling.Effort=<effort>" "Microsoft.VSTS.Common.BacklogPriority=<orden>"` — el nombre del tipo sigue siendo "Product Backlog Item" aunque la operación abstracta se llame `create-story`, para no romper la resolución de `[operación: create-story]` de las skills consumidoras. |
 | create-task | `az boards work-item create --type "Task" --title "<title>" --description "<body>" --area "<area_path>" --iteration "<iteration_path>" --fields "Microsoft.VSTS.Scheduling.RemainingWork=<horas>" "Microsoft.VSTS.Common.Activity=<Development\|Testing\|Design\|Documentation>"` — solo `RemainingWork`, sin `OriginalEstimate` ni `CompletedWork` (no existen en el form de Task de Scrum). |
 | create-bug | `az boards work-item create --type "Bug" --title "<title>" --area "<area_path>" --iteration "<iteration_path>" --fields "Microsoft.VSTS.TCM.ReproSteps=<pasos>" "Microsoft.VSTS.Common.Severity=<1-4>"` — igual que en Agile. |
+| create-label | N/A — igual que en Agile: Azure Boards no tiene labels pre-creadas, usa Tags libres por work item (`System.Tags`). |
 | link-parent-child | `az boards work-item relation add --id <child_id> --relation-type parent --target-id <parent_id>` — correr siempre sobre el hijo, target es el padre (Epic←Feature←PBI←Task). |
 | link-external-url | `az boards work-item relation add --id <id> --relation-type Hyperlink --target-url "<url>"` — para referencias a sistemas externos (Odoo, helpdesk, etc.). |
 | get-ticket | `az boards work-item show --id <id>` |
@@ -354,7 +424,7 @@ generado, no en silencio.
 
 **Por qué `create-story` es el mismo nombre de operación en ambas tablas
 aunque el tipo real (`User Story` vs `Product Backlog Item`) sea distinto**:
-las skills consumidoras (`agteamos-new-task`, `agteamos-story-breakdown`)
+las skills consumidoras (`agteamos-new-task`)
 invocan la operación abstracta sin saber qué proceso está activo — el
 mapeo al tipo/campo real vive únicamente acá, en el adapter generado. Esto
 es la misma disciplina que ya aplica `create-ticket` entre GitHub y Azure
@@ -395,6 +465,7 @@ desde el día 1 de este sistema.
 | Operación abstracta | Comando |
 |---|---|
 | create-ticket | `az rest --method POST --url "https://graph.microsoft.com/v1.0/planner/tasks" --body '{"planId":"<plan_id>","bucketId":"<bucket_id>","title":"<title>"}'` — luego, para la descripción: `GET .../tasks/<id>/details` (tomar `@odata.etag`), `PATCH .../tasks/<id>/details` con header `If-Match: <etag>` y body `{"description":"<body>"}` |
+| create-label | N/A — Planner tiene 6 categorías de color fijas por plan (`categoryDescriptions`), no se crean labels nuevas. Asignar una categoría existente a una tarea: `PATCH .../planner/tasks/<id>` con `If-Match` y body `{"appliedCategories":{"category1":true}}`. |
 | get-ticket | `az rest --method GET --url "https://graph.microsoft.com/v1.0/planner/tasks/<id>"` + `az rest --method GET --url ".../planner/tasks/<id>/details"` (título/estado en el primero, descripción/notes/referencias en el segundo) |
 | close-ticket | `GET .../planner/tasks/<id>` (tomar `@odata.etag`), luego `az rest --method PATCH --url ".../planner/tasks/<id>" --headers "If-Match=<etag>" --body '{"percentComplete":100}'` |
 | comment-ticket | `GET .../planner/tasks/<id>/details` (tomar `@odata.etag` y el `notes` actual), luego `PATCH` con `If-Match` agregando `<body>` al final de `notes` — Planner no tiene hilo de comentarios nativo, es un solo campo de texto acumulativo |
@@ -440,20 +511,20 @@ seco solo porque GitHub no tiene el concepto nativo.
 Mostrar el `platform.yml` resultante al usuario para confirmación antes de
 escribirlo. Una vez escrito:
 
-**Próximo paso sugerido**: si `agteamos-repo-context-check` determinó que el
+**Próximo paso sugerido**: si `agteamos-router` determinó que el
 repo está vacío, continuar con la skill `agteamos-new-project`. Si el repo ya
-tiene código, continuar con la skill `agteamos-onboard` (para documentar lo que
+tiene código, continuar con la skill `agteamos-project-docs` (para documentar lo que
 ya existe contra esta configuración recién definida).
 
 ---
 
-## CONVENCIÓN — hard dependency vs soft dependency en skills que leen `platform.yml`
+## CONVENCIÓN — hard dependency / soft dependency / ask-and-continue
 
-Toda skill de AgTeamOS que lee `platform.yml` cae en una de dos categorías,
-y debe decirlo explícitamente cuando el archivo falta:
+Toda skill de AgTeamOS que lee `platform.yml` cae en una de tres categorías,
+y debe decirlo explícitamente cuando el campo que necesita falta:
 
-- **Hard dependency** (la skill no puede funcionar sin él — ej.
-  `agteamos-deploy`, `agteamos-new-project`, cualquier operación de tracker):
+- **Hard dependency** (falta uno de los 3 campos bloqueantes —
+  `repo_host`/`tracker`/`branch_strategy`, o `platform.yml` no existe):
   rehusarse a continuar con esta frase exacta: *"`agteamos/platform.yml`
   debería haberte sido provisto; corré `agteamos-setup` si no."* No inventar
   un default silencioso para tapar el hueco.
@@ -462,6 +533,15 @@ y debe decirlo explícitamente cuando el archivo falta:
   seguir sin él): decirlo también, pero seguir adelante con la degradación
   explícita ("sin `platform.yml`, no puedo confirmar el stack — asumiendo
   [X] salvo que corrijas").
+- **Ask-and-continue** (el campo que falta es de Ronda 1+ — `field_status:
+  pending` o `detected` — y la skill consumidora sabe exactamente cuál
+  necesita, ver la tabla del Step 1.5): la skill hace **solo esa pregunta
+  puntual** (o muestra el valor `detected` para confirmar), persiste la
+  respuesta en `platform.yml` con `field_status: confirmed` para ese campo, y
+  sigue con su trabajo en el mismo turno. Nunca manda a correr
+  `agteamos-setup` completo por un campo no bloqueante — eso es exactamente
+  el costo que este contrato busca evitar. `agteamos-setup` completo queda
+  reservado para cuando falta alguno de los 3 campos bloqueantes.
 
 ## Wizard script para pasos manuales que requieren al humano
 
@@ -481,9 +561,9 @@ instrucciones de texto que hay que releer.
 
 | Consumidor | Campo que lee | Para qué |
 |---|---|---|
-| `agteamos-flow-router` | (existencia del archivo) | Step 0 — decide si disparar `agteamos-setup` primero |
+| `agteamos-router` | (existencia del archivo) | Step 0 — decide si disparar `agteamos-setup` primero |
 | `agents/frontend-engineer.md`, `agents/backend-engineer.md` | `branch_strategy` | rama destino del PR |
-| `agteamos-deploy` | `deploy_target`, `ci_target` | comandos de deploy y verificación de CI |
+| `agteamos-deploy-readiness` | `deploy_target`, `ci_target` | comandos de deploy y verificación de CI |
 | `agteamos-pr-standards` | `pr_convention` | reviewers requeridos, merge strategy |
 | MCP `github`/`azure-devops` | `repo_host`, `repo.*`, `env_var_names` | qué servidor MCP usar y con qué variable de entorno de auth |
 | `agteamos/tracker/<tracker>.md` (generado en Step 3.6) | `tracker`, `repo_host`, `tracker_planner.*` | qué adapter generar y si hay que fusionar filas de PR heredadas de `repo_host` |

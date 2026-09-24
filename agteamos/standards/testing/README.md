@@ -1,3 +1,11 @@
+---
+topic: testing
+description: Piramide de tests, Given/When/Then, factories, E2E con Playwright
+keywords: [pytest, vitest, xunit, test, e2e, fixture, mock, coverage]
+globs: ["**/test_*.py", "**/*_test.py", "**/*.spec.ts", "**/*.test.ts", "**/*Tests.cs", "e2e/**"]
+first_consumers: [qa-engineer, build]
+---
+
 # Testing Standard
 
 ## Testing Pyramid

@@ -1,3 +1,11 @@
+---
+topic: security
+description: OWASP Top 10 y ASVS L1 — auth, input validation, secrets, headers
+keywords: [auth, jwt, oauth, secret, owasp, asvs, xss, sql-injection, csrf]
+globs: ["**/auth/**", "**/security/**", "**/*auth*.py", "**/*auth*.ts"]
+first_consumers: [security-engineer, quality]
+---
+
 # Security Standard
 
 Based on OWASP Top 10 (2021) and ASVS Level 1. Applies to every service and PR.

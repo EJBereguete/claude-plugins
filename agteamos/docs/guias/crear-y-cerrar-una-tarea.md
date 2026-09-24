@@ -1,6 +1,6 @@
 # Crear y cerrar una tarea
 
-Referencia rápida de `agteamos-new-task` → `agteamos-implement` → `agteamos-close-task`. Si es tu primera vez, prefiere el recorrido guiado en [Primeros pasos — tu primer proyecto](../primeros-pasos/02-primer-proyecto.md); esta página asume que ya conoces el flujo y solo necesitas el comando o el paso exacto.
+Referencia rápida de `agteamos-new-task` → `agteamos-implement`. Si es tu primera vez, prefiere el recorrido guiado en [Quickstart](../primeros-pasos/01-quickstart.md); esta página asume que ya conoces el flujo y solo necesitas el comando o el paso exacto.
 
 ## Cómo se activa cada flujo (tabla de detección)
 
@@ -16,9 +16,9 @@ Referencia rápida de `agteamos-new-task` → `agteamos-implement` → `agteamos
 ```mermaid
 flowchart TD
     START([Instrucción en lenguaje natural]) --> CTX[Lee PROJECT_CONTEXT.md]
-    CTX --> CLARIFY["agteamos-clarification-protocol\nmáx 3-5 preguntas, un solo mensaje"]
+    CTX --> CLARIFY["agteamos-new-task\nmáx 3-5 preguntas, un solo mensaje"]
     CLARIFY --> SCHEMA{"Step 2: ¿schema\nfull o lite?"}
-    SCHEMA --> PO["@product-owner escribe\nspecs/requirements.md"]
+    SCHEMA --> PO["@product-manager escribe\nspecs/requirements.md"]
     PO --> GATE1{Usuario aprueba?}
     GATE1 -->|No| PO
     GATE1 -->|Sí| DES["@architect escribe\nspecs/design.md + specs/deltas/dominio.md"]
@@ -30,9 +30,9 @@ flowchart TD
     GATE3 -->|No| MOCKUP
     GATE3 -->|Sí| INVEST
     FEQ -->|No| INVEST{"Step 7: ¿tarea grande?\nINVEST"}
-    INVEST -->|Sí| SPLIT[agteamos-story-breakdown]
+    INVEST -->|Sí| SPLIT[agteamos-new-task]
     INVEST -->|No| TICKET
-    SPLIT --> TICKET["@project-manager crea\nticket en GitHub/Azure (Step 8)"]
+    SPLIT --> TICKET["@product-manager crea\nticket en GitHub/Azure (Step 8)"]
     TICKET --> F3[Continúa con agteamos-implement]
 ```
 
@@ -43,7 +43,7 @@ Orden real (ver `skills/new-task/SKILL.md`): requirements → aprobación → de
 ```mermaid
 flowchart TD
     START(["Ticket: URL / #42 / AB#1234"]) --> DOR{"Definition of Ready\n¿cumple lo mínimo?"}
-    DOR -->|No| CLARIFY[agteamos-clarification-protocol]
+    DOR -->|No| CLARIFY[agteamos-new-task]
     CLARIFY --> DOR
     DOR -->|Sí| BRANCH["Crear branch\nfeature/id-slug o bugfix/id-slug"]
     BRANCH --> LAYERS{Capas impactadas}
@@ -51,10 +51,10 @@ flowchart TD
     LAYERS -->|Frontend| FE[Frontend Engineer]
     LAYERS -->|Ambas| BOTH[Backend + Frontend]
     BE & FE & BOTH --> TESTS["Unit tests obligatorios\nhappy path + error + edge"]
-    TESTS --> TRACK["agteamos-task-tracking actualiza\nprogress.md + task.yml + report.html"]
+    TESTS --> TRACK["agteamos-implement actualiza\nprogress.md + task.yml + report.html"]
     TRACK --> E2E["QA: E2E + screenshots\nen evidence/"]
     E2E --> PR["PR vía gh CLI\n'Closes #42' o 'Fixes AB#1234'"]
-    PR --> CLOSE[agteamos-close-task]
+    PR --> CLOSE[agteamos-implement]
 ```
 
 **Naming de branches:**
@@ -66,7 +66,7 @@ flowchart TD
 
 **Definition of Ready mínima**: título descriptivo, descripción con el valor de negocio, al menos un Acceptance Criteria, capa identificada (backend/frontend/fullstack). Si falta algo, se pregunta antes de continuar.
 
-## `agteamos-close-task` — checklist de cierre, en orden (Steps 0 a 12)
+## `agteamos-implement` — checklist de cierre, en orden (Steps 0 a 12)
 
 0. **Bifurcación**: leer `schema` en `task.yml`. Con `schema: lite` el cierre se reduce a test de regresión pasando + merge + archive, sin los pasos de `verify`/`sync` de abajo. Con `schema: full`, seguir los Steps 1-12.
 1. Verificar todos los ACs de `requirements.md` cubiertos, tests pasando, sin secrets hardcodeados.

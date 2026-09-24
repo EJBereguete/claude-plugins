@@ -1,13 +1,13 @@
-# Ejecutar una auditoría (`agteamos-audit`)
+# Ejecutar una auditoría (`agteamos-quality`)
 
 Auditoría integral de ingeniería: arquitectura, seguridad, calidad de código, testing, DevOps/observabilidad y valor de negocio. El resultado es un **Radar de Deuda Técnica** con plan de mitigación priorizado.
 
-> **No confundir con `agteamos-self-audit`**: esta skill (`agteamos-audit`) audita el código/arquitectura del **proyecto donde está instalado AgTeamOS**. `agteamos-self-audit` es una skill distinta que audita al **propio sistema AgTeamOS** (detecta fricción en su propio workflow). No son intercambiables.
+> **No confundir con `agteamos-plugin-improvement`**: esta skill (`agteamos-quality`) audita el código/arquitectura del **proyecto donde está instalado AgTeamOS**. `agteamos-plugin-improvement` es una skill distinta que audita al **propio sistema AgTeamOS** (detecta fricción en su propio workflow). No son intercambiables.
 
 ## Cuándo correrla
 
-- A demanda: `/agteamos-audit`.
-- Recomendado justo después de un `agteamos-onboard` en un proyecto con deuda técnica desconocida.
+- A demanda: `/agteamos-quality`.
+- Recomendado justo después de un `agteamos-project-docs` en un proyecto con deuda técnica desconocida.
 - Periódicamente (ej. cada trimestre) para trackear si el Score Global mejora entre auditorías.
 
 ## Quién participa
@@ -16,12 +16,12 @@ Todo el equipo aporta su dimensión — no es una skill de un solo agente:
 
 | Paso | Agente | Analiza |
 |---|---|---|
-| 0 | — | `agteamos-repo-context-check`, luego `agteamos-onboard` si no hay contexto |
+| 0 | — | `agteamos-router`, luego `agteamos-project-docs` si no hay contexto |
 | 1 | `@architect` | Estructura, acoplamiento, ADRs, SOLID en el dominio |
 | 2 | `@security-engineer` | Secret scanning, dependency audit, checklist OWASP Top 10 |
 | 3 | `@qa-engineer` | Cobertura de tests, E2E, calidad de las aserciones |
 | 4 | `@devops-engineer` | DORA metrics, observabilidad, production readiness |
-| 5 | `@product-owner` | Impacto de negocio, esfuerzo, ROI, priorización P0/P1/P2 |
+| 5 | `@product-manager` | Impacto de negocio, esfuerzo, ROI, priorización P0/P1/P2 |
 | 6 | — | Genera `agteamos/security/AUDIT-YYYY-MM-DD.md` |
 
 ## Comandos que corre (Step 2 — seguridad)
