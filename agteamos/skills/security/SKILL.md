@@ -31,6 +31,11 @@ used_by:
   autenticacion/autorizacion o un nuevo componente de infraestructura DEBE
   tener un threat model documentado antes de iniciar la implementacion. El
   threat model vive en `agteamos/security/threat-models/`.
+- **Human docs**: no actualizar documentación pública por cada revisión ASVS.
+  Ejecutar `agteamos-knowledge --human-docs --scope changed` solo si el threat
+  model confirmado cambió arquitectura/trust boundaries o una práctica
+  operacional (deploy, monitoring, rollback o respuesta). El target permitido
+  es `docs/architecture.md` y/o `docs/operations.md`, derivado de `agteamos/`.
 
 ---
 
@@ -662,6 +667,21 @@ Minima    | Minimo |  Bajo |  Bajo  | Medio  |
 - [ ] Las amenazas Criticas y Altas tienen mitigacion documentada con PR de referencia
 - [ ] Las amenazas aceptadas tienen justificacion y aprobacion documentada
 - [ ] El documento esta en `agteamos/security/threat-models/` y referenciado en el issue
+
+### Sincronización condicional de human docs
+
+Después de guardar el threat model, clasificar su impacto:
+
+- solo hallazgos/mitigaciones locales de código → no tocar human docs;
+- nuevos componentes, actores, trust boundaries o flujos → actualizar
+  `docs/architecture.md`;
+- cambios de secretos, despliegue, alertas, rollback o respuesta →
+  actualizar `docs/operations.md`.
+
+Para los dos últimos casos, ejecutar
+`agteamos-knowledge --human-docs --scope changed`. Mostrar diff al reemplazar
+una sección administrada; nunca sobreescribir contenido humano fuera de
+marcadores sin preview y aprobación.
 
 ---
 

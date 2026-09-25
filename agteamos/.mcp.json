@@ -2,61 +2,20 @@
   "mcpServers": {
     "github": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": ["-y", "@modelcontextprotocol/server-github@2025.4.8"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
       }
     },
     "context7": {
       "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"]
-    },
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem"],
-      "env": {
-        "ALLOWED_DIRECTORIES": "${PROJECT_ROOT:-.}"
-      }
-    },
-    "postgres": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres"],
-      "env": {
-        "POSTGRES_CONNECTION_STRING": "${DATABASE_URL}"
-      }
+      "args": ["-y", "@upstash/context7-mcp@4.1.1"]
     },
     "azure-devops": {
       "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "${AZURE_DEVOPS_ORG}", "--authentication", "pat"],
+      "args": ["-y", "@azure-devops/mcp@2.10.0", "${AZURE_DEVOPS_ORG}", "--authentication", "pat"],
       "env": {
-        "PERSONAL_ACCESS_TOKEN": "${AZURE_DEVOPS_PAT_B64}"
-      }
-    },
-    "docker": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-docker"],
-      "env": {
-        "DOCKER_HOST": "${DOCKER_HOST:-unix:///var/run/docker.sock}"
-      }
-    },
-    "sentry": {
-      "command": "npx",
-      "args": ["-y", "@sentry/mcp-server"],
-      "env": {
-        "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
-        "SENTRY_ORG": "${SENTRY_ORG}"
-      }
-    },
-    "sonarqube": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sonarqube"],
-      "env": {
-        "SONAR_TOKEN": "${SONAR_TOKEN}",
-        "SONAR_HOST_URL": "${SONAR_HOST_URL:-https://sonarcloud.io}"
+        "PERSONAL_ACCESS_TOKEN": "${AZURE_DEVOPS_PAT}"
       }
     }
   }

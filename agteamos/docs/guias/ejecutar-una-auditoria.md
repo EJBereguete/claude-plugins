@@ -80,5 +80,7 @@ Ponderación:
 - Correr la auditoría sin leer `PROJECT_CONTEXT.md` primero — los hallazgos pierden contexto arquitectónico.
 - Marcar todo como P0 — genera fatiga de alertas y bloquea la acción sobre lo realmente crítico.
 - Puntuar solo lo medible (% de cobertura) ignorando factores cualitativos (naming, acoplamiento).
-- Generar el reporte sin crear tickets de seguimiento — una auditoría sin acción es un documento muerto.
+- Generar el reporte sin proponer seguimientos mediante
+  `agteamos-work-items` — los tickets requieren contexto real, change set
+  aprobado y verificación.
 - Hacer el análisis de seguridad sin correr el comando real de secret scanning — las suposiciones no son evidencia.

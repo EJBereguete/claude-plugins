@@ -9,8 +9,8 @@ Esto es deliberado, no una limitación: en un proyecto con historia, buena parte
 Automáticamente, la primera vez que le pides algo a `@architect` en un repo que tiene código pero no tiene carpeta `agteamos/`. También puedes invocarlo explícitamente:
 
 ```
-/agteamos-knowledge          # L0: onboarding mínimo (default) — menos de 3 minutos, 0-1 preguntas
-/agteamos-knowledge --full   # L2: genera todo de una sola vez (modo histórico) — útil antes de un
+/agteamos-knowledge --init          # L0: onboarding mínimo — menos de 3 minutos, 0-1 preguntas
+/agteamos-knowledge --init --full   # L2: genera todo lo aplicable — útil antes de un
                             # primer /agteamos-quality o un traspaso formal de equipo
 ```
 
@@ -21,17 +21,45 @@ flowchart TD
     START([agteamos-knowledge]) --> DETECT["Detecta el stack:\npackage.json, pyproject.toml,\n*.csproj, estructura de carpetas"]
     DETECT --> CTX["Genera agteamos/architecture/PROJECT_CONTEXT.md LEAN\nstack + comandos canonicos + mapa de modulos"]
     CTX --> PLATFORM["agteamos/platform.yml detectado\n(field_status: detected, no confirmed)"]
-    PLATFORM --> MANIFEST["agteamos/onboarding.yml:\nlos 11 temas de standards y los dominios\ndetectados quedan pending/candidate"]
+    PLATFORM --> MANIFEST["agteamos/onboarding.yml:\nlos 7 topics del registry y los dominios\ndetectados quedan pending/candidate"]
     MANIFEST --> DONE([Listo en <3 min, 0-1 preguntas.\nEl resto se genera just-in-time])
 ```
 
-Nada de esto bloquea ninguna tarea: genera el contexto mínimo con lo que puede inferir del código real y continúa. Los campos que no se pudieron determinar con confianza quedan marcados explícitamente en vez de inventados — ver el header `Estado`/`Confidence` en [Capa de standards](../conceptos/filosofia-y-arquitectura.md#capa-de-standards).
+Nada de esto bloquea ninguna tarea: genera el contexto mínimo con lo que puede
+inferir del código real y continúa. Los campos no confirmados quedan marcados
+en vez de inventados; los topics descubiertos separan `Observed`, `Decided` y
+`External`, con fuentes y confidence. Ver
+[Capa de standards](../conceptos/filosofia-y-arquitectura.md#capa-de-standards).
+
+El árbol L0 real es:
+
+```text
+agteamos/
+├── platform.yml
+├── onboarding.yml
+└── architecture/
+    └── PROJECT_CONTEXT.md
+```
+
+Los siete topics y los dominios candidatos viven como metadata en
+`onboarding.yml`; L0 no crea `standards/`, `specs/` ni sus índices.
 
 ## El resto se genera solo, cuando hace falta (L1 — just-in-time)
 
-`api/endpoints.md`, `design/DESIGN_SYSTEM.md`, `devops/INFRASTRUCTURE.md`, cada tema de `agteamos/standards/<tema>/`, y la spec maestra de cada dominio (`agteamos/specs/<dominio>.md`) **no se generan en el onboarding** — quedan declarados en `agteamos/onboarding.yml` con su disparador, y se generan la primera vez que una tarea real los toca (protocolo `ensure-artifact`, ver `agteamos-context` §Lazy Artifacts). Por ejemplo: la primera vez que pides "agregá el endpoint de reembolsos", `agteamos-build` genera solo `standards/api-design/` y el mapa de API del módulo tocado — no los 11 estándares ni el árbol completo.
+`design/DESIGN_SYSTEM.md`, `devops/INFRASTRUCTURE.md`, cada topic de
+`agteamos/standards/<id>/` y la spec maestra de cada dominio
+(`agteamos/specs/<dominio>.md`) **no se generan en L0**: quedan declarados en
+`agteamos/onboarding.yml` y nacen cuando una tarea real los necesita. Por
+ejemplo, al agregar un endpoint, `agteamos-build` llama
+`agteamos-knowledge --inject` y puede descubrir solo `api-design`, con scope
+acotado; no genera los siete topics ni una carpeta API paralela.
 
-Si preferís tenerlo todo generado de entrada (por ejemplo antes de un `/agteamos-quality` inicial, o para dejar el proyecto documentado de punta a punta para un traspaso), corré `/agteamos-knowledge --full` — es el comportamiento histórico completo, sin diferir nada.
+Si preferís generar todos los artefactos aplicables de entrada, corré
+`/agteamos-knowledge --init --full`.
+
+Las human docs también son lazy: README, CHANGELOG, `docs/architecture.md` y
+`docs/operations.md` se derivan de `agteamos/` con
+`--human-docs [--scope changed|all]`. No son otra fuente de verdad.
 
 ## Lo más importante que genera: `PROJECT_CONTEXT.md`
 
@@ -58,11 +86,17 @@ Es el archivo que **todos los agentes leen antes de cualquier acción** a partir
 - Python: type hints en todas las funciones, async/await
 ```
 
-## Las specs maestras nacen `seeded` — y eso es lo correcto
+## Las specs maestras nacen en el primer uso real
 
-El paso más importante del onboarding de un proyecto legacy no es el stack detectado ni el mapa de endpoints — es la siembra de `agteamos/specs/<dominio>.md`, la spec maestra persistente de cada dominio (ver [SDD y specs maestras](../conceptos/sdd-y-specs-maestras.md)).
+L0 detecta dominios candidatos y guarda su evidencia en `onboarding.yml`, pero
+no crea `specs/`. Cuando una primera tarea full necesita un dominio, confirma
+el nombre y materializa juntos `agteamos/specs/index.yml` y
+`agteamos/specs/<dominio>.md` (ver
+[SDD y specs maestras](../conceptos/sdd-y-specs-maestras.md)).
 
-`agteamos-knowledge` no puede leer todo el código y producir una spec `complete` de una sola pasada — ningún escaneo automático puede, y prometerlo sería la misma mentira que un `PROJECT_CONTEXT.md` inventado. En vez de eso, cada spec maestra sembrada arranca con un header `## Coverage` explícito:
+`agteamos-knowledge` no puede leer todo el código y producir una spec
+`complete` de una sola pasada. La spec materializada arranca `seeded` con
+coverage explícito:
 
 ```markdown
 # Spec: notifications
@@ -95,9 +129,11 @@ carpeta al día.
 
 ## Qué hacer después del onboarding
 
-1. Revisa `agteamos/architecture/PROJECT_CONTEXT.md` — corrige a mano cualquier cosa mal detectada antes de seguir.
-2. Corre `/agteamos-setup` si `agteamos/platform.yml` no quedó definido (branch strategy, deploy target, etc.).
-3. Revisa `agteamos/standards/standards.yml` — en modo L0 vas a ver la mayoría de los temas en `pending` (se generan solos, tema por tema, a medida que los tocas). A medida que se generan verás cuáles `applies`, cuáles quedaron `adapted` y cuáles `deviates` con su razón documentada. Ver [Mantener los standards al día](../guias/mantener-standards-al-dia.md).
+1. Revisa `agteamos/architecture/PROJECT_CONTEXT.md` — corrige cualquier cosa mal detectada.
+2. Corre `/agteamos-setup` si los campos bloqueantes de `platform.yml` siguen sin confirmar.
+3. Revisa `agteamos/onboarding.yml`: L0 deja topics y dominios
+   `pending`/`candidate`; el primer discovery crea `standards/` y sus índices.
+   Ver [Mantener los standards al día](../guias/mantener-standards-al-dia.md).
 4. Empieza tu primera tarea normalmente con lenguaje natural — ver [Crear y cerrar una tarea](../guias/crear-y-cerrar-una-tarea.md).
 
 ## Recomendación

@@ -208,7 +208,8 @@ Planner actualizar cuando el requisito se verifica:
 > mano: cuando una tarea que cita `RF-XXX` en su `requirements.md` cierra con
 > `verify-report.md` en `PASS`, la fila correspondiente pasa a `Verificado`
 > (y, si hay `tracker: planner`, la tarea de Planner citada en la columna 5
-> se marca `percentComplete: 100` vía `[operación: close-ticket]`).
+> se propone para `percentComplete: 100` mediante `agteamos-work-items`;
+> requiere change set aprobado y verificación posterior).
 
 ---
 

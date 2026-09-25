@@ -15,15 +15,18 @@ Bienvenido a la documentación completa del plugin `agteamos` para Claude Code. 
 | Documento | Descripción |
 |-----------|-------------|
 | [Configurar la plataforma](./guias/configurar-la-plataforma.md) | `agteamos-setup` y `platform.yml`, incluyendo `handoff_mode` |
-| [Crear y cerrar una tarea](./guias/crear-y-cerrar-una-tarea.md) | `agteamos-task` → `agteamos-implement`, consulta rápida |
-| [Mantener los standards al día](./guias/mantener-standards-al-dia.md) | `agteamos-knowledge --topic`, confidence score, cuándo re-ejecutar |
+| [Crear y cerrar una tarea](./guias/crear-y-cerrar-una-tarea.md) | Auditoría de breakdown, `agteamos-task` → `agteamos-implement`, consulta rápida |
+| [Contratos ejecutables y doctor](./guias/contratos-y-doctor.md) | Layout/workflow, receipts durables, Azure seguro, approvals y diagnóstico de providers |
+| [Workflow v3 y mantenimiento](./guias/workflow-v3-y-mantenimiento.md) | Blueprint, Bug por ID, riesgo/SHA, abandono, context budget y release-clean |
+| [Portal multi-proyecto](./guias/portal-multiproyecto.md) | Dashboard global local, fuentes visibles, seguridad y regeneración |
+| [Mantener los standards al día](./guias/mantener-standards-al-dia.md) | Registry metadata-only, discovery project-owned, `--inject`, staleness y human docs |
 | [Ejecutar una auditoría](./guias/ejecutar-una-auditoria.md) | `agteamos-quality` (modo auditoría integral), Radar de Deuda Técnica |
 
 ## Conceptos — por qué está diseñado así
 
 | Documento | Descripción |
 |-----------|-------------|
-| [Filosofía y arquitectura](./conceptos/filosofia-y-arquitectura.md) | Qué es, qué problema resuelve, mapa de agentes, y la capa de standards (base del plugin vs. `agteamos/standards/` del proyecto) |
+| [Filosofía y arquitectura](./conceptos/filosofia-y-arquitectura.md) | Qué es, mapa de agentes y knowledge v3 (registry + discovery del proyecto) |
 | [SDD y specs maestras](./conceptos/sdd-y-specs-maestras.md) | Los 4 artefactos, esquema `full`/`lite`, deltas, `changes/` |
 | [Context Engineering](./conceptos/context-engineering.md) | Persistencia entre sesiones, context tiers, handoffs |
 
@@ -31,8 +34,8 @@ Bienvenido a la documentación completa del plugin `agteamos` para Claude Code. 
 
 | Documento | Descripción |
 |-----------|-------------|
-| [Agentes y skills](./referencia/agentes-y-skills.md) | Las 22 skills por skill y por agente — los 8 agentes y quién usa qué |
-| [Estructura de carpetas](./referencia/estructura-de-carpetas.md) | El árbol completo `agteamos/` que se instala en tu proyecto |
+| [Agentes y skills](./referencia/agentes-y-skills.md) | Las 23 skills por skill y por agente — los 8 agentes y quién usa qué |
+| [Estructura de carpetas](./referencia/estructura-de-carpetas.md) | Qué existe al iniciar y qué se materializa por trigger |
 
 ---
 
@@ -40,4 +43,4 @@ Bienvenido a la documentación completa del plugin `agteamos` para Claude Code. 
 
 ---
 
-> Plugin version: 2.0.0 | Compatible con Claude Code >= 1.0
+> Plugin version: 3.5.0 | 23 skills · 8 agentes | Compatible con Claude Code >= 1.0

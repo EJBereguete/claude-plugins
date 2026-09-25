@@ -34,19 +34,62 @@ AgTeamOS sigue las mejores prácticas de Anthropic para sistemas multi-agente:
 2. **Subagentes retornan resúmenes** — máximo 1-2k tokens de vuelta al orquestador, no outputs completos
 3. **Shared state vía archivos** — el estado compartido vive en `agteamos/changes/`, no en la conversación
 4. **Stopping conditions explícitas** — cada agente sabe cuándo parar
-5. **Token budget awareness** — al llegar al 80% del context window, el agente hace un checkpoint completo
+5. **Context budget awareness** — mide bytes/tokens estimados y no afirma uso
+   real de la ventana si el host no lo expone.
 
 ## Context tiers en `agteamos-implement`
 
 Cargar todo el contexto de una vez (`PROJECT_CONTEXT.md`, `design.md`, specs maestras, ADRs) en cada tarea es caro incluso cuando la tarea es simple. `agteamos-implement` carga contexto en 3 niveles, de forma perezosa:
 
-| Tier | Tamaño aprox. | Contiene | Cuándo se usa |
-|---|---|---|---|
-| **1** | ~1KB | Identidad de la tarea + qué hay que hacer | Retomar una sesión rápido, sin necesitar el resto |
-| **2** | Default | Tier 1 + standards relevantes + spec del dominio afectado | La mayoría de las tareas |
-| **3** | Completo | Tier 2 + spec maestra completa + ADRs relacionados + decision-log | Tareas complejas o que cruzan varios dominios |
+| Tier | Contiene | Cuándo se usa |
+|---|---|---|
+| **1** | `task.yml` + `progress.md` | Retomar o cambio lite acotado |
+| **2** | Tier 1 + artefactos del cambio + standards/specs relacionados | La mayoría de tareas full |
+| **3** | Tier 2 + ADRs/decisiones explícitamente relacionadas | Multi-dominio, seguridad, arquitectura o contrato cross-repo |
 
 Este diseño reduce el consumo de tokens en tareas simples sin perder profundidad cuando realmente se necesita — nadie carga la spec maestra completa de `notifications` para arreglar un typo en un mensaje de error.
+
+## Presupuesto determinista
+
+```bash
+node <plugin>/scripts/agteamos-status.mjs \
+  --root <proyecto> --context-budget --json
+```
+
+`contracts/context-budget.json` define presupuestos y la fórmula
+`estimated_tokens = ceil(utf8_bytes / 4)`. El reporte agrega por tier, módulo
+lógico y artefacto activo. Excluye código, binaries, evidence, cache, HTML y
+payloads externos.
+
+Es una estimación determinista, no telemetría del host, facturación ni tokens
+reales consumidos. Portal y pulse muestran el mismo resumen. Llegar al 80% del
+budget estimado recomienda checkpoint/menos contexto; no prueba que la ventana
+real esté al límite.
+
+## Registry, discovery e inyección
+
+El plugin declara siete topics metadata-only en `standards/registry.yml`:
+`design-de-codigo`, `api-design`, `database`, `testing`, `frontend`,
+`security` y `entrega-y-operaciones`. El knowledge real vive en
+`agteamos/standards/<id>/` y nace por discovery de evidencia del proyecto.
+
+Durante onboarding L0 no existe `agteamos/standards/`.
+`agteamos/onboarding.yml` conserva status y trigger; `--inject` resuelve con
+el registry del plugin y devuelve vacío hasta que `ensure-artifact` genera el
+topic más relevante. El primer discovery crea carpeta e índices. Cada
+generación cambia `lifecycle: initialized` a `active`.
+
+Los consumidores no recorren esos topics. Invocan
+`agteamos-knowledge --inject <intent|paths>` y leen únicamente los paths
+devueltos. Si el topic más relevante está `pending` o `stale`,
+`ensure-artifact` permite generar como máximo uno en ese step.
+
+README, CHANGELOG, `docs/architecture.md` y `docs/operations.md` son human
+docs lazy derivadas de `agteamos/`; no forman parte de los tiers ni pueden
+completar contexto canónico faltante.
+
+Greenfield crea solo el README inicial. CHANGELOG aparece al primer cierre y
+`docs/` únicamente cuando arquitectura u operaciones tienen fuentes estables.
 
 ## Estructura del archivo de tracking: `progress.md`
 
@@ -162,8 +205,8 @@ Si `platform.yml` tiene `handoff_mode: explicit` (el default), cada una de estas
 | Al empezar un step | Marca el step como "IN_PROGRESS" |
 | Al completar un step | Marca como "COMPLETED", lista archivos creados |
 | Al tomar una decisión técnica | Documenta en "Decisions Made" |
-| Antes de un paso riesgoso | Commit atómico + actualiza Last checkpoint |
-| Al 80% del context window | Checkpoint completo con "Next Action" detallado |
+| Antes de un paso riesgoso | Checkpoint durable; commit solo si el flujo lo autorizó |
+| Al 80% del budget estimado o telemetría explícita del host | Checkpoint completo con "Next Action" detallado |
 
 ## Reglas para el "Next Action"
 

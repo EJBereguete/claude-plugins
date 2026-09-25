@@ -17,6 +17,7 @@ used_by:
   - product-manager
   - backend-engineer
   - frontend-engineer
+  - ui-ux-designer
 ---
 
 # Skill: SDD Protocol (Spec-Driven Development)

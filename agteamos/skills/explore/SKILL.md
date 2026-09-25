@@ -8,7 +8,7 @@ description: >
   Termina proponiendo si conviene pasar a agteamos-task (con una idea
   ya mas formada) o si hace falta seguir explorando. Sugerida por
   agteamos-router cuando el input describe un problema sin solucion
-  propuesta.
+  propuesta. Solo puede persistir market research opt-in aprobado.
 used_by:
   - architect
 ---
@@ -17,8 +17,13 @@ used_by:
 
 ## CONTRACT
 - **Input**: una descripcion de un problema o malestar, sin solucion propuesta (ej. "las paginas van lentas", "el auth es un desastre")
-- **Output**: NINGUN artefacto persistente — solo una conversacion con diagnostico, opciones con trade-offs, y una recomendacion explicita de proximo paso
-- **Regla**: NO crea `agteamos/changes/<id>-<slug>/`, NO crea branch, NO escribe codigo, NO modifica `agteamos/` de ninguna forma. Es de solo lectura sobre el codigo del proyecto.
+- **Output normal**: ningún artefacto persistente; conversación con
+  diagnóstico, opciones y próximo paso.
+- **Excepción explícita**: puede crear
+  `agteamos/product/market-research.md` solo tras opt-in de investigación y
+  aprobación posterior del contenido exacto.
+- **Regla**: NO crea `agteamos/changes/<id>-<slug>/`, branch, ticket ni código.
+  Fuera de la excepción anterior, es de solo lectura.
 - **Quien ejecuta**: `@architect`
 - **Trigger**: sugerido (nunca forzado) por `agteamos-router` cuando el input del usuario describe un sintoma/dolor sin una solucion concreta propuesta; tambien invocable directamente por el usuario ("quiero explorar opciones para X", "ayudame a pensar Y")
 
@@ -37,9 +42,9 @@ sigue siendo la solución equivocada.
 Cuando el usuario tiene un problema pero todavía no una solución, forzar de
 inmediato el Flujo 2 (`agteamos-task`) obliga a escribir requirements
 sobre una solución que nadie comparó contra alternativas. `agteamos-explore`
-es el espacio deliberado para pensar antes de comprometerse — y por eso es
-explícitamente efímero: no deja artefactos porque su valor es la conversación
-y el diagnóstico, no un documento más que mantener.
+es el espacio deliberado para pensar antes de comprometerse. Es efímero por
+defecto: solo el market research solicitado y aprobado puede persistirse,
+porque necesita fuentes/fecha/confidence auditables.
 
 ---
 
@@ -88,6 +93,26 @@ Opciones:
 No presentar opciones genéricas ("mejorar el caching", "optimizar queries")
 sin ese nivel de especificidad contra el código leído — eso es lo que
 distingue esta skill de una lista de buenas prácticas de libro.
+
+### Step 3.5 — Market research opcional
+
+Solo si una decisión depende de evidencia externa de mercado, usuarios,
+competidores, regulación o pricing, ofrecer research una vez. No ejecutarlo
+por defecto ni para una pregunta puramente técnica.
+
+Si el usuario acepta:
+
+1. investigar preguntas acotadas que puedan cambiar la recomendación;
+2. citar URL, título, publisher, fecha de publicación si existe y fecha de
+   consulta;
+3. separar `External`, `Observed`, `Proposed` y `Pending decision`;
+4. marcar confidence `high|medium|low` con razón y mostrar conflictos;
+5. presentar resultados antes de escribir.
+
+Preguntar si desea conservar exactamente ese resultado. Solo con aprobación
+crear `agteamos/product/market-research.md`; si cambia el texto/fuentes,
+mostrarlo y pedir aprobación otra vez. Rechazar research o persistencia no
+bloquea Step 4.
 
 ### Step 4 — Proponer el próximo paso
 
@@ -139,9 +164,8 @@ riesgo?"
 ## ANTI-PATTERNS
 
 - Crear `agteamos/changes/<id>-<slug>/` "para no perder la conversación" —
-  `agteamos-explore` es explícitamente efímero, no persiste artefactos. Si
-  hace falta persistir algo, esa necesidad ya es la señal de pasar a
-  `agteamos-task`.
+  Explore es efímero salvo el research opt-in aprobado. Si hace falta
+  persistir otra cosa, esa necesidad ya es señal de pasar a `agteamos-task`.
 - Proponer opciones genéricas de libro de texto sin citar el código real del
   proyecto — el valor de esta skill es el trade-off contra ESE código, no una
   lista de best practices.

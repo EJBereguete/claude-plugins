@@ -7,9 +7,25 @@ Referencia rápida de `agteamos-task` → `agteamos-implement`. Si es tu primera
 | Input del usuario | Skill activada |
 |---|---|
 | `"Agrega notificaciones por email"` + proyecto existente | `agteamos-task` |
-| `"#42"`, `"issue 42"`, URL de GitHub Issues | `agteamos-implement` (GitHub) |
-| `"AB#1234"`, URL de Azure DevOps | `agteamos-implement` (Azure DevOps) |
+| `"Valida estas Stories antes de crearlas"` + desglose existente | `agteamos-task` → `AUDIT-BREAKDOWN` read-only |
+| `"#42"`, `"AB#1234"` o URL de item general | lectura real → `agteamos-implement` |
+| ID/URL cuyo tipo real es Bug | `agteamos-fix` → `BUG-INTAKE` simple-lite o complejo-full |
 | `/agteamos-fix` (o la forma completa `/agteamos:agteamos-fix`) | `agteamos-fix` — directo a implementación, sin SDD completo |
+
+## Auditar un desglose existente
+
+Cuando el usuario ya trae Stories/Bugs/Tasks, AgTeamOS no los normaliza ni
+crea de inmediato. Primero entrega un reporte read-only de:
+
+- cobertura y duplicados;
+- dependencias, ciclos y jerarquía según el tracker real;
+- completitud y criterios verificables;
+- tamaños incoherentes sin reestimar;
+- límites entre repos/equipos y freshness de mirrors.
+
+El veredicto `READY` no es aprobación para escribir. Solo si el usuario pide
+continuar se preserva el input original en `brief.md` y se ejecuta el flujo
+SDD normal.
 
 ## `agteamos-task` — de lenguaje natural a ticket
 
@@ -31,12 +47,22 @@ flowchart TD
     GATE3 -->|Sí| INVEST
     FEQ -->|No| INVEST{"Step 7: ¿tarea grande?\nINVEST"}
     INVEST -->|Sí| SPLIT[agteamos-task]
-    INVEST -->|No| TICKET
-    SPLIT --> TICKET["@product-manager crea\nticket en GitHub/Azure (Step 8)"]
+    INVEST -->|No| WI
+    SPLIT --> WI["agteamos-work-items inspecciona\nrepo + tracker reales"]
+    WI --> PREVIEW{Usuario aprueba\nchange set exacto?}
+    PREVIEW -->|No| WI
+    PREVIEW -->|Sí| TICKET["Crea y verifica\nticket/jerarquía"]
     TICKET --> F3[Continúa con agteamos-implement]
 ```
 
-Orden real (ver `skills/new-task/SKILL.md`): requirements → aprobación → design + delta → aprobación → **mockup de UI (obligatorio si hay Frontend, nunca se saltea)** → story-breakdown → ticket. Todo esto vive en `agteamos/changes/<id>-<slug>/specs/`. Cada gate requiere aprobación explícita antes de avanzar — nunca se saltea, y el mockup en particular bloquea cualquier código de UI hasta tener luz verde.
+Orden real (ver `skills/task/SKILL.md`): requirements → aprobación → design +
+delta → aprobación → **mockup de UI** → story-breakdown → inspección del repo
+y tracker → dry-run → aprobación → ticket verificado. La evidencia real del
+repo sustenta cada work item; lo que no puede comprobarse queda pendiente.
+Antes del primer `apply`, provider doctor verifica capacidades sin escribir.
+
+`agteamos/changes/` tampoco existe desde onboarding: se materializa cuando
+comienza la primera tarea trazable y `archive/` al cerrar la primera.
 
 ## `agteamos-implement` — de ticket a PR
 
@@ -45,15 +71,16 @@ flowchart TD
     START(["Ticket: URL / #42 / AB#1234"]) --> DOR{"Definition of Ready\n¿cumple lo mínimo?"}
     DOR -->|No| CLARIFY[agteamos-task]
     CLARIFY --> DOR
-    DOR -->|Sí| BRANCH["Crear branch\nfeature/id-slug o bugfix/id-slug"]
+    DOR -->|Sí| PRE["Preflight semántico\n(schema full)"]
+    PRE --> BRANCH["Crear branch\nfeature/id-slug o bugfix/id-slug"]
     BRANCH --> LAYERS{Capas impactadas}
     LAYERS -->|Backend| BE[Backend Engineer]
     LAYERS -->|Frontend| FE[Frontend Engineer]
     LAYERS -->|Ambas| BOTH[Backend + Frontend]
     BE & FE & BOTH --> TESTS["Unit tests obligatorios\nhappy path + error + edge"]
-    TESTS --> TRACK["agteamos-implement actualiza\nprogress.md + task.yml + report.html"]
+    TESTS --> TRACK["agteamos-implement actualiza\nprogress.md + task.yml"]
     TRACK --> E2E["QA: E2E + screenshots\nen evidence/"]
-    E2E --> PR["PR vía gh CLI\n'Closes #42' o 'Fixes AB#1234'"]
+    E2E --> PR["PR vía adapter de repo_host\nkeyword según tracker"]
     PR --> CLOSE[agteamos-implement]
 ```
 
@@ -64,36 +91,58 @@ flowchart TD
 | GitHub | `feature/{id}-{slug}` o `bugfix/{id}-{slug}` | `feature/42-jwt-auth` |
 | Azure DevOps | `feature/AB{id}-{slug}` | `feature/AB1234-email-notifications` |
 
-**Definition of Ready mínima**: título descriptivo, descripción con el valor de negocio, al menos un Acceptance Criteria, capa identificada (backend/frontend/fullstack). Si falta algo, se pregunta antes de continuar.
+**Definition of Ready mínima**: título descriptivo, descripción clara,
+al menos 2 Acceptance Criteria verificables, tipo definido, independencia y
+forma de prueba. La fuente canónica es `skills/implement/SKILL.md` Step 2.
 
-## `agteamos-implement` — checklist de cierre, en orden (Steps 0 a 12)
+## `agteamos-implement` — gates de implementación y cierre
 
-0. **Bifurcación**: leer `schema` en `task.yml`. Con `schema: lite` el cierre se reduce a test de regresión pasando + merge + archive, sin los pasos de `verify`/`sync` de abajo. Con `schema: full`, seguir los Steps 1-12.
-1. Verificar todos los ACs de `requirements.md` cubiertos, tests pasando, sin secrets hardcodeados.
-2. **Sync**: aplicar `specs/deltas/<dominio>.md` contra `agteamos/specs/<dominio>.md` — antes de abrir el PR, para que el commit set del PR incluya la spec maestra ya sincronizada.
-3. Crear el PR (`gh pr create` con `Closes #<id>` en el body, incluyendo código + delta + spec maestra) — `task.yml.status` pasa a `in_review`.
-4. QA revisa en 6 dimensiones y aprueba con evidencia.
-5. Generar `verify-report.md`: fuente real de severidad es `## Requirements (RFC 2119)` de `requirements.md`; cada `tasks.md` debe estar `done`; cada `MUST`/`SHALL` sin cumplir es `FAIL` (bloquea el cierre); cada `SHOULD` sin cumplir es `WARNING` (no bloquea, se documenta).
-6. Mergear el PR (squash + delete branch) — `task.yml.status` pasa a `done`.
-7. Verificar cierre automático del ticket (`Closes #42` en GitHub, `Fixes AB#1234` en Azure DevOps).
-8. Actualizar `agteamos/` si hubo cambios arquitectónicos — se salta este paso si `task.yml` tiene `doc_impact: false`.
-9. Escribir `agteamos/changes/<id>-<slug>/knowledge-base.md` con los aprendizajes y decisiones reutilizables de la tarea.
-10. Archivar: mover `agteamos/changes/<id>-<slug>/` → `agteamos/changes/archive/<fecha>-<id>-<slug>/`, y limpiar la rama si no se eliminó en el merge.
-11. Regenerar `report.html` de la tarea y `agteamos/dashboard.html`.
-12. Pregunta opcional de fricción (una línea, nunca bloqueante) — si el usuario propone algo, se ofrece como fila nueva de `BACKLOG.md` del propio plugin, nunca se escribe sin confirmación.
+1. **Tracking durable**: todo cambio, incluso `lite`, crea
+   `task.yml`/`progress.md` con workflow v3, gates, riesgo y SHA de review.
+2. **Full preflight**: antes de código,
+   `agteamos-analyze --stage preflight` valida trazabilidad de requirements,
+   ACs, tasks, diseño y deltas.
+3. **Implement/Reconcile**: se ejecuta una unidad y se contrasta contra
+   requirements, design, delta y task antes de tomar la siguiente.
+4. **QA/riesgo**: evidencia proporcional; clasifica
+   `standard|high|critical` desde auth, pagos, datos/migración,
+   infraestructura, contrato cross-repo y blast radius.
+5. **Docs/sync**: se actualiza documentación afectada y se aplica cada delta a
+   su spec maestra antes del PR.
+6. **Validador pre-PR**: `agteamos-validate` debe terminar con exit cero y
+   persiste `validator_pass: true`.
+7. **PR/review**: standard usa review normal; high/critical exige review
+   independiente adicional ligado al SHA. Cambios de SHA resetean gates.
+8. **Verify goal-backward**: `agteamos-analyze --stage verify` y
+   `verify-report.md` comprueban tasks, requirements, cadenas
+   objetivo→artefacto→wiring→evidencia y tests no tautológicos.
+9. **Validador pre-cierre**: se repite contra el SHA revisado; cualquier cambio
+   invalida el gate anterior.
+10. **Merge aprobado y leído nuevamente**: solo entonces
+    `merge_confirmed: true`.
+11. **Ticket reconciliado**: cualquier cierre/comentario/estado manual pasa por
+    change set con fingerprint, aprobación y read-back; no se supone `Closed`.
+    `tracker-result.md` conserva fingerprint, IDs/URLs y resultado sanitizado.
+12. **Archive**: únicamente con gates de entrega válidos se mueve el cambio,
+    se regenera dashboard/portal y se ofrece capturar fricción.
 
-```bash
-gh pr merge <number> --squash --delete-branch
-```
+La fuente canónica es `skills/implement/SKILL.md` y sus módulos por fase.
 
-> **Nota de esta ronda de cambios**: la bifurcación del Step 0, el orden `sync` (Step 2) antes de crear el PR (Step 3), la transición a `in_review`/`done` y el Step 9 (`knowledge-base.md`) reflejan una decisión ya tomada para `skills/task-closure/SKILL.md`. Al momento de escribir esta guía, ese archivo lo está actualizando otro agente en paralelo — re-verificar que el número y el orden final de Steps coincida exactamente una vez esa edición termine.
+## Abandonar sin perder trabajo
+
+Una petición explícita carga `ABANDON-CHANGE.md`: inspecciona branch, PR,
+artefactos y tracker; muestra un dry-run; pide aprobación y usa change set
+externo. La transición es `ABANDONING → ABANDONED` y conserva
+`abandon-record.md`. No sincroniza deltas/knowledge parciales ni fabrica QA,
+review o merge. Si la cancelación externa falla, queda durable en
+`ABANDONING`; nunca hace reset o borrado compensatorio.
 
 ## Comparativa de flujos
 
-| Aspecto | `new-task` | `implement` | `fix` |
+| Aspecto | `agteamos-task` | `agteamos-implement` | `agteamos-fix` |
 |---|---|---|---|
 | **Trigger** | Lenguaje natural, sin ticket | URL, `#id`, `AB#id` | Bug rápido, cambio menor |
-| **SDD** | Completo (schema `full`) | Completo (si no viene de `new-task`) | `lite` — resumen + test de regresión |
+| **SDD** | Completo (schema `full`) | Completo (si no viene de `agteamos-task`) | `lite` — resumen + test de regresión |
 | **Branch** | Crea ticket → pasa a `implement` | Sí, siempre | Sí |
 | **Output** | Ticket + transición | PR mergeado + ticket cerrado | Fix + test de regresión |
 

@@ -22,7 +22,8 @@ used_by:
 - **Input**: servicio a desplegar + PR numero aprobado por @qa-engineer, o feature/release branch que ya paso QA en staging
 - **Output**: PRR document en `agteamos/devops/prr/PRR-<release>.md`, firmado por todas las partes requeridas + deploy exitoso + smoke tests passing + `DORA_METRICS.md` actualizado
 - **Who runs this**: @devops-engineer inicia y ejecuta el deploy exclusivamente — ningun otro agente inicia un deploy a produccion. @architect firma el sign-off del PRR. Todas las categorias del PRR deben revisarse antes de cualquier deploy a produccion.
-- **Tracker commands**: se resuelven vía `agteamos/tracker/<tracker>.md` (generado por `agteamos-setup`) — nunca hardcodear `gh`/`az`.
+- **PR/repository commands**: se resuelven contra el adapter de `repo_host`;
+  work items se delegan a `agteamos-work-items`. Nunca hardcodear `gh`/`az`.
 - **Regla de orden — Step 0 obligatorio**: la **Production Readiness Review (PRR)** es el gate que corre **ANTES** de cualquier despliegue real. Ningun merge a la rama protegida ni comando de deploy puede ejecutarse mientras el PRR tenga items sin marcar sin una excepcion de riesgo documentada con owner asignado. El "Despliegue monitoreado" (segunda mitad de esta skill) asume que el PRR ya esta completo y firmado.
 
 ---
@@ -207,7 +208,7 @@ Also verify CI is green:
 [operación: get-pr] (obtener el estado de los checks de CI del PR)
 ```
 
-> **Nota**: la fila `get-pr` de `agteamos/tracker/<tracker>.md` no especifica
+> **Nota**: la fila `get-pr` del adapter de `repo_host` no especifica
 > hoy un campo de status checks — puede requerir extender esa fila o agregar
 > `get-pr-status` al adapter.
 
@@ -239,7 +240,7 @@ If the project uses trunk-based development, use merge commit instead:
 [operación: merge-to-protected-branch] (mergear con merge commit y borrar la rama)
 ```
 
-> **Nota**: la fila `merge-to-protected-branch` de `agteamos/tracker/<tracker>.md`
+> **Nota**: la fila `merge-to-protected-branch` del adapter de `repo_host`
 > define por defecto la variante squash — la variante merge-commit puede
 > requerir parametrizar esa fila o documentar la variante en el adapter.
 
@@ -350,6 +351,20 @@ Record this deployment in `agteamos/devops/DORA_METRICS.md`:
 
 Execute the `agteamos-metrics` skill to recalculate the sprint metrics if this is the sprint's last deployment.
 
+### Step 6.1 — Actualizar documentación operacional derivada
+
+Después de persistir el resultado real del deploy en
+`agteamos/devops/` (`PRR`, infraestructura y métricas aplicables), ejecutar:
+
+```text
+agteamos-knowledge --human-docs --scope changed
+```
+
+El target es `docs/operations.md`; también `docs/architecture.md` solo si las
+fuentes canónicas registran un cambio arquitectónico. No derivar datos del
+output efímero del pipeline ni inventar valores. Mostrar diff antes de
+reemplazar una sección administrada.
+
 ---
 
 ### Step 7 — Rollback procedure (if smoke tests fail)
@@ -394,6 +409,8 @@ After rollback:
 1. Confirm smoke tests pass with the previous version
 2. Create a post-mortem ticket with the rollback reason
 3. Update DORA_METRICS.md: mark the deployment as `Failed + Rollback`, record MTTR
+4. Persist the changed operational source under `agteamos/devops/` and rerun
+   `agteamos-knowledge --human-docs --scope changed`
 
 ---
 

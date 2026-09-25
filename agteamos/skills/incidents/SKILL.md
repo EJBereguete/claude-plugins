@@ -330,6 +330,8 @@ Action items:
 - [ ] Post-mortem reviewed by at least IC and one other
 - [ ] Action items tracked in project management tool
 - [ ] Post-mortem shared with full team (learning culture)
+- [ ] Si cambió la operación, actualizar primero runbook/infra canónicos y
+      ejecutar `agteamos-knowledge --human-docs --scope changed`
 
 ### ANTI-PATTERNS
 
@@ -356,6 +358,19 @@ alerting window (typically 5-15 minutes) before closing.
 **Not communicating externally during long incidents.**
 30 minutes of silence during a P1 generates more support tickets and trust damage
 than the outage itself. Regular updates, even "still investigating," prevent this.
+
+### Documentación humana tras resolución
+
+Al cerrar un incidente o aprobar un post-mortem, comprobar si cambió un
+procedimiento, monitor, rollback, dependencia operativa o runbook. Si cambió:
+
+1. persistir primero la verdad en `agteamos/incidents/` o `agteamos/devops/`;
+2. ejecutar `agteamos-knowledge --human-docs --scope changed`;
+3. actualizar `docs/operations.md` solo con evidencia de esas fuentes;
+4. mostrar diff antes de reemplazar una sección administrada.
+
+Si el incidente no cambió la operación, no tocar human docs solo para registrar
+que ocurrió; el post-mortem sigue siendo la fuente canónica.
 
 ---
 
@@ -505,7 +520,7 @@ If rollback fails or takes > 15 min:
 **Owner:** @platform-team
 **Severity:** SEV-2 (if issues arise during deploy)
 **Last tested:** 2026-03-10
-**Version:** 2.1.0
+**Version:** 3.2.0
 
 ## When to use
 
@@ -616,7 +631,10 @@ Expected: version shows `1.5.0`.
 
 If rollback fails:
 1. Page #oncall-platform in PagerDuty
-2. Open incident: `[operación: create-ticket]` (label `incident`, title "Production deploy rollback failed v1.5.1"; se resuelve contra `agteamos/tracker/<tracker de platform.yml>.md`)
+2. Preparar un incident intent para `agteamos-work-items` (title "Production
+   deploy rollback failed v1.5.1", evidencia real del rollback y severidad
+   confirmada). Presentar/aprobar/verificar el ticket; no asumir que existe
+   label `incident`.
 3. Follow the Incident Response section above (severity P1)
 ```
 

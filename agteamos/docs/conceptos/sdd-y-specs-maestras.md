@@ -174,7 +174,7 @@ No toda tarea necesita los cuatro artefactos completos. AgTeamOS distingue dos n
 | Schema | Cuándo se usa | Qué produce |
 |---|---|---|
 | **`full`** | Features nuevas, cambios cross-team, o con impacto en el contrato de un dominio — `agteamos-task` / `agteamos-implement` | Los 4 artefactos completos: `requirements.md` + `design.md` + `specs/deltas/<dominio>.md` + `tasks.md` |
-| **`lite`** | Cambios triviales sin impacto de contrato: bug fix acotado, hotfix, typo — `agteamos-fix` / `agteamos-debug` | Un resumen de 1 párrafo (en `progress.md` o directo en el PR) + un test de regresión obligatorio. No se crean los 4 artefactos ni se toca la spec maestra |
+| **`lite`** | Cambios triviales sin impacto de contrato: bug fix acotado, hotfix, typo — `agteamos-fix` / `agteamos-debug` | `task.yml` + `progress.md` con resumen, test de regresión y gates durables. No crea `specs/` ni toca la spec maestra |
 
 `lite` no lleva delta ni modifica `agteamos/specs/<dominio>.md` — por definición, un cambio `lite` no altera el contrato observable del dominio, así que no hay nada que mergear. Si al implementar aparece que sí cambia comportamiento, la tarea está mal clasificada: se promueve a `full` y se escribe el delta, nunca "se documenta después".
 
@@ -298,22 +298,42 @@ agteamos/changes/42-email-notifications/
 
 La **spec maestra** persistente vive en `agteamos/specs/<dominio>.md` — fuera de la carpeta de la tarea, porque su vida no termina cuando la tarea se archiva. Ver el árbol completo en [Estructura de carpetas](../referencia/estructura-de-carpetas.md).
 
-## Paso `verify` antes de archivar
+## Preflight y `verify`
 
-Entre "QA aprueba" y el paso `sync`, `agteamos-implement` genera `verify-report.md` dentro de la carpeta de la tarea, chequeando:
+Antes del primer cambio de código, `agteamos-analyze --stage preflight`
+comprueba que requirements, ACs, tasks, rutas de diseño y deltas formen un
+contrato coherente. También contrasta `ADDED`/`MODIFIED`/`REMOVED` con la spec
+maestra real; un exit no cero bloquea implementación.
+
+Después de QA, sync y review, `agteamos-analyze --stage verify` exige la
+cobertura completa y `agteamos-implement` genera `verify-report.md`,
+chequeando:
 
 - Todos los items de `tasks.md` están `done`.
 - Todo lo declarado en `specs/deltas/<dominio>.md` tiene al menos una tarea asociada completada en `tasks.md` — el delta es también un gate, no solo un log.
 - Severidad RFC 2119, leída directamente de `## Requirements (RFC 2119)` en `requirements.md`: `MUST`/`SHALL` incumplido → **FAIL** (bloquea el cierre); `SHOULD` incumplido → **WARNING** (no bloquea, se documenta); `MAY` no se chequea.
+- Goal-backward: cada verdad observable del objetivo enlaza un artefacto,
+  wiring crítico y una prueba no tautológica.
 
-Este archivo alimenta directamente el `report.html` de la tarea — no es un artefacto desconectado, es una fuente más para el mismo reporte visual.
+Este archivo alimenta el reporte derivado de la tarea; el HTML se regenera y
+no es fuente de verdad.
+
+## Documentación humana derivada al cerrar
+
+Después de verify, merge y archive, `agteamos-implement` dispara
+`agteamos-knowledge --human-docs --scope changed`. La tarea archivada bajo
+`agteamos/changes/archive/` es la fuente de `CHANGELOG.md`; arquitectura u
+operaciones se actualizan solo si cambiaron sus artefactos canónicos. Estas
+vistas llevan marcadores, `Sources` y `Last verified`, y nunca reemplazan la
+spec maestra como fuente de verdad.
 
 ## Contexto perezoso al implementar (context tiers)
 
 `agteamos-implement` no carga todo el contexto de una vez — usa 3 niveles de carga perezosa (ver detalle en [Context Engineering](./context-engineering.md)):
 
 - **Tier 1** (~1KB): identidad de la tarea + qué hay que hacer — para retomar rápido.
-- **Tier 2** (default): + standards relevantes + spec del dominio afectado.
+- **Tier 2** (default): + paths de standards relevantes devueltos por
+  `agteamos-knowledge --inject` + spec del dominio afectado.
 - **Tier 3** (completo): + spec maestra completa + ADRs relacionados + decision-log — solo en tareas complejas o cross-dominio.
 
 ## Cuándo se aplica SDD

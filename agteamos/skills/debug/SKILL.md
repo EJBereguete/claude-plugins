@@ -21,8 +21,10 @@ used_by:
   bug puntual de 1 archivo NO crea los 4 artefactos completos de
   `agteamos/changes/<id>/specs/` — el 5 Whys (Step 3) + la categorizacion
   (Step 7) cumplen el rol de `requirements.md`/`design.md`, y el resumen de 1
-  parrafo + el test de regresion (Step 6) son el unico output escrito ademas
-  del propio fix. Si el 5 Whys revela un problema arquitectonico que cruza
+  parrafo + el test de regresion (Step 6) viven en un tracking lite mínimo
+  `agteamos/changes/<id>-<slug>/{task.yml,progress.md}`. Ese estado durable es
+  obligatorio incluso para una línea; no se crea `specs/`. Si el 5 Whys revela
+  un problema arquitectonico que cruza
   dominios, escalar a schema `full` (`agteamos-task` /
   `agteamos-spec`) en vez de seguir en `debug`.
 - **Cierre**: esta skill NUNCA mergea ni cierra el ticket a mano — el Step 8
@@ -33,6 +35,17 @@ used_by:
 ---
 
 ## PROCESS
+
+### Step 0 — Inicializar tracking lite
+
+Resolver el ticket o asignar `tmp-<slug>`, y crear `task.yml`/`progress.md`
+desde los templates lite de `agteamos-implement`. Usar
+`workflow_contract: "3"`, `phase: TRACKING`, cinco gates de entrega y
+`risk_review_approved` en `false`.
+Registrar reproducción, 5 Whys, test y `Next Action` en `progress.md`.
+Persistir también `risk`/`risk_reason` según señales reales; un bug de auth,
+pagos, datos, migración, infraestructura o contrato cross-repo no se vuelve
+`standard` por usar schema lite.
 
 ### Step 1 — Reproduce the context
 
@@ -273,8 +286,7 @@ sync contra `agteamos/specs/<dominio>.md`.
 
 ```
 [operación: create-pr] (abre el PR con el fix hacia <rama-base>, incluyendo
-  `Closes #<ticket>` en el body para link-pr-to-ticket; se resuelve contra
-  agteamos/tracker/<tracker de platform.yml>.md)
+  el keyword del tracker en el body; el PR se resuelve contra repo_host)
 # QA valida (test de regresion + causa raiz documentada)
 Invocar: agteamos-implement
   con: schema: lite, test de regresión del Step 6 como único criterio de verify

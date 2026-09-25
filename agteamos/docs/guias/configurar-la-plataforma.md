@@ -8,18 +8,20 @@ Guía de referencia rápida para configurar o reconfigurar `agteamos/platform.ym
 - A demanda: pídele directamente a `@architect` "configura el proyecto" o invoca `/agteamos-setup`.
 - Para completar campos que quedaron pendientes de una ejecución anterior — no regenera el archivo completo salvo que lo pidas explícitamente.
 
-## Las 8 preguntas (siempre en un solo mensaje)
+## Ronda 0 y configuración diferida
 
-1. **Dónde vive el repo y los tickets**: GitHub, Azure DevOps, o ambos.
-2. **Org/proyecto**: nombre exacto del repo o del proyecto de Azure DevOps.
-3. **Nombres de las variables de entorno** para los tokens de acceso (nunca el valor — solo el nombre, ej. `GITHUB_TOKEN`).
-4. **Estrategia de branching**: personal (`feature/* → main`), equipo (`feature/* → develop → staging → main`), u otra.
-5. **CI/CD target**: GitHub Actions, GitLab CI, Azure Pipelines, u otro.
-6. **Deploy target**: Vercel, Railway, Fly.io, Cloud Run, VPS, AWS, Azure, u "todavía no definido".
-7. **Convención de PR**: reviewers obligatorios y merge strategy (squash / merge commit / rebase).
-8. **`handoff_mode`**: `explicit` (default) o `auto` — ver más abajo.
+La Ronda 0 confirma solo lo bloqueante:
 
-Ningún campo tiene un default silencioso, salvo `handoff_mode`. Si el usuario no puede responder algo (ej. "todavía no elegimos deploy target"), el valor queda como `null` — nunca se inventa.
+1. **Dónde vive el repositorio**: GitHub, Azure DevOps o ambos.
+2. **Dónde viven los tickets**: GitHub Issues, Azure Boards o Planner,
+   independientemente del repo.
+3. **Proceso esperado de Azure**, si aplica: Agile, Scrum, Basic o CMMI.
+   `agteamos-work-items` valida después el proceso real.
+4. **Estrategia de branching**.
+
+`handoff_mode` queda en `explicit` si no se cambia. Org/proyecto/equipo,
+área, iteración, plan/bucket, CI/CD, deploy y PR convention se completan
+mediante ask-and-continue la primera vez que se necesitan. Nunca se inventan.
 
 ## El campo `handoff_mode`
 
@@ -44,9 +46,22 @@ repo:
     organization: null
     project: null
 tracker: github                # dónde viven los tickets
+tracker_azure_devops:
+  process_template: agile      # expectativa; se valida contra Azure
+  team: null
+  default_area_path: null
+  default_iteration_path: null
+tracker_planner:
+  plan_id: null
+  default_bucket_id: null
+  graph_permissions_consented: false
+work_items:
+  approval: exact_change_set
+  inspect_repository: true
+  verify_writes: true
 env_var_names:                 # NOMBRES de variables, nunca valores
   github_token: GITHUB_TOKEN
-  azure_devops_pat: null
+  azure_devops_pat: AZURE_DEVOPS_PAT
 branch_strategy: personal       # personal | team | custom
 branch_strategy_custom: null
 ci_target: github_actions       # github_actions | gitlab_ci | azure_pipelines | other
@@ -68,7 +83,28 @@ created_at: "2026-08-09"
 | `agteamos-deploy` | `deploy_target`, `ci_target` | Comandos de deploy y verificación de CI |
 | `agteamos-pr` | `pr_convention` | Reviewers requeridos, merge strategy |
 | MCP `github`/`azure-devops` | `repo_host`, `repo.*`, `env_var_names` | Qué servidor MCP usar y con qué variable de auth |
+| `agteamos-work-items` | `tracker`, `tracker_*`, `work_items` | Inspección, dry-run, aprobación y verificación de tickets |
 | Todos los agentes | `handoff_mode` | Si piden confirmación en cada handoff o continúan solos |
+
+Los adapters genéricos viven en `skills/work-items/` dentro del plugin. Setup
+no crea `agteamos/tracker/`. Esa carpeta aparece únicamente para un override
+personalizado aprobado; los archivos v3 existentes se preservan como
+compatibilidad y nunca se regeneran automáticamente.
+
+## Provider doctor
+
+Antes del primer `apply`, `agteamos-work-items doctor` comprueba auth,
+proyecto y capacidades reales del proveedor. En Azure también descubre
+proceso, work item types, campos custom, estados, áreas, iteraciones, usuarios
+y `bugsBehavior`. Cuando el draft lo necesita, comprueba además una ruta
+estructurada Unicode-safe, layout efectivo y capacidades de attachments; no
+se guardan paths ni correcciones horarias específicas de una organización.
+En Planner valida Graph, plan, bucket y ETags.
+
+Doctor es read-only y devuelve `configured`, `degraded` o `unavailable`.
+Ninguna escritura comienza si falta, quedó stale o no tiene verdes las
+capacidades del change set. Ver
+[Contratos ejecutables y provider doctor](./contratos-y-doctor.md).
 
 ## Errores comunes a evitar
 
@@ -76,6 +112,9 @@ created_at: "2026-08-09"
 - Escribir el valor real de un token en `platform.yml` — solo el *nombre* de la variable de entorno; el valor va fuera de la conversación.
 - Regenerar el archivo completo cuando ya existe — `agteamos-setup` actualiza campos puntuales salvo pedido explícito de recrearlo desde cero.
 - Asumir `handoff_mode: auto` sin preguntarlo.
+- Fijar `State: New`, `State: Closed` o `Iteration Path: Backlog` por
+  convención — `agteamos-work-items` descubre los valores reales.
+- Usar el tracker para operaciones de PR — los PRs pertenecen a `repo_host`.
 
 ## Siguiente paso sugerido
 

@@ -3,9 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const { readStdinSync } = require('./lib/read-stdin');
-const { loadPluginTopics, loadProjectTopicStatus } = require('./lib/standards-frontmatter');
+const { loadTopicRegistry, loadProjectTopicStatus } = require('./lib/standards-frontmatter');
 const { matchAny } = require('./lib/glob-match');
 const { longestFunctionSpan } = require('./lib/function-length');
 
@@ -43,7 +43,7 @@ function jitStandardsCheck(cwd, filePath, sessionId) {
   const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
   if (!filePath || !pluginRoot) return null;
 
-  const topics = loadPluginTopics(pluginRoot);
+  const topics = loadTopicRegistry(pluginRoot);
   if (topics.length === 0) return null;
 
   const relFile = path.relative(cwd, filePath) || filePath;
@@ -59,7 +59,7 @@ function jitStandardsCheck(cwd, filePath, sessionId) {
   let message;
   if (status === 'done') {
     message = `[agteamos] Este archivo cae en el tema "${matchedTopic.topic}": ver ` +
-      `agteamos/standards/${matchedTopic.topic}/README.md (y deviations.md si existe).`;
+      `agteamos/standards/${matchedTopic.folder}/README.md (y deviations.md si existe).`;
   } else {
     message = `[agteamos] Tema "${matchedTopic.topic}" (${matchedTopic.description}) ` +
       `aun no generado para este proyecto. Antes de seguir, considera ` +
@@ -89,11 +89,12 @@ const NEW_SMELL_PATTERNS = [
 
 function readHeadVersion(cwd, relFile) {
   try {
-    return execSync(`git show HEAD:"${relFile.replace(/\\/g, '/')}"`, {
+    return execFileSync('git', ['show', `HEAD:${relFile.replace(/\\/g, '/')}`], {
       cwd,
       encoding: 'utf-8',
       stdio: ['ignore', 'pipe', 'ignore'],
       maxBuffer: 1024 * 1024 * 8,
+      shell: false,
     });
   } catch (err) {
     return null;
@@ -155,17 +156,108 @@ function readCanonicalLintCommand(cwd) {
   return match ? match[1] : null;
 }
 
+const LINT_TOOLS = new Set(['ruff', 'black', 'eslint', 'biome', 'golangci-lint']);
+
+function tokenizeLintCommand(command) {
+  if (typeof command !== 'string') return null;
+  const input = command.trim();
+  if (!input || input.length > 1000 || /[;&|`$<>\r\n\0]/.test(input)) return null;
+
+  const tokens = [];
+  let token = '';
+  let quote = null;
+  let started = false;
+
+  for (const char of input) {
+    if (quote) {
+      if (char === quote) {
+        quote = null;
+      } else {
+        token += char;
+      }
+      started = true;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      started = true;
+    } else if (/\s/.test(char)) {
+      if (started) {
+        if (!token) return null;
+        tokens.push(token);
+        token = '';
+        started = false;
+      }
+    } else {
+      token += char;
+      started = true;
+    }
+  }
+
+  if (quote || (started && !token)) return null;
+  if (started) tokens.push(token);
+  return tokens.length > 0 ? tokens : null;
+}
+
+function lintInvocation(lintCommand, relFile) {
+  const tokens = tokenizeLintCommand(lintCommand);
+  if (!tokens) return null;
+
+  const executable = tokens[0].toLowerCase();
+  if (tokens[0] !== executable || /[\\/]/.test(executable)) return null;
+  let args = tokens.slice(1);
+  let pathMode = null;
+
+  if (LINT_TOOLS.has(executable)) {
+    pathMode = executable === 'golangci-lint' ? null : 'plain';
+  } else if (executable === 'npm') {
+    if (args[0] !== 'run' || args[1] !== 'lint') return null;
+    pathMode = 'npm';
+  } else if (executable === 'pnpm' || executable === 'yarn') {
+    if (args[0] !== 'lint') return null;
+    pathMode = 'plain';
+  } else if (executable === 'dotnet') {
+    if (args[0] !== 'format') return null;
+    pathMode = 'dotnet';
+  } else {
+    return null;
+  }
+
+  const safeRelFile = relFile.startsWith('-') ? `.${path.sep}${relFile}` : relFile;
+  if (pathMode === 'plain') {
+    args = args.concat(safeRelFile);
+  } else if (pathMode === 'npm') {
+    if (!args.includes('--')) args.push('--');
+    args.push(safeRelFile);
+  } else if (pathMode === 'dotnet') {
+    args.push('--include', safeRelFile);
+  }
+
+  return { executable, args };
+}
+
 function runLintOnFile(cwd, relFile, lintCommand) {
+  const invocation = lintInvocation(lintCommand, relFile);
+  if (!invocation) return 'omitido: comando no seguro o no reconocido';
+
   try {
-    execSync(`${lintCommand} "${relFile}"`, {
+    execFileSync(invocation.executable, invocation.args, {
       cwd,
       encoding: 'utf-8',
       timeout: 5000,
       stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 1024 * 1024 * 8,
+      shell: false,
     });
     return null;
   } catch (err) {
-    const output = (err.stdout || err.message || '').toString().trim().split(/\r?\n/).slice(0, 3).join(' | ');
+    const output = (err.stdout || err.stderr || err.message || '')
+      .toString()
+      .trim()
+      .split(/\r?\n/)
+      .slice(0, 3)
+      .join(' | ');
     return output || 'lint fallo (sin detalle capturado)';
   }
 }

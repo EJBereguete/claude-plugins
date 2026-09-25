@@ -44,7 +44,9 @@ AgTeamOS no toca nada de tu proyecto hasta que le pides algo. La primera instruc
 | Repo vacío o solo `README`/`.gitignore` | Se activa el flujo de proyecto nuevo — sigue leyendo abajo |
 | Repo con código ya existente | Se activa `agteamos-knowledge` para documentar lo que ya existe — ver [Adoptar un proyecto existente](./04-adoptar-proyecto-existente.md) |
 
-En ambos casos, el resultado vive en una única carpeta visible `agteamos/` en la raíz de tu repo — nunca mezclado con tu propia carpeta `docs/` si ya tenías una para otra cosa.
+El estado canónico vive en `agteamos/`. Los documentos humanos opcionales
+(`README.md`, `CHANGELOG.md` y dos archivos bajo `docs/`) son vistas derivadas,
+no otra fuente de verdad.
 
 ¿Quieres que tu equipo también lo use? Ver [Compartir con tu equipo](./03-compartir-con-tu-equipo.md).
 
@@ -62,7 +64,12 @@ Cualquier instrucción que le des a `@architect` dispara primero este chequeo: �
 @architect Quiero crear una API de facturación con FastAPI y PostgreSQL
 ```
 
-Antes de diseñar nada, el Architect dispara `agteamos-setup` porque `agteamos/platform.yml` todavía no existe. Te hace 8 preguntas en un único mensaje: dónde vive el código y los tickets (GitHub/Azure DevOps), estrategia de branching, CI/CD, deploy target, convención de PR, y el modo de *handoff* entre agentes (`explicit` por default, o `auto`). El resultado queda persistido en `agteamos/platform.yml` — ver el detalle completo en [Configurar la plataforma](../guias/configurar-la-plataforma.md).
+Antes de diseñar nada, el Architect dispara `agteamos-setup` porque
+`agteamos/platform.yml` todavía no existe. La Ronda 0 confirma únicamente
+host del código, tracker y estrategia de branching; CI/CD, deploy, PRs y los
+IDs específicos se completan cuando se usan. El resultado queda persistido
+solo en `agteamos/platform.yml` — ver
+[Configurar la plataforma](../guias/configurar-la-plataforma.md).
 
 ### Paso 2 — `agteamos-bootstrap`: la base del proyecto
 
@@ -73,34 +80,40 @@ sequenceDiagram
     actor U as Tú
     participant AR as @architect
     participant PO as @product-manager
-    participant UX as @ui-ux-designer
     participant DO as @devops-engineer
-    participant PM as @product-manager
 
     U->>AR: "Quiero crear una API de facturación"
-    AR->>U: clarification-protocol (7 preguntas en un mensaje)
+    AR->>U: Problem framing + solo decisiones bloqueantes
     U->>AR: Respuestas
+    AR->>U: Ofrece market research si aporta (opt-in)
+    AR->>AR: Prepara mission, MVP, stack, arquitectura, seguridad y métricas
+    AR->>U: Blueprint consolidado (una aprobación)
+    U->>AR: Aprueba blueprint
 
-    AR->>AR: Define stack + arquitectura
-    AR->>AR: Crea ADRs (database, auth, deploy target)
-    AR-->>U: agteamos/architecture/PROJECT_CONTEXT.md + ADR-001, 002, 003
+    AR->>AR: Materializa PROJECT_CONTEXT + ADR-001
+    PO->>PO: Materializa mission, roadmap y kpis aprobados
 
-    PO->>PO: Define mission, roadmap, kpis
-    PO-->>U: agteamos/product/mission.md + roadmap.md + kpis.md
-
-    UX->>U: Propone agteamos/design/DESIGN_SYSTEM.md
-    U-->>UX: Aprobación
-
-    DO->>DO: Scaffold: dirs, Dockerfile, docker-compose, CI/CD
+    DO->>DO: Scaffold mínimo que compila + CI
     DO-->>U: Repo listo, ramas creadas, pipeline configurado
 
-    PM->>PM: Lee mission.md, crea issues en GitHub/Azure
-    PM-->>U: Issues iniciales creados, milestone MVP definido
-
-    Note over AR,PM: Hand-off automático a la primera tarea (agteamos-task)
+    AR->>AR: onboarding.yml registra artefactos pending
+    AR-->>U: Ofrece capture para backlog o task para construir
 ```
 
-Al terminar este paso tienes: stack y arquitectura definidos con ADRs, un Design System base, `docker-compose up` funcionando, CI/CD configurado, y un backlog inicial de issues en tu tracker.
+Al terminar tienes stack, producto y arquitectura lean, ADR-001, scaffold y
+CI. Si aprobaste research también existe `product/market-research.md`; nunca
+es obligatorio. Todavía no existen backlog, tickets, design system, `standards/`,
+`specs/`, `devops/` ni `docs/`. Cada uno aparece al escribir su primer
+artefacto real. El backlog solo se crea cuando lo pides explícitamente.
+
+Para anotar sin implementar:
+
+```text
+Guarda "exportar facturas a PDF" en el backlog de este proyecto.
+```
+
+Eso materializa `agteamos/product/backlog.md`. Crear además un ticket externo
+requiere doctor, dry-run y tu aprobación.
 
 ### Paso 3 — `agteamos-task`: tu primera feature en lenguaje natural
 
@@ -141,13 +154,30 @@ Cuando QA aprueba, `agteamos-implement` corre en este orden:
 
 1. Verifica que todos los Acceptance Criteria de `requirements.md` están cubiertos.
 2. Genera `verify-report.md` — chequea `tasks.md` completo y clasifica requirements incumplidos como `FAIL` (MUST/SHALL) o `WARNING` (SHOULD). Un `FAIL` bloquea el cierre.
-3. Mergea el PR (el delta de spec y el código van juntos, en el mismo PR — nunca specs separadas del código).
-4. Sincroniza `deltas/<dominio>.md` contra la spec maestra `agteamos/specs/<dominio>.md`.
-5. Archiva la tarea en `agteamos/changes/archive/<fecha>-<id>-<slug>/`.
-6. Regenera `agteamos/dashboard.html` con el estado actualizado de todas las tareas.
+3. Sincroniza `deltas/<dominio>.md` contra la spec maestra antes del PR.
+4. Crea/revisa el PR; high/critical exige review adicional del mismo SHA.
+5. Mergea solo tras aprobación y read-back.
+6. Archiva en `agteamos/changes/archive/<fecha>-<id>-<slug>/`.
+7. Regenera dashboard y portal en modo best-effort.
 
-Al final, `agteamos-implement` sugiere el siguiente paso y — de forma opcional, sin bloquear el cierre — pregunta si algo del flujo te resultó torpe (`agteamos-meta`, ver el `BACKLOG.md` del propio plugin).
+Si decides abandonar, el flujo alternativo preserva branch/artefactos,
+reconcilia el tracker con aprobación y archiva un `abandon-record.md`; no
+finge merge ni elimina trabajo parcial.
+
+Al final, `agteamos-implement` sugiere el siguiente paso y —de forma opcional, sin bloquear el cierre— pregunta si algo del flujo te resultó torpe. `agteamos-meta` lo presenta como candidato y, solo si confirmas, `agteamos-capture` lo guarda con un ID `AGF-*` en el outbox durable `~/.claude/agteamos/plugin-feedback.md`. Ese outbox es la fuente de verdad; cualquier `BACKLOG.md` es solo un mirror opcional.
 
 ### Resultado final
 
-Después de este recorrido tienes: un proyecto con arquitectura documentada, una feature implementada con tests y evidencia, un PR mergeado, un ticket cerrado, y `agteamos/dashboard.html` mostrando quién (persona real, no el agente de IA) trabajó cada tarea. Para la siguiente feature, repites desde el Paso 3 — el Paso 1 y 2 solo se hacen una vez por proyecto.
+Después de este recorrido tienes: un proyecto con arquitectura documentada,
+una feature implementada con tests y evidencia, un PR mergeado, un ticket
+cerrado y dos vistas regenerables. `agteamos/dashboard.html` resume el proyecto
+y el portal global reúne todos los proyectos registrados:
+
+```text
+/agteamos-dashboard --portal
+```
+
+El portal se abre desde `~/.claude/agteamos/portal.html`; es un snapshot local,
+no una vista live del tracker. Para la siguiente feature, repites desde el
+Paso 3 — el Paso 1 y 2 solo se hacen una vez por proyecto. Ver
+[Portal multi-proyecto](../guias/portal-multiproyecto.md).

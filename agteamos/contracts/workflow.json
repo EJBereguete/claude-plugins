@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_version": "3",
+  "compatible_contract_versions": [
+    "2",
+    "3"
+  ],
+  "name": "agteamos-workflow",
+  "schemas": {
+    "full": {
+      "description": "Cambio con contrato observable y artefactos SDD completos.",
+      "required_artifacts": [
+        "task.yml",
+        "progress.md",
+        "specs/requirements.md",
+        "specs/design.md",
+        "specs/tasks.md",
+        "specs/deltas/*.md"
+      ],
+      "required_progress_markers": [
+        "approvals.requirements",
+        "approvals.design_deltas",
+        "next_action"
+      ]
+    },
+    "lite": {
+      "description": "Cambio interno acotado sin specs ni delta.",
+      "required_artifacts": [
+        "task.yml",
+        "progress.md"
+      ],
+      "required_progress_markers": [
+        "summary_lite",
+        "regression_test",
+        "next_action"
+      ],
+      "forbidden_artifacts": [
+        "specs/*.md",
+        "specs/deltas/*.md"
+      ]
+    }
+  },
+  "task_statuses": [
+    "pending",
+    "in_progress",
+    "in_review",
+    "abandoned",
+    "done"
+  ],
+  "status_phase_compatibility": {
+    "pending": [
+      "INTAKE",
+      "DOR",
+      "TRACKING",
+      "BRANCH",
+      "DESIGN"
+    ],
+    "in_progress": [
+      "TRACKING",
+      "BRANCH",
+      "DESIGN",
+      "IMPLEMENT",
+      "RECONCILE",
+      "QA",
+      "PRE_PR_VALIDATE",
+      "ABANDONING"
+    ],
+    "in_review": [
+      "PR_REVIEW",
+      "PRE_CLOSE_VALIDATE",
+      "MERGE"
+    ],
+    "abandoned": [
+      "ABANDONED"
+    ],
+    "done": [
+      "ARCHIVE",
+      "DONE"
+    ]
+  },
+  "durable_gate_fields": {
+    "qa_pass": "boolean",
+    "validator_pass": "boolean",
+    "review_approved": "boolean",
+    "merge_confirmed": "boolean",
+    "ticket_reconciled": "boolean"
+  },
+  "risk": {
+    "allowed_levels": [
+      "standard",
+      "high",
+      "critical"
+    ],
+    "additional_review_levels": [
+      "high",
+      "critical"
+    ],
+    "review_phase": "PRE_CLOSE_VALIDATE",
+    "reviewed_sha_field": "reviewed_sha",
+    "additional_review_approved_field": "risk_review_approved",
+    "additional_review_sha_field": "risk_review_sha"
+  },
+  "phases": [
+    {
+      "id": "INTAKE",
+      "order": 10
+    },
+    {
+      "id": "DOR",
+      "order": 20
+    },
+    {
+      "id": "TRACKING",
+      "order": 30
+    },
+    {
+      "id": "BRANCH",
+      "order": 40
+    },
+    {
+      "id": "DESIGN",
+      "order": 50
+    },
+    {
+      "id": "IMPLEMENT",
+      "order": 60
+    },
+    {
+      "id": "RECONCILE",
+      "order": 70
+    },
+    {
+      "id": "QA",
+      "order": 80
+    },
+    {
+      "id": "PRE_PR_VALIDATE",
+      "order": 90
+    },
+    {
+      "id": "PR_REVIEW",
+      "order": 100
+    },
+    {
+      "id": "PRE_CLOSE_VALIDATE",
+      "order": 110
+    },
+    {
+      "id": "MERGE",
+      "order": 120
+    },
+    {
+      "id": "ARCHIVE",
+      "order": 130
+    },
+    {
+      "id": "DONE",
+      "order": 140
+    },
+    {
+      "id": "ABANDONING",
+      "order": 145
+    },
+    {
+      "id": "ABANDONED",
+      "order": 150
+    }
+  ],
+  "artifact_dependencies": [
+    {
+      "artifact": "progress.md",
+      "requires": [
+        "task.yml"
+      ]
+    },
+    {
+      "artifact": "specs/requirements.md",
+      "schema": "full",
+      "requires": [
+        "task.yml"
+      ]
+    },
+    {
+      "artifact": "specs/design.md",
+      "schema": "full",
+      "requires": [
+        "specs/requirements.md"
+      ]
+    },
+    {
+      "artifact": "specs/deltas/*.md",
+      "schema": "full",
+      "requires": [
+        "specs/requirements.md",
+        "specs/design.md"
+      ]
+    },
+    {
+      "artifact": "specs/tasks.md",
+      "schema": "full",
+      "requires": [
+        "specs/requirements.md",
+        "specs/design.md",
+        "specs/deltas/*.md"
+      ]
+    },
+    {
+      "artifact": "verify-report.md",
+      "requires": [
+        "progress.md"
+      ]
+    },
+    {
+      "artifact": "abandon-record.md",
+      "requires": [
+        "task.yml",
+        "progress.md"
+      ]
+    }
+  ],
+  "gates": {
+    "tracking_ready": {
+      "phase": "TRACKING",
+      "requires": [
+        "task.yml",
+        "progress.md",
+        "next_action"
+      ]
+    },
+    "branch_ready": {
+      "phase": "BRANCH",
+      "requires": [
+        "task.branch"
+      ]
+    },
+    "design_ready_full": {
+      "phase": "DESIGN",
+      "schema": "full",
+      "requires": [
+        "specs/requirements.md",
+        "specs/design.md",
+        "specs/tasks.md",
+        "specs/deltas/*.md",
+        "approvals.requirements",
+        "approvals.design_deltas"
+      ]
+    },
+    "design_ready_lite": {
+      "phase": "DESIGN",
+      "schema": "lite",
+      "requires": [
+        "summary_lite",
+        "regression_test"
+      ]
+    },
+    "pre_pr_validate": {
+      "phase": "PRE_PR_VALIDATE",
+      "statuses": [
+        "in_progress",
+        "in_review",
+        "done"
+      ],
+      "excluded_phases": [
+        "ABANDONING",
+        "ABANDONED"
+      ],
+      "requires": [
+        "qa_pass",
+        "validator_pass"
+      ]
+    },
+    "pre_close_validate": {
+      "phase": "PRE_CLOSE_VALIDATE",
+      "statuses": [
+        "in_review",
+        "done"
+      ],
+      "excluded_phases": [
+        "ABANDONING",
+        "ABANDONED"
+      ],
+      "requires": [
+        "review_approved",
+        "verify-report.md",
+        "validator_pass"
+      ]
+    },
+    "archive": {
+      "phase": "ARCHIVE",
+      "statuses": [
+        "done"
+      ],
+      "excluded_phases": [
+        "ABANDONING",
+        "ABANDONED"
+      ],
+      "requires": [
+        "merge_confirmed",
+        "ticket_reconciled"
+      ]
+    },
+    "abandon_started": {
+      "phase": "ABANDONING",
+      "statuses": [
+        "in_progress"
+      ],
+      "requires": [
+        "abandon-record.md"
+      ]
+    },
+    "abandon_archive": {
+      "phase": "ABANDONED",
+      "statuses": [
+        "abandoned"
+      ],
+      "requires": [
+        "abandon-record.md",
+        "ticket_reconciled"
+      ]
+    }
+  }
+}

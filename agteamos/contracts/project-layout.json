@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_version": "1",
+  "name": "agteamos-project-layout",
+  "onboarding": {
+    "required_fields": [
+      "layout_contract",
+      "profile",
+      "mode",
+      "lifecycle"
+    ],
+    "allowed_modes": [
+      "lazy",
+      "full"
+    ],
+    "allowed_lifecycles": [
+      "initialized",
+      "active"
+    ]
+  },
+  "profiles": {
+    "adopted_l0": {
+      "description": "Proyecto existente adoptado sin materializar conocimiento especulativo.",
+      "required_files": [
+        "agteamos/platform.yml",
+        "agteamos/onboarding.yml",
+        "agteamos/architecture/PROJECT_CONTEXT.md"
+      ],
+      "allowed_initial_directories": [
+        "agteamos/architecture"
+      ]
+    },
+    "greenfield_phase0": {
+      "description": "Proyecto nuevo con contexto, decisión inicial y producto lean; backlog todavía explícito.",
+      "required_files": [
+        "agteamos/platform.yml",
+        "agteamos/onboarding.yml",
+        "agteamos/architecture/PROJECT_CONTEXT.md",
+        "agteamos/product/mission.md",
+        "agteamos/product/kpis.md",
+        "agteamos/product/roadmap.md"
+      ],
+      "required_globs": [
+        "agteamos/architecture/adr/ADR-001-*.md"
+      ],
+      "allowed_initial_directories": [
+        "agteamos/architecture",
+        "agteamos/architecture/adr",
+        "agteamos/product"
+      ]
+    }
+  },
+  "deferred_artifacts": {
+    "product_backlog": {
+      "path": "agteamos/product/backlog.md",
+      "trigger": "Petición explícita del usuario para guardar, importar o gestionar el backlog.",
+      "owner": "agteamos-capture",
+      "requires_external_approval": false
+    },
+    "market_research": {
+      "path": "agteamos/product/market-research.md",
+      "trigger": "Opt-in explícito para investigar y aprobación posterior del contenido con fuentes.",
+      "owner": "agteamos-bootstrap o agteamos-explore",
+      "requires_external_approval": false
+    },
+    "standards": {
+      "path": "agteamos/standards/",
+      "trigger": "Primera tarea cuyo intent, paths o globs requieren un topic.",
+      "owner": "agteamos-knowledge --discover"
+    },
+    "specs": {
+      "path": "agteamos/specs/",
+      "trigger": "Primera tarea full que requiere una spec de dominio confirmada.",
+      "owner": "agteamos-spec"
+    },
+    "tracker_override": {
+      "path": "agteamos/tracker/",
+      "trigger": "Adapter personalizado aprobado; los defaults permanecen en el plugin.",
+      "owner": "agteamos-setup"
+    },
+    "design": {
+      "path": "agteamos/design/",
+      "trigger": "Primer trabajo UI que necesita design system.",
+      "owner": "agteamos-build"
+    },
+    "devops": {
+      "path": "agteamos/devops/",
+      "trigger": "Primer cambio real de infraestructura, CI/CD o despliegue.",
+      "owner": "agteamos-deploy"
+    },
+    "security": {
+      "path": "agteamos/security/",
+      "trigger": "Primera auditoría, threat model o tarea sensible.",
+      "owner": "agteamos-security"
+    },
+    "incidents": {
+      "path": "agteamos/incidents/",
+      "trigger": "Primer incidente o runbook solicitado.",
+      "owner": "agteamos-incidents"
+    },
+    "decisions": {
+      "path": "agteamos/decisions/",
+      "trigger": "Primer RFC, premortem o decisión formal fuera de ADR.",
+      "owner": "agteamos-decisions"
+    },
+    "quality": {
+      "path": "agteamos/quality/",
+      "trigger": "Primer reporte persistente o señal real de deuda.",
+      "owner": "agteamos-quality"
+    },
+    "changes": {
+      "path": "agteamos/changes/",
+      "trigger": "Inicio de la primera tarea trazable.",
+      "owner": "agteamos-implement"
+    },
+    "archive": {
+      "path": "agteamos/changes/archive/",
+      "trigger": "Cierre de la primera tarea.",
+      "owner": "agteamos-implement"
+    },
+    "human_architecture": {
+      "path": "docs/architecture.md",
+      "trigger": "Arquitectura estable que debe comunicarse a humanos.",
+      "owner": "agteamos-knowledge --human-docs"
+    },
+    "human_operations": {
+      "path": "docs/operations.md",
+      "trigger": "Primer flujo operativo o despliegue verificable.",
+      "owner": "agteamos-knowledge --human-docs"
+    }
+  },
+  "runtime_artifacts": {
+    "cache": {
+      "path": "agteamos/.cache/",
+      "committed": false
+    },
+    "dashboard": {
+      "path": "agteamos/dashboard.html",
+      "committed": false
+    },
+    "change_report": {
+      "path": "agteamos/changes/**/report.html",
+      "committed": false
+    }
+  },
+  "legacy": {
+    "accepted_paths": [
+      "agteamos/tracker/*.md",
+      "agteamos/standards/index.yml",
+      "agteamos/standards/index.meta.yml",
+      "agteamos/standards/standards.yml",
+      "agteamos/specs/index.yml"
+    ],
+    "migration": "Preservar contenido. Migrar solo al tocarlo mediante --maintain o setup; nunca borrar automáticamente."
+  },
+  "rules": [
+    "La skill que escribe el primer archivo crea su directorio padre.",
+    "No se crean directorios vacíos ni placeholders.",
+    "Todo artefacto diferido se registra en onboarding.yml antes de materializarse.",
+    "Materializar un artefacto cambia lifecycle a active y su status a done.",
+    "Una escritura externa requiere change set aprobado y read-back."
+  ]
+}

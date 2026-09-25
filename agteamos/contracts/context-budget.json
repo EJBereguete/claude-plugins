@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_version": "1",
+  "name": "agteamos-context-budget",
+  "estimation": {
+    "metric": "utf8-bytes",
+    "estimated_tokens_formula": "ceil(utf8_bytes / 4)",
+    "telemetry": "estimate-only; host context-window usage is not available"
+  },
+  "tiers": {
+    "1": {
+      "budget_bytes": 24576,
+      "modules": [
+        "task-state"
+      ]
+    },
+    "2": {
+      "budget_bytes": 98304,
+      "modules": [
+        "task-state",
+        "change-spec",
+        "domain-spec",
+        "standard"
+      ]
+    },
+    "3": {
+      "budget_bytes": 262144,
+      "modules": [
+        "task-state",
+        "change-spec",
+        "domain-spec",
+        "standard",
+        "architecture-decision"
+      ]
+    }
+  },
+  "rules": [
+    "Counts use UTF-8 file bytes and are deterministic for the same filesystem snapshot.",
+    "Token values are estimates, never host telemetry or billing data.",
+    "Only active-change artifacts and explicitly referenced context are counted.",
+    "Generated HTML, cache, evidence binaries, source code and external payloads are excluded."
+  ]
+}

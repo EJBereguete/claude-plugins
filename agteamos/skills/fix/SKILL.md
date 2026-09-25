@@ -1,8 +1,9 @@
 ---
 name: agteamos-fix
 description: >
-  Hotfix rapido y tactico para bugs o cambios menores. Omite fases estrategicas
-  pero mantiene calidad: test obligatorio, PR hacia rama correcta, cierre de ticket.
+  Triage de Bugs por ID y hotfix táctico para defectos simples. Lee primero
+  tracker y repo, enruta simple a lite y complejo al workflow full, con test,
+  PR, cierre y trazabilidad.
 used_by:
   - backend-engineer
   - frontend-engineer
@@ -14,7 +15,7 @@ used_by:
 
 ## CONTRACT
 
-- **Input**: descripcion del bug o cambio menor a realizar
+- **Input**: descripción del bug/cambio menor o ID/URL de un Bug existente.
 - **Output**: fix implementado + test unitario + PR hacia la rama base correcta + tarea cerrada vía `agteamos-implement` (merge + cierre de ticket + limpieza de rama)
 - **Who runs this**: @product-manager triages, @backend-engineer or @frontend-engineer implements, @qa-engineer validates
 - **Cierre**: esta skill NUNCA mergea ni cierra el ticket a mano — el Step 7
@@ -25,13 +26,27 @@ used_by:
   hotfix o cambio trivial de 1 archivo NO crea los 4 artefactos completos de
   `agteamos/changes/<id>/specs/` (`requirements.md` + `design.md` +
   `tasks.md` + `deltas/<dominio>.md`). En su lugar produce solo:
-  1. Un resumen de 1 parrafo (que bug, que cambio, por que) — puede vivir
-     directamente en el cuerpo del PR, sin necesidad de crear la carpeta
-     `agteamos/changes/<id>-<slug>/` si el cambio es de una sola linea.
+  1. `task.yml` y `progress.md` lite dentro de
+     `agteamos/changes/<id>-<slug>/`, incluso para una sola línea. El estado
+     durable es mínimo, no opcional.
   2. El test de regresion obligatorio (Step 4 abajo).
-  Si el fix termina tocando mas de un dominio o requiere coordinacion entre
+  Si el fix termina tocando más de un dominio o requiere coordinación entre
   agentes, escalar a schema `full` y usar `agteamos-task` /
-  `agteamos-spec` en su lugar — `fix` es solo para el caso tactico.
+  `agteamos-spec` en su lugar — `fix` es solo para el caso táctico.
+
+## CARGA JIT PARA BUG EXISTENTE
+
+Si el input contiene un ID/URL de Bug, cargar primero y únicamente
+[BUG-INTAKE.md](modules/BUG-INTAKE.md). Ese módulo lee el item mediante
+`agteamos-work-items`, inspecciona el repo, registra el snapshot y decide:
+
+- `simple + causa sustentada` → continuar en Step 2 de esta skill;
+- `simple + causa desconocida` → `agteamos-debug`, conservando schema lite;
+- `complex` → refinamiento + spec + implementación full;
+- no-change/duplicate → change set aprobado, sin editar código.
+
+No ejecutar el Step 1 genérico antes del intake: no volver a preguntar lo que
+el Bug, sus relaciones o el repositorio ya responden.
 
 ---
 
@@ -78,13 +93,26 @@ If the decision is NO CHANGE — document the reason and close the ticket with e
 
 ---
 
-### Step 2 — Create the correct branch
+### Step 2 — Crear tracking lite y branch
 
 El `<id>` es el número de ticket real si existe. Si el fix no tiene ticket
 (caso típico de un P0 en caliente), usar el id provisional `tmp-<slug>` —
 mismo criterio que `agteamos-task` usa para su carpeta provisional en
 `agteamos/changes/<id-provisional>-<slug>/` (ver NOTA al final de esta skill
 si el id provisional termina siendo otro).
+
+Antes de crear la rama, materializar
+`agteamos/changes/<id>-<slug>/{task.yml,progress.md}` mediante los templates
+lite de `agteamos-implement`. `task.yml` usa `workflow_contract: "3"`,
+`phase: TRACKING`, cinco gates de entrega y `risk_review_approved` en
+`false`; `progress.md` contiene el
+resumen, el test de regresión pendiente y `Next Action`.
+Clasificar `risk` con el contrato de implement: auth, pagos, datos,
+migraciones, infraestructura, contratos cross-repo o blast radius amplio no
+son `standard` por ser un fix pequeño. Registrar `risk_reason`.
+
+No se crea `specs/`. Si el ID provisional cambia tras crear un ticket, aplicar
+el rename atómico definido por `agteamos-task` antes de continuar.
 
 ```bash
 # Leer agteamos/platform.yml -> branch_strategy para la rama base (ver tabla arriba)
@@ -152,7 +180,14 @@ def test_calculate_total_zero_tax():
 
 ---
 
-### Step 5 — Open the PR toward the correct branch
+### Step 5 — Handoff a `agteamos-implement`
+
+No abras el PR desde esta skill. Actualiza `progress.md`, deja
+`task.yml.phase: RECONCILE` y entrega branch, diff y test a
+`agteamos-implement`. Esa skill ejecuta RECONCILE, QA, gates, creación del PR,
+review y cierre.
+
+El target y body que `agteamos-implement` debe usar son:
 
 | Fix type | Target branch |
 |----------|--------------|
@@ -161,7 +196,7 @@ def test_calculate_total_zero_tax():
 
 ```
 [operación: create-pr] (abre el PR hacia <target-branch>; se resuelve contra
-  agteamos/tracker/<tracker de platform.yml>.md)
+  el adapter de repo_host)
 
 Title: fix(<scope>): <what was broken and what was fixed>
 Body:
@@ -182,9 +217,9 @@ Closes #<ticket-number>   # cumple link-pr-to-ticket
 
 ---
 
-### Step 6 — @qa-engineer quick validation
+### Step 6 — Validación rápida dentro de `agteamos-implement`
 
-@qa-engineer reviews the PR with focus on:
+En el estado QA de `agteamos-implement`, @qa-engineer revisa con foco en:
 - Does the test actually verify the fix (not just pass vacuously)?
 - Is the diff surgical (no unrelated changes)?
 - Are there edge cases the test does not cover?
@@ -193,7 +228,7 @@ If the fix is P0 and there is no time for a full review — @qa-engineer approve
 
 ---
 
-### Step 7 — Cerrar la tarea vía `agteamos-implement`
+### Step 7 — Confirmar cierre vía `agteamos-implement`
 
 No mergear ni cerrar el ticket a mano acá. Invocar `agteamos-implement` y
 dejar que esa skill haga el merge, el cierre del ticket, la limpieza de rama
@@ -209,10 +244,9 @@ Invocar: agteamos-implement
        regresión del Step 4 como único criterio de verify
 ```
 
-Esto reemplaza cualquier `gh pr merge` / `gh issue close` manual — mergear o
-cerrar el ticket a mano en esta skill duplica lógica que ya vive en
-`agteamos-implement` y es exactamente el tipo de divergencia que este fix
-corrige.
+Esto reemplaza cualquier merge o cierre manual — cerrar el ticket a mano en
+esta skill duplica lógica que ya vive en `agteamos-implement` y omite
+`agteamos-work-items`.
 
 ### Step 8 — Cherry-pick para P0 hotfixes (después de confirmar el merge)
 
@@ -285,7 +319,7 @@ skill inventa su propio esquema de id temporal.
 - Opening the PR to the production branch for a P2 bug — bypasses the test/staging pipeline
 - Fixing multiple bugs in a single PR — makes bisecting impossible and code review unfocused
 - Merging a P0 hotfix without cherry-picking to the integration branch (`team` strategy) — the fix disappears in the next release
-- Mergear el PR o cerrar el ticket a mano (`gh pr merge`, `gh issue close`) en vez de invocar `agteamos-implement` — duplica lógica de cierre en 3 skills distintas y las hace divergir con el tiempo
+- Mergear el PR o cerrar el ticket a mano en vez de invocar `agteamos-implement`/`agteamos-work-items` — duplica lógica de cierre y omite los gates
 - Crear la rama sin el id de la tarea (`hotfix/<slug>` en vez de `hotfix/<id>-<slug>`) — rompe la trazabilidad con el dashboard y con el resto de las ramas del proyecto
 - Hardcodear `main`/`develop`/`testing` en vez de leer `agteamos/platform.yml → branch_strategy` — la rama fantasma `testing` no existe en ningún `platform.yml` real
 

@@ -1,0 +1,66 @@
+name: AgTeamOS CI
+
+on:
+  push:
+    paths:
+      - "agteamos/**"
+      - ".github/workflows/agteamos-ci.yml"
+  pull_request:
+    paths:
+      - "agteamos/**"
+      - ".github/workflows/agteamos-ci.yml"
+
+jobs:
+  validate:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22.x, 24.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Verify hooks
+        run: node agteamos/hooks/scripts/__tests__/verify-hooks.js
+
+      - name: Verify agent-skill contract
+        run: node agteamos/scripts/verify-agent-skill-contract.mjs
+
+      - name: Verify work-item contract
+        run: node agteamos/scripts/verify-work-item-contract.mjs
+
+      - name: Verify change-set approvals
+        run: node agteamos/scripts/__tests__/verify-change-set.mjs
+
+      - name: Verify semantic analyzer
+        run: node agteamos/scripts/__tests__/verify-analyze.mjs
+
+      - name: Verify validator
+        run: node agteamos/scripts/__tests__/verify-validator.mjs
+
+      - name: Verify status
+        run: node agteamos/scripts/__tests__/verify-status.mjs
+
+      - name: Verify multi-project portal
+        run: node agteamos/scripts/__tests__/verify-portal.mjs
+
+      - name: Verify product discovery
+        run: node agteamos/scripts/__tests__/verify-product-discovery.mjs
+
+      - name: Verify release maintenance inventory
+        run: node agteamos/scripts/__tests__/verify-release-inventory.mjs
+
+      - name: Check status plugin mode
+        run: node agteamos/scripts/agteamos-status.mjs --root agteamos --json
+
+      - name: Validate plugin contract
+        run: node agteamos/scripts/agteamos-validate.mjs --root agteamos --strict

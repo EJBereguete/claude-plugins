@@ -17,7 +17,7 @@ const RULES = [
   {
     name: 'destructive-sql',
     mode: 'block',
-    test: /DROP\s+TABLE|DROP\s+DATABASE|TRUNCATE|DELETE\s+FROM/,
+    test: /\bDROP\s+(?:TABLE|DATABASE)\b|\bTRUNCATE(?:\s+TABLE)?\b|\bDELETE\s+FROM\b/i,
     message:
       '[agteamos] Operacion SQL destructiva detectada (DROP TABLE/DATABASE, TRUNCATE o DELETE FROM). ' +
       'Verifica que es intencional y que tienes backup.',
@@ -25,44 +25,51 @@ const RULES = [
   {
     name: 'destructive-delete',
     mode: 'ask',
-    test: /rm\s+-[a-zA-Z]*rf[a-zA-Z]*|rm\s+-[a-zA-Z]*fr[a-zA-Z]*|git\s+clean[^"]*-f|Remove-Item[^"]*-Recurse[^"]*-Force|Remove-Item[^"]*-Force[^"]*-Recurse/,
+    test: /(?:\brm\b(?=[^;&|\r\n]*(?:\s--recursive\b|\s-[a-z]*r[a-z]*\b))(?=[^;&|\r\n]*(?:\s--force\b|\s-[a-z]*f[a-z]*\b))|\bgit\s+clean\b(?=[^;&|\r\n]*\s-[a-z]*f[a-z]*\b)|\bRemove-Item\b(?=[^;&|\r\n]*\s-(?:Recurse|r)\b)(?=[^;&|\r\n]*\s-(?:Force|f)\b))/i,
     message:
       '[agteamos] Comando destructivo de borrado detectado (rm -rf / git clean -f / Remove-Item -Recurse -Force). Confirma antes de continuar.',
   },
   {
     name: 'push-protected-branch',
     mode: 'ask',
-    test: /git\s+push[^"]*(origin\s+)?(main|master)([\s"]|$)/,
+    test: /\bgit\s+push\b[^;\r\n]*(?:origin\s+)?(?:main|master)(?:\s|$)/i,
     message:
       '[agteamos] Push directo a main/master detectado. Confirma segun CLAUDE.md (pide confirmacion antes de push a main/master).',
   },
   {
     name: 'push-force',
     mode: 'ask',
-    test: /git\s+push[^"]*(--force|-f)([\s"]|$)/,
+    test: /\bgit\s+push\b[^;\r\n]*(?:--force|-f)(?:\s|$)/i,
     message: '[agteamos] Push con --force detectado. Confirma antes de continuar.',
   },
   {
     name: 'merge-approval-gh',
     mode: 'ask',
-    test: /gh\s+pr\s+merge[^"]*--base\s+(main|master)([\s"]|$)/,
+    test: /\bgh\s+pr\s+merge(?:\s|$)/i,
     message:
       '[agteamos] El merge a main/master requiere aprobacion QA + production-readiness check antes de proceder. ¿Ya se corrieron?',
   },
   {
     name: 'merge-approval-az',
     mode: 'ask',
-    test: /az\s+repos\s+pr\s+update[^"]*--target-branch\s+(main|master)([\s"]|$)/,
+    test: /\baz\s+repos\s+pr\s+update\b(?=[^;\r\n]*--status(?:\s+|=)completed(?:\s|$))/i,
     message:
       '[agteamos] El merge a main/master requiere aprobacion QA + production-readiness check antes de proceder. ¿Ya se corrieron?',
   },
 ];
 
 function main() {
-  const input = readStdinSync();
+  let payload;
+  try {
+    payload = JSON.parse(readStdinSync());
+  } catch (err) {
+    process.exit(0);
+  }
+  const command = payload && payload.tool_input && payload.tool_input.command;
+  if (typeof command !== 'string') process.exit(0);
 
   for (const rule of RULES) {
-    if (!rule.test.test(input)) continue;
+    if (!rule.test.test(command)) continue;
 
     if (rule.mode === 'block') {
       process.stderr.write(rule.message + '\n');

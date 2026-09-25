@@ -1,0 +1,51 @@
+topics:
+  - id: design-de-codigo
+    folder: design-de-codigo
+    description: Estructura, límites, dependencias y convenciones de diseño observadas en el proyecto
+    keywords: [layering, dependency-inversion, use-case, repository-pattern, service-layer, solid, single-responsibility, dependency-injection, interface, duplication, abstraction, over-engineering, simplicity, premature-optimization, bounded-context, entity, aggregate, value-object, domain-event, ubiquitous-language]
+    globs: ["**/services/**", "**/repositories/**", "**/use_cases/**", "**/domain/**", "**/aggregates/**", "**/entities/**"]
+    first_consumers: [architect, quality]
+    aliases: [clean-architecture, solid-principles, dry-kiss-yagni, domain-driven-design]
+
+  - id: api-design
+    folder: api-design
+    description: Contratos, recursos, errores, versionado y compatibilidad de las APIs reales del proyecto
+    keywords: [api, rest, endpoint, router, fastapi, openapi, pagination, http]
+    globs: ["**/api/**/*.py", "**/routers/**/*.py", "**/routes/**/*.py", "**/controllers/**/*.ts"]
+    first_consumers: [backend-engineer, build]
+
+  - id: database
+    folder: database
+    description: Esquema, persistencia, migraciones, naming, índices y transacciones usados por el proyecto
+    keywords: [migration, alembic, sql, postgres, index, orm, sqlalchemy, schema]
+    globs: ["**/migrations/**", "**/alembic/versions/**", "**/models/**/*.py", "**/*.sql"]
+    first_consumers: [backend-engineer, build]
+
+  - id: testing
+    folder: testing
+    description: Estrategia, niveles, fixtures, dobles, cobertura y pruebas end-to-end del proyecto
+    keywords: [pytest, vitest, xunit, test, e2e, fixture, mock, coverage]
+    globs: ["**/test_*.py", "**/*_test.py", "**/*.spec.ts", "**/*.test.ts", "**/*Tests.cs", "e2e/**"]
+    first_consumers: [qa-engineer, build]
+
+  - id: frontend
+    folder: frontend
+    description: Componentes, estado, estilos, accesibilidad y validación de las interfaces del proyecto
+    keywords: [react, vue, angular, component, hook, state, tsx, jsx]
+    globs: ["**/*.tsx", "**/*.jsx", "**/*.vue", "**/components/**"]
+    first_consumers: [frontend-engineer, build]
+
+  - id: security
+    folder: security
+    description: Autenticación, autorización, datos sensibles, validación, secretos y controles observados
+    keywords: [auth, jwt, oauth, secret, owasp, asvs, xss, sql-injection, csrf]
+    globs: ["**/auth/**", "**/security/**", "**/*auth*.py", "**/*auth*.ts"]
+    first_consumers: [security-engineer, quality]
+
+  - id: entrega-y-operaciones
+    folder: entrega-y-operaciones
+    description: Flujo Git, CI/CD, empaquetado, despliegue, observabilidad y operación del proyecto
+    keywords: [commit, branch, conventional-commits, pr, merge, rebase, docker, ci, cd, pipeline, deploy, healthcheck, compose]
+    globs: ["**/Dockerfile*", "**/docker-compose*.yml", "**/.github/workflows/*.yml", "**/azure-pipelines.yml"]
+    first_consumers: [implement, devops-engineer, deploy-readiness]
+    aliases: [git, devops]

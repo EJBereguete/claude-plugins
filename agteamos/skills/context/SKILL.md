@@ -9,6 +9,9 @@ used_by:
   - backend-engineer
   - frontend-engineer
   - product-manager
+  - devops-engineer
+  - security-engineer
+  - ui-ux-designer
 ---
 
 # Skill: Context Engineering
@@ -24,7 +27,8 @@ used_by:
 2. **Subagentes retornan resumenes** — 1-2k tokens max, no outputs completos
 3. **Shared state via archivos** — no via conversacion (se pierde con context window)
 4. **Stopping conditions explicitas** — cada agente sabe cuando parar
-5. **Token budget awareness** — si se acerca al 80% del context window, hacer checkpoint
+5. **Context budget awareness** — medir bytes y tokens estimados; no afirmar
+   uso real del context window si el host no lo expone.
 
 ## CONTEXT TIERS (de spec-os — carga perezosa de contexto)
 
@@ -35,100 +39,134 @@ compleja. Esta es la referencia compartida que otras skills citan; quien la
 — esta skill define el concepto, `agteamos-implement` decide en qué tier arranca
 cada tarea y cuándo sube de nivel.
 
-| Tier | Tamaño aprox. | Contenido | Cuándo usarlo |
-|------|---------------|-----------|----------------|
-| **Tier 1** | ~1KB | Solo identidad de la tarea (`task.yml`) + qué hay que hacer (resumen de `progress.md`) | Retomar una sesión rápido, o tareas `schema: lite` (fix/debug de un archivo) |
-| **Tier 2** (default) | + standards relevantes | Tier 1 + los estándares de `agteamos/standards/<tema>/` que aplican al dominio tocado + la spec del dominio afectado (`agteamos/specs/<dominio>.md`) | La mayoría de las tareas `schema: full` — features y bugs de complejidad normal |
-| **Tier 3** | completo | Tier 2 + spec maestra completa de todos los dominios relacionados + ADRs relevantes (`agteamos/architecture/adr/`) + `agteamos/decisions/decision-log.md` | Tareas que cruzan varios dominios, o donde una decisión arquitectónica pasada condiciona la implementación |
+| Tier | Contenido | Cuándo usarlo |
+|------|-----------|----------------|
+| **Tier 1** | Identidad (`task.yml`) y estado/next action (`progress.md`) | Retomar o cambios lite acotados |
+| **Tier 2** (default full) | Tier 1 + artefactos del cambio, standards inyectados y specs de dominios declarados | Features/bugs normales |
+| **Tier 3** | Tier 2 + ADRs/decisiones explícitamente relacionadas | Multi-dominio, arquitectura, seguridad o contrato cross-repo |
 
 Subir de tier durante la tarea es válido y esperado (ej. empezar en Tier 2 y
 descubrir que hace falta un ADR relacionado → subir a Tier 3 solo para esa
 consulta puntual, sin recargar todo desde el inicio). Bajar de tier no aplica —
 una vez cargado un nivel de contexto, se mantiene para el resto de la tarea.
 
+### Reporte determinista de presupuesto
+
+La metodología vive en `contracts/context-budget.json`:
+
+- bytes reales UTF-8 de artefactos activos allowlisted;
+- tokens **estimados** como `ceil(bytes / 4)`;
+- agregación acumulativa por tier, módulo lógico y artefacto;
+- exclusión de código fuente, binaries, evidence, cache, HTML y payloads
+  externos.
+
+Consultar sin escribir:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/agteamos-status.mjs" \
+  --root "<project-root>" --context-budget --json
+```
+
+Status, pulse y portal muestran el mismo snapshot. Los tokens no son
+telemetría, billing ni uso real de la ventana del host. Un warning de budget
+indica que conviene reducir/referenciar contexto; no prueba que el host esté
+al límite.
+
 ---
 
 ## LAZY ARTIFACTS — protocolo `ensure-artifact`
 
-Los CONTEXT TIERS de arriba resuelven la lectura perezosa (qué contexto cargar
-para una tarea). Esta sección resuelve la **escritura** perezosa: qué
-documentación/estándar generar, y cuándo. Antes de este contrato,
-`agteamos-knowledge` generaba las ~17 carpetas de `agteamos/` y los 11 temas de
-`agteamos-knowledge` el día 1, sin importar si la tarea en curso los tocaba —
-el mismo costo que Tier 3 pagaría si se cargara siempre. `agteamos-capture` ya aplican el contrato correcto para capturas
-puntuales (capturar primero, refinar después); esta sección lleva el mismo
-principio a la generación de contexto de proyecto.
+Los tiers controlan lectura. `ensure-artifact` controla escritura perezosa sin
+crear carpetas especulativas. `agteamos/onboarding.yml` registra `path`,
+`status`, `trigger` y, cuando aplica, `generated_at`.
 
-### El manifest — `agteamos/onboarding.yml`
+### Siete topics canónicos del registry
 
-Registro de qué artefacto existe, cuál está pendiente y qué lo dispara. Lo
-crea el onboarding L0 (`agteamos-knowledge`) o la Fase 0 de `agteamos-bootstrap`,
-y lo actualiza cada skill generadora al escribir su artefacto.
+El plugin aporta únicamente metadata en `standards/registry.yml`. Estos son
+los siete pares `id`/`folder`; deben coincidir exactamente:
+
+| id | folder |
+|---|---|
+| `design-de-codigo` | `design-de-codigo` |
+| `api-design` | `api-design` |
+| `database` | `database` |
+| `testing` | `testing` |
+| `frontend` | `frontend` |
+| `security` | `security` |
+| `entrega-y-operaciones` | `entrega-y-operaciones` |
+
+Aliases como `clean-architecture`, `git` o `devops` solo resuelven al folder
+canónico; nunca crean otro topic. Custom topics se declaran como metadata en
+`agteamos/standards/registry.yml`.
 
 ```yaml
-# agteamos/onboarding.yml
-mode: lazy                 # lazy | full — full = comportamiento pre-lazy, todo ya generado
-created_at: 2026-09-23
-custom_standards_asked: false   # ver agteamos-knowledge Step 3 — se pregunta una sola vez por proyecto
+layout_contract: "1"
+profile: adopted_l0
+mode: lazy
+lifecycle: initialized
+created_at: 2026-09-25
 artifacts:
-  project_context:   { path: architecture/PROJECT_CONTEXT.md, status: done,    generated_at: 2026-09-23 }
-  platform:          { path: platform.yml,                    status: partial }
-  standards.api:     { path: standards/api/,                  status: pending, trigger: "build-api | review sobre routers | edit en globs de api" }
-  standards.testing: { path: standards/testing/,              status: pending, trigger: "edit/creacion de archivo de test | qa-engineer" }
-  # ... una entrada por cada uno de los 11 temas de agteamos-knowledge
-  spec.billing:      { path: specs/billing.md,                status: candidate, evidence: "src/billing/ (14 archivos)" }
-  api_map:           { path: api/endpoints.md,                status: pending, trigger: "build-api | tarea que toca routers" }
-  design_system:     { path: design/DESIGN_SYSTEM.md,         status: pending, trigger: "build-ui" }
-  infrastructure:    { path: devops/INFRASTRUCTURE.md,        status: pending, trigger: "deploy | production-readiness | edit de Dockerfile/CI" }
-  product_roadmap:   { path: product/roadmap.md,              status: pending, trigger: "project-backlog | pedido explicito" }
-  tracker_labels:    { status: pending, trigger: "primer create-ticket (se pregunta 1 vez)" }
+  project_context: { path: architecture/PROJECT_CONTEXT.md, status: done }
+  standards.design-de-codigo: { path: standards/design-de-codigo/, status: pending, trigger: "intent/glob relevante" }
+  standards.api-design: { path: standards/api-design/, status: pending, trigger: "routers/controllers/endpoints" }
+  standards.database: { path: standards/database/, status: pending, trigger: "migraciones/modelos/sql" }
+  standards.testing: { path: standards/testing/, status: pending, trigger: "tests o QA" }
+  standards.frontend: { path: standards/frontend/, status: pending, trigger: "UI/componentes" }
+  standards.security: { path: standards/security/, status: pending, trigger: "auth o datos sensibles" }
+  standards.entrega-y-operaciones: { path: standards/entrega-y-operaciones/, status: pending, trigger: "CI/deploy/operacion" }
+  spec.billing: { path: specs/billing.md, status: candidate, evidence: "src/billing/" }
+  design_system: { path: design/DESIGN_SYSTEM.md, status: pending, trigger: "primer build UI" }
+  infrastructure: { path: devops/INFRASTRUCTURE.md, status: pending, trigger: "deploy o cambio CI" }
+  human_docs.readme: { path: ../README.md, status: pending, trigger: "bootstrap o cambio de producto" }
+  human_docs.changelog: { path: ../CHANGELOG.md, status: pending, trigger: "cierre de tarea" }
+  human_docs.architecture: { path: ../docs/architecture.md, status: pending, trigger: "cambio arquitectonico o threat model" }
+  human_docs.operations: { path: ../docs/operations.md, status: pending, trigger: "deploy, incidente u operacion" }
 ```
 
-Estados posibles: `done` | `partial` | `pending` | `candidate` (solo dominios
-de specs, ver `agteamos-knowledge` L1) | `stale` | `n/a`.
+Estados generales: `done | partial | pending | candidate | stale | n/a`.
+`candidate` se reserva para specs. Durante L0 este es el único manifest:
+`standards/`, `specs/` y sus índices todavía no existen. Tras el primer
+discovery, el runtime de `agteamos/standards/index.meta.yml` usa solo
+`done | pending | stale`.
 
-### Protocolo `ensure-artifact(<clave>)`
+### Protocolo
 
-Toda skill consumidora que necesita leer un artefacto de `agteamos/` lo invoca
-antes de leerlo, en vez de asumir que ya existe o de anotar "no existe" y
-seguir sin más:
+1. Leer la entrada en `agteamos/onboarding.yml`. Si no existe manifest,
+   conservar artefactos existentes como project-owned y usar
+   `agteamos-knowledge --maintain` para migración gradual.
+2. `done` → leer y seguir.
+3. `pending`, `candidate` o `stale` → anunciar una línea y generar solo ese
+   artefacto con scope acotado.
+4. Para standards, resolver relevancia con
+   `agteamos-knowledge --inject <intent|paths>`. Su payload final contiene
+   solo paths. Si señala un topic no listo por el protocolo, ejecutar
+   `--discover <id> --scope <paths>` para como máximo un topic en ese step.
+5. Aplicar honestidad (`Observed`, `Decided`, `External`, fuentes y
+   confidence), cambiar `lifecycle` a `active` y actualizar solo la entrada
+   generada.
+6. Presupuesto: máximo una generación JIT por step. Si hacen falta más,
+   listarlas y pedir una decisión una vez.
 
-1. Leer `agteamos/onboarding.yml` → entrada `<clave>`. Si el archivo no
-   existe (proyecto onboardeado antes de este contrato), tratar todo como
-   `mode: full` — ver "Compatibilidad hacia atrás" abajo.
-2. `done` → leer el artefacto y seguir, no hay nada más que hacer.
-3. `pending`, `candidate` o `stale` → anunciar en **una línea**, sin
-   preguntar si el disparador ya es inequívoco, y generar **solo ese
-   artefacto** en modo acotado (scope = archivos de la tarea actual + 5-10
-   representativos, nunca el repo completo). Ejemplo: *"Primera vez que
-   tocamos API en este proyecto: genero `agteamos/standards/api/` leyendo 8
-   archivos de rutas."*
-4. Aplicar siempre las reglas de honestidad ya vigentes en el resto del
-   plugin (`Estado`/`Confidence`/`Fuentes revisadas` — nunca declarar más
-   confianza de la que hay evidencia).
-5. Actualizar `onboarding.yml` → esa entrada pasa a `status: done` +
-   `generated_at: <hoy>`.
-6. **Presupuesto**: máximo 1 generación JIT por Step de la skill
-   consumidora. Si un mismo Step necesitaría generar más de un artefacto,
-   listarlos y preguntar una vez: *"¿Genero también X e Y ahora, o sigo con
-   lo mínimo?"* — nunca encadenar generaciones sin esa pregunta.
-7. `mode: full` → el protocolo es un no-op (todo ya está `done`), no cambia
-   nada del comportamiento actual.
+### Human docs lazy
 
-### Regla de carpetas
+README raíz, CHANGELOG, `docs/architecture.md` y `docs/operations.md` son
+vistas derivadas de `agteamos/`, no contexto canónico. Las genera
+`agteamos-knowledge --human-docs [--scope changed|all]` con marcadores,
+`Sources` y `Last verified`. No forman parte de los context tiers ni se usan
+para completar una fuente canónica faltante.
 
-*La skill que escribe un artefacto es la que crea su carpeta* (`mkdir -p` al
-momento de escribir, no antes). Ninguna skill pre-crea carpetas vacías "por
-las dudas" — eso es lo que hacía pesado el esqueleto completo de
-`agteamos-knowledge` y `agteamos-bootstrap`.
+Bootstrap materializa solo el README raíz mediante `--outputs readme`.
+CHANGELOG aparece tras el primer cierre verificable; `docs/architecture.md` y
+`docs/operations.md` aparecen cuando sus fuentes estables disparan esos
+outputs. Fase 0 no crea `docs/`.
 
-### Compatibilidad hacia atrás
+### Regla de carpetas y compatibilidad
 
-Un proyecto que ya tiene `agteamos/` pero no `onboarding.yml` (onboardeado
-antes de este contrato) se trata como `mode: full`: todos los artefactos que
-ya existen en disco se consideran `done` sin re-generarlos, y el protocolo
-`ensure-artifact` no dispara nada nuevo salvo que el usuario pida
-explícitamente completar algo que falte.
+La skill que escribe crea su carpeta en ese momento. No se precrean carpetas
+vacías. Los perfiles y triggers canónicos viven en
+`contracts/project-layout.json`. En proyectos anteriores, preservar contenido
+existente y migrar al tocar mediante `agteamos-knowledge --maintain`; nunca
+regenerar todo.
 
 ---
 
@@ -163,8 +201,10 @@ Cada agente actualiza `progress.md` (dentro de `agteamos/changes/<id>-<slug>/`) 
 1. **Al empezar** — marca el step como "en progreso"
 2. **Al completar un step** — marca como completado, lista archivos creados
 3. **Al tomar una decision tecnica** — documenta el por que
-4. **Antes de un paso riesgoso** — commit + checkpoint
-5. **Al 80% del context window** — checkpoint completo con "Next Action"
+4. **Antes de un paso riesgoso** — checkpoint durable; commit solo si fue
+   solicitado por el flujo.
+5. **Al 80% del budget estimado del tier**, o cuando el host reporte
+   explícitamente 80% de su ventana — checkpoint completo con "Next Action".
 
 ### Formato de checkpoint en `progress.md`:
 
@@ -273,5 +313,5 @@ Reglas:
 - **No activar mas agentes de los necesarios** — solo los de las capas impactadas
 - **No hacer loops sin stopping condition** — max 3 iteraciones por paso
 - **No cargar Tier 3 completo para una tarea Tier 1/2** — ver CONTEXT TIERS abajo, cargar de mas gasta presupuesto de tokens sin necesidad
-- **Terminar una skill sin la línea "Próximo paso sugerido"** — ver §PRÓXIMO PASO arriba, aplica a las 22 skills sin excepción
+- **Terminar una skill sin la línea "Próximo paso sugerido"** — ver §PRÓXIMO PASO arriba, aplica a las 23 skills sin excepción
 - **Ejecutar el próximo paso sugerido automáticamente** — sugerir no es decidir; el usuario/orquestador confirma

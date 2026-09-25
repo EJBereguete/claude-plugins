@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_version": "2",
+  "name": "agteamos-local-portal",
+  "output": {
+    "default_path": "~/.claude/agteamos/portal.html",
+    "format": "self-contained-html",
+    "network_required": false,
+    "repository_writes": false
+  },
+  "registry": {
+    "default_path": "~/.claude/agteamos/projects.yml",
+    "public_fields": [
+      "name",
+      "aliases",
+      "path",
+      "repo_host",
+      "tracker",
+      "reviewed",
+      "last_active"
+    ]
+  },
+  "project_sources": [
+    "agteamos/platform.yml",
+    "agteamos/onboarding.yml",
+    "agteamos/product/backlog.md",
+    "agteamos/changes/**/task.yml",
+    "agteamos/changes/**/progress.md",
+    "agteamos/changes/**/tracker-result.md",
+    "agteamos/changes/**/specs/*.md",
+    "agteamos/changes/**/specs/deltas/*.md",
+    "agteamos/standards/index.meta.yml",
+    "agteamos/standards/**/*.md",
+    "agteamos/specs/*.md",
+    "agteamos/architecture/adr/*.md",
+    "agteamos/decisions/*.md",
+    "agteamos/quality/*.md",
+    "agteamos/quality/debt-trend.yml",
+    "agteamos/devops/DORA_METRICS.md",
+    "agteamos/devops/SLO.md",
+    "agteamos/devops/deploy_log.csv",
+    "agteamos/incidents/**/*.md",
+    "agteamos/security/**/*.md"
+  ],
+  "platform_public_fields": [
+    "repo_host",
+    "tracker",
+    "branch_strategy",
+    "ci_target",
+    "deploy_target",
+    "reviewed"
+  ],
+  "backlog_public_fields": [
+    "id",
+    "date",
+    "title",
+    "origin",
+    "priority",
+    "status",
+    "ticket"
+  ],
+  "excluded": [
+    "token values",
+    "environment variable values",
+    "owner email",
+    "raw .cache findings",
+    "raw tracker payloads or responses",
+    "raw source code",
+    "raw context artifact contents",
+    "unallowlisted platform fields"
+  ],
+  "sections": [
+    "overview",
+    "projects",
+    "backlog",
+    "active_changes",
+    "context_budget",
+    "archive",
+    "onboarding",
+    "knowledge",
+    "quality",
+    "operations",
+    "incidents"
+  ],
+  "security": {
+    "external_assets": false,
+    "network_fetch": false,
+    "dynamic_code_execution": false,
+    "html_escape_required": true,
+    "canonical_roots_required": true,
+    "allowed_link_schemes": [
+      "file",
+      "http",
+      "https"
+    ]
+  }
+}

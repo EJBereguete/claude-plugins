@@ -2,9 +2,15 @@
 
 ## ¿Qué es?
 
-**AgTeamOS** es un plugin para Claude Code que convierte al asistente en un equipo completo de ingeniería de software. En lugar de un solo asistente genérico, orquesta **8 agentes especializados** que colaboran para entregar software de calidad profesional, y persiste todo lo que gestiona en una única carpeta visible y portable: `agteamos/` en la raíz de tu proyecto.
+**AgTeamOS** es un plugin para Claude Code que convierte al asistente en un
+equipo completo de ingeniería de software. Orquesta **8 agentes
+especializados** y persiste su estado canónico en `agteamos/`. README,
+CHANGELOG y docs humanas son vistas derivadas opcionales.
 
-Cada agente tiene un rol definido, skills específicas (invocables como `/agteamos-<nombre>`), y estándares de código que aplica automáticamente. El sistema implementa **Spec-Driven Development (SDD)** y **Context Engineering** para mantener coherencia entre sesiones largas y garantizar que el contexto no se pierda cuando se agota la ventana de tokens.
+Cada agente tiene un rol definido y skills específicas. Las convenciones se
+descubren desde el repositorio; no se aplican standards genéricos
+automáticamente. El sistema implementa **Spec-Driven Development (SDD)** y
+**Context Engineering**.
 
 ## ¿Qué problema resuelve?
 
@@ -18,11 +24,16 @@ En proyectos reales las sesiones se interrumpen. Si Claude pierde el hilo, el us
 
 ### 3. No hay estándares consistentes entre sesiones
 
-Sin un marco de trabajo, el código generado varía en estructura, naming y calidad. AgTeamOS incluye estándares por stack (Python/FastAPI, TypeScript/React, C#/.NET) empaquetados en el plugin, y una skill (`agteamos-knowledge`) que los adapta al código real de tu proyecto. Ver [Capa de standards](#capa-de-standards) más abajo.
+Sin un marco de trabajo, el código generado varía entre sesiones.
+`agteamos-knowledge` descubre convenciones en código, tests, configuración y
+ADRs del proyecto. El plugin aporta un registry metadata-only para encontrar
+evidencia, no estándares prescriptivos. Ver [Capa de standards](#capa-de-standards).
 
 ### 4. No hay un único lugar donde ver "qué se instala en mi proyecto"
 
-Todo lo que AgTeamOS gestiona vive en **una sola carpeta visible `agteamos/`** — no repartido en varias carpetas genéricas de documentación. El árbol completo está en [Estructura de carpetas](../referencia/estructura-de-carpetas.md).
+El estado canónico vive en **`agteamos/`** y se materializa por trigger, no
+como árbol completo durante onboarding. El contrato está en
+[Estructura de carpetas](../referencia/estructura-de-carpetas.md).
 
 ## ¿Para quién es?
 
@@ -98,18 +109,18 @@ graph TB
             A8[UI/UX Designer]
         end
 
-        subgraph "22 Skills"
+        subgraph "23 Skills"
             S1[SDD Protocol]
             S2[Context Engineering]
             S3[Implement]
-            S4[Project Docs]
-            S5[...18 más]
+            S4[Knowledge]
+            S5[...19 más]
         end
 
-        subgraph "Standards del plugin"
-            ST1[Python/FastAPI]
-            ST2[TypeScript/React]
-            ST3[C#/.NET]
+        subgraph "Knowledge routing"
+            ST1[Registry: 7 topics]
+            ST2[Project discovery]
+            ST3[Inject: solo paths]
         end
     end
 
@@ -126,42 +137,40 @@ graph TB
 
 Ver [Quickstart](../primeros-pasos/01-quickstart.md). En resumen: se instala como plugin de Claude Code vía marketplace, y cada skill se invoca directamente con `/agteamos-<nombre>` (forma corta) o `/agteamos:agteamos-<nombre>` (forma completa con namespace) — sin necesidad de una carpeta `commands/` separada.
 
-## Una decisión de diseño explícita: Standards vs. Skills
+## Una decisión de diseño explícita: Knowledge vs. Skills
 
 AgTeamOS distingue con precisión entre dos tipos de conocimiento:
 
-- **Standards (declarativo)** — si es una convención de código ("los DTOs son inmutables", "los endpoints devuelven RFC 9457"), vive en `standards/` (el árbol base del plugin) y se proyecta a `agteamos/standards/` una vez adaptado al proyecto real.
+- **Knowledge project-owned (declarativo)** — una convención vive en
+  `agteamos/standards/` solo después de discovery con evidencia del proyecto.
+  `standards/registry.yml` aporta ids, aliases, keywords y globs para routing.
 - **Skills (procedimental)** — si es un procedimiento repetible ("cómo cerrar una tarea", "cómo auditar seguridad"), vive como skill invocable.
 
 Esta distinción no es accidental: mezclar reglas de código con workflows en el mismo archivo hace que ambos sean más difíciles de mantener y de encontrar. Es el mismo criterio que otros frameworks de desarrollo asistido por agentes (Agent OS, entre otros) formalizan explícitamente — AgTeamOS llegó al mismo diseño de forma independiente y lo mantiene como principio consciente, no como convención implícita.
 
 ## Capa de standards
 
-AgTeamOS distingue dos cosas relacionadas pero distintas, y ambas se llaman "standards" en contextos distintos — vale la pena separarlas con claridad:
+AgTeamOS separa routing de conocimiento y conocimiento real:
 
-1. **`standards/` del propio plugin** — los 7 temas base con código de referencia, empaquetados dentro de AgTeamOS. Genéricos, no atados a ningún proyecto concreto.
-2. **`agteamos/standards/` de tu proyecto** — el resultado de la skill `agteamos-knowledge` leyendo tu código real y adaptando (o desviándose de) esos 7 temas base. Específico de tu proyecto.
+1. **`standards/registry.yml` del plugin** — siete lentes metadata-only.
+2. **`agteamos/standards/` del proyecto** — convenciones descubiertas en
+   evidencia real y decisiones del equipo.
 
-### 1. Standards base del plugin
+### 1. Registry metadata-only del plugin
 
-Ubicados en `standards/` dentro del repositorio de AgTeamOS, uno por tema, cada carpeta con sus propios ejemplos de código adentro (no un árbol `examples/` separado por lenguaje):
+La única entrada de knowledge empaquetada es:
 
 ```
 standards/
-├── api-design/
-│   ├── README.md
-│   └── examples/
-├── database/
-├── design-de-codigo/
-│   ├── README.md
-│   └── examples/
-├── entrega-y-operaciones/
-├── frontend/
-├── security/
-└── testing/
+├── registry.yml
+└── README.md
 ```
 
-### Stacks soportados
+Sus ids/folders son `design-de-codigo`, `api-design`, `database`, `testing`,
+`frontend`, `security` y `entrega-y-operaciones`. Keywords, globs y aliases
+sirven para seleccionar evidencia; no afirman cómo debe escribirse el código.
+
+### Ejemplos procedimentales soportados
 
 | Stack | Lenguaje | Framework | ORM/DB | Tests |
 |---|---|---|---|---|
@@ -169,7 +178,10 @@ standards/
 | C#/.NET | .NET 8+ | ASP.NET Core / Blazor / MAUI | EF Core 8 | xUnit + FluentAssertions + Moq/NSubstitute |
 | TypeScript | 5+ | React 19 / NestJS / Express | Prisma / Drizzle | Vitest + Testing Library + Playwright |
 
-### Reglas transversales que aplican todos los agentes
+Estos stacks aparecen como ejemplos en skills de build, quality y security,
+no como baseline de `agteamos-knowledge`.
+
+### Guardrails transversales de calidad
 
 - Funciones pequeñas con responsabilidad única — si supera ~40 líneas, evaluar dividir
 - Manejo explícito de errores — nunca silenciosos ni genéricos
@@ -225,18 +237,26 @@ function useInvoices() {
 }
 ```
 
-### 2. `agteamos/standards/` — la proyección sobre tu proyecto
+### 2. `agteamos/standards/` — conocimiento project-owned eventual
 
-La skill `agteamos-knowledge` (ver [guía operativa](../guias/mantener-standards-al-dia.md)) lee estos 7 temas base y los compara contra tu código real, produciendo una carpeta por tema **dentro de tu proyecto**:
+La skill `agteamos-knowledge` (ver
+[guía operativa](../guias/mantener-standards-al-dia.md)) usa el registry para
+encontrar 5-10 fuentes representativas y documenta únicamente lo observado,
+decidido o externo:
+
+Esta carpeta no existe en L0. El primer discovery crea la carpeta, los índices
+mínimos y únicamente el topic requerido:
 
 ```
 agteamos/standards/
-├── standards.yml          ← manifest: qué aplica, qué se adapta, qué se desvía
-├── index.yml               ← keyword → carpeta, para no escanear los 7 temas
+├── registry.yml           ← custom topics locales, opcional
+├── standards.yml          ← observed | mixed | intentional-deviation | pending
+├── index.yml              ← keyword/alias → folder canónico
+├── index.meta.yml         ← done | pending | stale
 ├── api-design/
-│   ├── README.md            ← reglas adaptadas a ESTE proyecto
-│   ├── examples.md           ← ejemplos reales tomados del código del proyecto
-│   └── deviations.md         ← solo si hay desviaciones
+│   ├── README.md           ← convenciones y evidencia del proyecto
+│   ├── examples.md         ← opcional, código real del proyecto
+│   └── deviations.md       ← solo desviación intencional confirmada
 ├── database/README.md
 ├── design-de-codigo/README.md
 ├── entrega-y-operaciones/README.md
@@ -245,11 +265,16 @@ agteamos/standards/
 └── testing/README.md
 ```
 
-Cada `README.md` lleva un header de proveniencia con `Estado` (STUB / EXTRACTED / DESIGN-DERIVED / CREATED / UPDATED) y `Confidence` (1-5) — un estándar no se marca como vigente (`status: applies`) con confidence menor a 4/5. El detalle completo de esta regla y el ciclo de vida está en [Mantener los standards al día](../guias/mantener-standards-al-dia.md).
+Cada README separa `Provenance`, `Current conventions`, `Evidence`,
+`Team decisions`, `Migration path` y `Learned in use`. Runtime y
+clasificación son ejes distintos; ver
+[Mantener los standards al día](../guias/mantener-standards-al-dia.md).
 
 ### Por qué la separación importa
 
-Si `agteamos/standards/` simplemente copiara el `standards/` del plugin sin adaptar, no aportaría nada sobre leer el árbol del plugin directamente. El valor real está en que cada regla se confirma (o se desvía, con razón documentada) contra el código que existe de verdad en tu proyecto — el `Confidence` score es la forma en que el sistema es honesto sobre qué tan seguro está de esa determinación.
+Copiar reglas del plugin convertiría metadata en prescripción. El valor está
+en la evidencia citada del proyecto y en distinguir observación, decisión y
+referencia externa.
 
 ### Cómo lo usan los agentes
 
@@ -257,7 +282,8 @@ El acceso a `agteamos/standards/` combina dos mecanismos distintos — uno pasiv
 
 #### Inyección pasiva — hook `SessionStart`
 
-Un hook corre automáticamente al iniciar cualquier sesión. Si `agteamos/standards/index.yml` ya existe en el proyecto (es decir, `agteamos-knowledge` corrió al menos una vez), inyecta al contexto un resumen compacto del índice — carpeta por tema con sus keywords, tope de 15 temas para no volcar el índice completo:
+`session-start.js` presenta un resumen compacto del índice project-owned si
+existe. No inyecta contenido de standards ni lee subdirectorios prescriptivos:
 
 ```
 [agteamos] Standards del proyecto disponibles en agteamos/standards/.
@@ -266,21 +292,28 @@ Indice keyword -> carpeta (agteamos/standards/index.yml):
 - security: auth, jwt, mfa
 - database: migrations, postgres, sql
 ...
-Antes de escribir o revisar codigo, resuelve el tema relevante contra este
-indice y lee agteamos/standards/<carpeta>/README.md (y deviations.md si existe).
+Antes de escribir o revisar codigo, usa agteamos-knowledge --inject con el
+intent y los paths. Lee unicamente los paths devueltos.
 ```
 
-Si `index.yml` todavía no existe (el proyecto nunca corrió `agteamos-knowledge`), el hook no hace nada — no bloquea ni advierte, simplemente no hay nada que inyectar todavía.
+Si `index.yml` todavía no existe, SessionStart no inyecta un índice vacío. El
+hook post-write y `--inject` pueden resolver el topic desde el registry +
+`onboarding.yml` y solicitar un único `ensure-artifact`.
 
 #### Resolución activa — las skills que escriben o revisan código
 
-La inyección pasiva pone el índice en el contexto, pero quien realmente **lee la regla completa y la aplica** son las skills que escriben o revisan código (`agteamos-build`, `agteamos-quality`), cada una con un Step explícito para esto:
+Las skills que escriben o revisan código invocan
+`agteamos-knowledge --inject <intent|paths>`. El resultado final contiene solo
+paths:
 
 | Skill | Qué hace |
 |---|---|
-| `agteamos-build` | Resuelve keywords (`api`, `rest`, `endpoints`, `react`, `component`, `frontend` + las que apliquen a la tarea) contra `index.yml`, lee el `README.md`/`deviations.md` de cada carpeta resuelta, y aplica esas reglas por encima del patrón genérico del Step de implementación, tanto para Backend como para Frontend |
-| `agteamos-quality` | En su modo de review, resuelve el tema del código bajo revisión, compara contra el `README.md` del proyecto y contra `deviations.md` (una desviación ya documentada ahí no es un hallazgo nuevo) |
+| `agteamos-build` | Pasa intent y paths, lee solo los paths devueltos y puede generar como máximo un topic pending/stale por step |
+| `agteamos-quality` | Revisa contra los paths project-owned devueltos; una desviación intencional ya documentada no es un hallazgo nuevo |
 
-Si `agteamos/standards/index.yml` no existe todavía, ninguna de las dos bloquea la tarea — cada una lo deja constancia explícita en su output ("no se encontró `agteamos/standards/` — no se pudo verificar contra los estándares del proyecto") en vez de saltear el paso en silencio.
+Si `agteamos/standards/index.yml` todavía no existe, `--inject` resuelve
+relevancia desde metadata y onboarding. No devuelve paths inexistentes: pide
+materializar como máximo un topic y después relee sus archivos.
 
-Esto garantiza que el código generado en la sesión 1 sea consistente con el generado en la sesión 50, por cualquier agente que pase por una de estas skills — y que un estándar exista en `agteamos/standards/` no depende de que alguien se acuerde de ir a leerlo.
+Así el contexto se carga JIT sin convertir el registry en reglas ni escanear
+los siete topics en cada tarea.

@@ -1,238 +1,219 @@
-# Estructura de carpetas (`agteamos/`)
+# Estructura lazy del proyecto
 
-AgTeamOS gestiona **una sola carpeta visible `agteamos/`** en la raíz de tu proyecto. Reemplaza por completo cualquier esquema anterior basado en `docs/00-08` + `docs/specs` + `docs/tasks` — todo lo que el sistema toca vive en su propia carpeta con nombre de marca, sin mezclarse con documentación humana genérica. No hay prefijos numéricos: insertar una categoría nueva en el medio no requiere renumerar nada.
+AgTeamOS no instala un árbol completo. La fuente ejecutable es
+[`contracts/project-layout.json`](../../contracts/project-layout.json): define
+dos perfiles iniciales y los triggers que materializan el resto.
 
-> **Esta página es el árbol canónico único.** `README.md` no mantiene su propia copia — cita o replica este árbol tal cual. Si alguna skill (`agteamos-bootstrap`, `agteamos-knowledge`, `agteamos-router`, `agteamos-implement`) muestra un árbol distinto de este, es una divergencia a corregir ahí, no una variante válida.
+Regla única:
 
-> **Qué se commitea**: ver [Control de versiones](#control-de-versiones-qué-se-commitea-y-qué-no) más abajo — casi todo `agteamos/` se commitea como código fuente, con dos excepciones marcadas explícitamente en el árbol.
+> La skill que escribe el primer archivo crea su directorio padre. No existen
+> carpetas vacías ni placeholders “por si acaso”.
 
-> **Este árbol no se genera todo de una vez.** Por default (`agteamos-knowledge`
-> sin `--full`, y la Fase 0 de `agteamos-bootstrap`), solo se genera lo
-> mínimo (`platform.yml`, `PROJECT_CONTEXT.md` lean, `onboarding.yml`) y el
-> resto queda declarado `pending`/`candidate` en `onboarding.yml`, generándose
-> recién cuando una tarea real lo necesita (protocolo `ensure-artifact`, ver
-> `agteamos-context` §Lazy Artifacts). El árbol de abajo muestra
-> el estado **final** una vez que todo se generó — no el día 1. Detalle
-> completo del porqué y el diseño en
-> `DECISIONS.md`.
+## Proyecto existente: `adopted_l0`
 
-## Árbol completo
+`agteamos-knowledge --init` crea:
 
-```
-tu-proyecto/
-├── agteamos/
-│   ├── platform.yml                     ← agteamos-setup
-│   ├── onboarding.yml                    ← manifest lazy: que existe, que esta pending/candidate y que lo dispara (ver agteamos-context §Lazy Artifacts)
-│   ├── dashboard.html                    ← agteamos-dashboard (generado, NO se commitea)
-│   │
-│   ├── product/
-│   │   ├── mission.md
-│   │   ├── roadmap.md
-│   │   ├── kpis.md
-│   │   └── backlog.md                    ← agteamos-bootstrap Step 6 (mirror de los tickets creados)
-│   │
-│   ├── architecture/
-│   │   ├── PROJECT_CONTEXT.md
-│   │   ├── ARCHITECTURE.md
-│   │   └── adr/
-│   │       ├── ADR-001-database-choice.md
-│   │       └── ADR-002-auth-strategy.md
-│   │
-│   ├── api/
-│   │   ├── openapi.yml
-│   │   └── endpoints.md
-│   │
-│   ├── design/
-│   │   ├── DESIGN_SYSTEM.md
-│   │   └── mockup-v1.png
-│   │
-│   ├── devops/
-│   │   ├── INFRASTRUCTURE.md
-│   │   ├── DORA_METRICS.md
-│   │   ├── SLO.md
-│   │   └── prr/
-│   │       └── PRR-v1.2.3.md
-│   │
-│   ├── security/
-│   │   ├── AUDIT-2026-08-09.md
-│   │   └── threat-models/
-│   │
-│   ├── incidents/
-│   │   ├── post-mortems/
-│   │   ├── runbooks/
-│   │   └── playbooks/
-│   │
-│   ├── decisions/
-│   │   ├── decision-log.md
-│   │   └── rfcs/
-│   │       └── RFC-001-unified-auth-service.md
-│   │
-│   ├── standards/                       ← agteamos-knowledge
-│   │   ├── standards.yml                 ← manifest: qué aplica, qué se adapta, qué se desvía
-│   │   ├── index.yml                     ← keyword → carpeta, para no escanear las ~11 carpetas
-│   │   ├── api/
-│   │   │   ├── README.md                 ← reglas adaptadas a ESTE proyecto
-│   │   │   ├── examples.md               ← ejemplos reales tomados del código del proyecto
-│   │   │   └── deviations.md             ← solo si hay desviaciones (opcional)
-│   │   ├── git/README.md
-│   │   ├── security/README.md
-│   │   ├── testing/README.md
-│   │   ├── database/README.md
-│   │   ├── frontend/README.md
-│   │   ├── clean-architecture/README.md
-│   │   ├── solid-principles/README.md
-│   │   ├── dry-kiss-yagni/README.md
-│   │   ├── domain-driven-design/README.md
-│   │   └── devops/README.md
-│   │
-│   ├── specs/                            ← specs maestras persistentes, estilo OpenSpec
-│   │   ├── index.yml                     ← keyword → dominio.md (mismo criterio que standards/index.yml)
-│   │   ├── notifications.md              ← Coverage: seeded | partial | complete
-│   │   └── invoicing.md
-│   │
-│   ├── quality/
-│   │   └── debt-trend.yml                ← hotspots (churn x tamaño) por corrida — SE commitea, es un resumen versionado (hooks/scripts/inject-debt-signal.js)
-│   │
-│   └── changes/                          ← reemplaza tasks/active + tasks/completed
-│       ├── 42-email-notifications/       ← activa
-│       │   ├── task.yml                   (metadata: schema full|lite, status, owner, domains...)
-│       │   ├── brief.md                   (input original del usuario — solo schema full, inmutable)
-│       │   ├── progress.md                (tracking de sesión/handoff — checkpoint protocol)
-│       │   ├── report.html                (generado, NO se commitea)
-│       │   ├── verify-report.md           (aparece recién al cierre — paso "verify")
-│       │   ├── knowledge-base.md          (aprendizajes/decisiones reutilizables — escrito al cerrar)
-│       │   ├── evidence/                  (screenshots QA)
-│       │   │   ├── e2e-login-flow.png
-│       │   │   └── e2e-email-sent.png
-│       │   └── specs/                     (solo si schema: full)
-│       │       ├── requirements.md
-│       │       ├── design.md
-│       │       ├── tasks.md
-│       │       └── deltas/
-│       │           └── notifications.md
-│       └── archive/
-│           └── 2026-07-15-1-jwt-auth/    ← close-task mueve aquí al cerrar
-│               └── [misma estructura]
-│
-└── [tu código aquí]
+```text
+agteamos/
+├── platform.yml
+├── onboarding.yml
+└── architecture/
+    └── PROJECT_CONTEXT.md
 ```
 
-## Control de versiones: qué se commitea y qué no
+`onboarding.yml` usa:
 
-**`agteamos/` se commitea como cualquier código fuente** — es la misma decisión de fondo que Agent OS y OpenSpec aplican a `.agent-os/`/`openspec/`: la spec y el estado de las tareas viven en git, versionados junto con el código que describen, no aparte.
-
-**Excepción — 2 archivos siempre generados, nunca commiteados**, porque son 100% derivables de `task.yml` + `progress.md` + `verify-report.md`, y versionarlos garantiza un conflicto de merge en cada PR en cuanto hay más de un desarrollador tocando tareas distintas al mismo tiempo:
-
-- `agteamos/dashboard.html`
-- `agteamos/changes/**/report.html`
-
-Agregalos a tu `.gitignore`:
-
+```yaml
+layout_contract: "1"
+profile: adopted_l0
+mode: lazy
+lifecycle: initialized
 ```
+
+Topics y dominios candidatos se registran ahí. No se crean `standards/`,
+`specs/` ni sus índices.
+
+## Proyecto nuevo: `greenfield_phase0`
+
+Bootstrap crea únicamente este baseline (y `product/market-research.md` solo
+si el research opt-in fue aprobado):
+
+```text
+agteamos/
+├── platform.yml
+├── onboarding.yml
+├── architecture/
+│   ├── PROJECT_CONTEXT.md
+│   └── adr/
+│       └── ADR-001-<slug>.md
+└── product/
+    ├── mission.md
+    ├── kpis.md
+    └── roadmap.md
+```
+
+El scaffold de código y CI vive en las rutas naturales del stack. Bootstrap
+no crea backlog, tickets, `devops/`, design system ni documentación pública
+operacional.
+
+El README raíz es la única vista humana evaluada durante bootstrap. No es
+estado canónico.
+
+## Cuándo aparece cada carpeta
+
+| Path | Trigger |
+|---|---|
+| `product/backlog.md` | El usuario pide guardar/importar/gestionar el primer item |
+| `product/market-research.md` | Research opt-in y aprobación posterior del contenido con fuentes |
+| `standards/` | Primer intent/path que requiere discovery de un topic |
+| `specs/` | Primera tarea full que confirma una spec de dominio |
+| `changes/<id>-<slug>/` | Inicio de la primera tarea trazable |
+| `changes/archive/` | Cierre de la primera tarea |
+| `design/` | Primer trabajo UI que necesita design system |
+| `devops/` | Primer cambio real de CI/CD, infraestructura o deploy |
+| `security/` | Primera auditoría, threat model o tarea sensible |
+| `incidents/` | Primer incidente/runbook/playbook real |
+| `decisions/` | Primer RFC, premortem o decisión formal fuera de ADR |
+| `quality/` | Primer reporte persistente o señal real de deuda |
+| `tracker/` | Override de provider personalizado y aprobado |
+| `.cache/` | Estado runtime de hooks; nunca se commitea |
+
+Al materializar el primer artefacto, `onboarding.yml.lifecycle` pasa de
+`initialized` a `active` y la entrada concreta cambia a `done`.
+
+## Árbol eventual
+
+Un proyecto puede llegar a tener este árbol, pero solo después de usar cada
+capacidad:
+
+```text
+agteamos/
+├── platform.yml
+├── onboarding.yml
+├── dashboard.html                     # generado, no commiteado
+├── product/
+│   ├── mission.md
+│   ├── kpis.md
+│   ├── market-research.md              # solo research opt-in aprobado
+│   ├── roadmap.md
+│   └── backlog.md
+├── architecture/
+│   ├── PROJECT_CONTEXT.md
+│   ├── SRS.md                         # solo opt-in
+│   └── adr/
+├── design/
+│   └── DESIGN_SYSTEM.md
+├── devops/
+│   ├── INFRASTRUCTURE.md
+│   ├── SLO.md
+│   └── prr/
+├── security/
+│   └── threat-models/
+├── incidents/
+│   ├── post-mortems/
+│   ├── runbooks/
+│   └── playbooks/
+├── decisions/
+│   ├── decision-log.md
+│   └── rfcs/
+├── standards/
+│   ├── registry.yml                   # custom topics, opcional
+│   ├── standards.yml
+│   ├── index.yml
+│   ├── index.meta.yml
+│   └── <topic>/
+│       ├── README.md
+│       ├── examples.md                # opcional
+│       └── deviations.md              # opcional
+├── specs/
+│   ├── index.yml
+│   └── <dominio>.md
+├── quality/
+│   └── debt-trend.yml
+├── tracker/
+│   └── <custom-provider>.md            # override, no default
+└── changes/
+    ├── <id>-<slug>/
+    │   ├── task.yml
+    │   ├── progress.md
+    │   ├── tracker-result.md           # si hubo mutación externa; sanitizado
+    │   ├── abandon-record.md           # solo salida ABANDONED
+    │   ├── verify-report.md
+    │   ├── knowledge-base.md
+    │   ├── evidence/
+    │   └── specs/                      # solo schema full
+    └── archive/
+```
+
+La especificación OpenAPI permanece donde el proyecto la define. AgTeamOS no
+crea una carpeta `api/` paralela.
+
+## Human docs derivadas
+
+Fuera de `agteamos/` pueden existir:
+
+```text
+README.md
+CHANGELOG.md
+docs/
+├── architecture.md
+└── operations.md
+```
+
+Bootstrap solo selecciona `README.md`. CHANGELOG aparece tras un cierre
+verificado; `docs/` aparece cuando arquitectura u operaciones tienen fuentes
+estables. Los marcadores administrados citan `Sources` y `Last verified`.
+
+## Providers
+
+GitHub, Azure Boards y Planner se ejecutan desde módulos versionados en
+`skills/work-items/`. `platform.yml` guarda configuración del proyecto.
+`agteamos/tracker/` no aparece salvo que exista un override custom; los
+adapters v3 copiados se preservan como legacy.
+
+## Control de versiones
+
+Se commitea el estado canónico materializado. Se ignoran:
+
+```text
 agteamos/dashboard.html
 agteamos/changes/**/report.html
+agteamos/.cache/
 ```
 
-Ambos se regeneran on-demand con `agteamos-dashboard` (o automáticamente al cerrar una tarea) — no hace falta que existan en el repo para que el sistema funcione, solo abrirlos localmente con `file://`. Ver el detalle completo en [Compartir con tu equipo](../primeros-pasos/03-compartir-con-tu-equipo.md).
+No se commitean carpetas vacías.
 
-## Tabla de mapeo (esquema anterior → `agteamos/`)
+## Estado global del usuario
 
-Si venías de un proyecto documentado con el esquema anterior (`docs/00-08`), esta es la equivalencia:
+Fuera de cualquier repositorio, AgTeamOS mantiene:
 
-| Antes | Ahora |
-|---|---|
-| `docs/00-product/` | `agteamos/product/` |
-| `docs/01-architecture/` | `agteamos/architecture/` |
-| `docs/02-api/` | `agteamos/api/` |
-| `docs/03-ui-ux/` | `agteamos/design/` |
-| `docs/04-devops/` | `agteamos/devops/` |
-| `docs/05-security/` | `agteamos/security/` |
-| `docs/06-incidents/` | `agteamos/incidents/` |
-| `docs/07-decisions/` | `agteamos/decisions/` |
-| `docs/08-standards/` | `agteamos/standards/` |
-| `docs/specs/<dominio>.md` | `agteamos/specs/<dominio>.md` |
-| `docs/tasks/active/TASK-<id>-<slug>/` | `agteamos/changes/<id>-<slug>/` |
-| `docs/tasks/completed/TASK-<id>-<slug>/` | `agteamos/changes/archive/<fecha>-<id>-<slug>/` |
-| `.../specs/spec-delta.md` (dentro de la tarea) | `.../specs/deltas/<dominio>.md` |
-| `TASK-<id>-<slug>.md` (archivo de tracking) | `progress.md` |
-
-## Qué genera cada skill/agente
-
-### `agteamos-router` / `agteamos-knowledge` generan (proyecto sin `agteamos/` todavía):
-
-- `agteamos/architecture/PROJECT_CONTEXT.md` — stack detectado desde `package.json`, `pyproject.toml`, `*.csproj`
-- `agteamos/api/openapi.yml` — escaneando routers/controllers
-- `agteamos/design/DESIGN_SYSTEM.md` — leyendo `tailwind.config.js`, CSS, theme providers
-- `agteamos/devops/INFRASTRUCTURE.md` — leyendo `Dockerfile`, `docker-compose.yml`, workflows de CI
-- `agteamos/specs/<dominio>.md` con `Coverage: seeded` — siembra parcial, por ingeniería inversa, del comportamiento que puede confirmar contra el código real (ver [Adoptar un proyecto existente](../primeros-pasos/04-adoptar-proyecto-existente.md))
-- `agteamos/changes/` — estructura vacía lista para usar
-
-### `agteamos-bootstrap` genera además:
-
-- `agteamos/product/backlog.md` — mirror de los tickets creados en GitHub/Azure para el MVP (Step 6)
-
-### `agteamos-spec` genera (por tarea), en `agteamos/changes/<id>-<slug>/`:
-
-- `brief.md` — input original del usuario, inmutable (solo `schema: full`)
-- `specs/requirements.md` — Product Owner
-- `specs/design.md` — Architect
-- `specs/deltas/<dominio>.md` — Architect
-- `specs/tasks.md` — Project Manager
-
-### `agteamos-implement` genera, en `agteamos/changes/<id>-<slug>/`:
-
-- `progress.md` — tracking file con progress log, unit tests, evidencia y Next Action
-- `task.yml` — metadata estructurada, incluyendo `owner` capturado vía `git config`
-
-### `agteamos-implement` genera al cerrar:
-
-- `verify-report.md` — gate RFC 2119 antes del merge
-- `knowledge-base.md` — aprendizajes y decisiones reutilizables de la tarea, para que el próximo agente (o `agteamos-knowledge`) no repita la misma investigación
-
-### `agteamos-dashboard` genera:
-
-- `report.html` por tarea (se regenera cada vez que `agteamos-implement` actualiza `progress.md`/`task.yml`) — **no se commitea**
-- `agteamos/dashboard.html` — agrega el estado de todas las tareas activas y archivadas — **no se commitea**
-
-### QA Engineer genera:
-
-Screenshots en `agteamos/changes/<id>-<slug>/evidence/` usando Playwright:
-```typescript
-await page.screenshot({
-  path: 'agteamos/changes/42-email-notifications/evidence/e2e-login-flow.png',
-  fullPage: true
-});
+```text
+~/.claude/agteamos/
+├── projects.yml                 # registro canónico de proyectos
+├── portal.html                  # vista global derivada y regenerable
+└── plugin-feedback.md           # outbox durable del plugin, si existe
 ```
 
-### `agteamos-decisions` genera:
+`portal.html` se crea al pedir `agteamos-dashboard --portal` y se refresca
+best-effort tras setup, captura de backlog y cierre. Su generación solo lee
+fuentes allowlisted de cada root; nunca crea carpetas dentro de los proyectos.
 
-En `agteamos/architecture/adr/`: `ADR-{NNN}-{slug}.md` por cada decisión arquitectónica importante.
+## Compatibilidad v3
 
-### `agteamos-implement` archiva:
+Un proyecto anterior con `standards/`, `specs/` o `tracker/` sigue siendo
+válido. `agteamos-knowledge --maintain` puede proponer:
 
-Mueve `agteamos/changes/{id}-{slug}/` → `agteamos/changes/archive/{fecha}-{id}-{slug}/` — solo después de generar `verify-report.md`, confirmar el merge y aplicar el paso `sync` sobre `agteamos/specs/<dominio>.md`. Limpia la branch y cierra el ticket en GitHub/Azure DevOps.
+- migrar metadata al contrato nuevo al tocarla;
+- tratar adapters locales como overrides;
+- eliminar directorios realmente vacíos mediante dry-run.
 
-## Reglas de la carpeta `agteamos/`
+Nunca elimina ni reestructura contenido automáticamente.
 
-1. **Siempre existe** — si no existe, `agteamos-router` dispara `agteamos-knowledge` para crearla por ingeniería inversa antes de cualquier tarea.
-2. **Es la fuente de verdad** — los agentes la leen antes de cualquier acción; nunca asumen el estado del proyecto.
-3. **Se actualiza con cada tarea** — salvo que `task.yml` declare `doc_impact: false`.
-4. **Se commitea como código fuente** — con las 2 excepciones generadas (`dashboard.html`, `changes/**/report.html`) listadas arriba en `.gitignore`.
-5. **Las specs de tarea van en `agteamos/changes/<id>-<slug>/specs/`** — la spec maestra persistente va en `agteamos/specs/<dominio>.md`, nunca mezcladas.
+## Verificación
 
-## Naming conventions
+```bash
+node <plugin>/scripts/agteamos-validate.mjs --root <proyecto> --strict
+node <plugin>/scripts/agteamos-status.mjs --root <proyecto> --json
+```
 
-| Tipo | Formato | Ejemplo |
-|------|---------|---------|
-| ID de tarea | `{número}` | `42` |
-| Carpeta de tarea | `{id}-{slug}` | `42-email-notifications` |
-| Archivo de tracking | `progress.md` | `progress.md` |
-| ADR | `ADR-{NNN}-{slug}.md` | `ADR-003-cloud-platform.md` |
-| Evidencia | `{flujo}-{estado}.png` | `e2e-login-success.png` |
-| Branch (GitHub) | `feature/{id}-{slug}` | `feature/42-email-notifications` |
-| Branch (Azure) | `feature/AB{id}-{slug}` | `feature/AB1234-email-notifications` |
-| Archivo archivado | `{fecha}-{id}-{slug}/` | `2026-07-15-1-jwt-auth/` |
-
-## Re-verificar cuando terminen todas las olas
-
-`knowledge-base.md` y `specs/index.yml` se documentan acá como decisión ya tomada para esta ronda de cambios, pero no se pudo confirmar el Step exacto de generación en `skills/task-closure/SKILL.md` ni en `skills/sdd-protocol/SKILL.md` al momento de escribir esta página (esos archivos los tocan otros agentes en paralelo). Confirmar que ambos quedaron efectivamente cableados antes de dar esta página por definitiva.
+Ver [Contratos ejecutables y provider doctor](../guias/contratos-y-doctor.md).

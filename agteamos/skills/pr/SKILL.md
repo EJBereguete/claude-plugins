@@ -90,19 +90,13 @@ Every PR **must** reference a ticket via `Closes #N` or `Related to #N`.
 
 ### Step 4 — OpenAPI update (if applicable)
 
-If the PR adds or modifies API endpoints, update `agteamos/api/openapi.yml`.
+If the PR adds or modifies API endpoints, update the OpenAPI artifact already
+owned by the project at the path documented in its build/CI configuration.
+Do not create a parallel API documentation folder under `agteamos/`. If no
+OpenAPI artifact or generation command is documented, record that gap in the
+PR instead of inventing a command or destination.
 
-For FastAPI, export the spec with:
-
-```bash
-python -c "
-import json
-from src.main import app
-print(json.dumps(app.openapi(), indent=2))
-" > agteamos/api/openapi.yml
-```
-
-Commit the updated spec as part of the same PR.
+Commit the updated project-owned spec as part of the same PR when it exists.
 
 ---
 
